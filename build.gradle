@@ -25,6 +25,7 @@ application {
 }
 
 dependencies {
+    implementation project(':core')
     implementation project(':controller')
     implementation project(':model')
     implementation project(':console-view')
