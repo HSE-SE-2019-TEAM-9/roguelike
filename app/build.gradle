@@ -1,5 +1,0 @@
-dependencies {
-    compile project(':model')
-    compile project(':controller')
-    compile project(':view')
-}
