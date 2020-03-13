@@ -1,0 +1,12 @@
+package ru.hse.se.team9.model.random
+
+import ru.hse.se.team9.game.entities.map.Position
+import kotlin.random.Random
+
+object RandomPositionGenerator {
+    fun createPosition(width: Int, height: Int): Position {
+        val x: Int = Random.nextInt(width)
+        val y: Int = Random.nextInt(height)
+        return Position(x, y)
+    }
+}
