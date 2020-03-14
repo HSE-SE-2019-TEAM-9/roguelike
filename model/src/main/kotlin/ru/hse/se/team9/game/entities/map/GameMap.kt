@@ -1,13 +1,13 @@
 package ru.hse.se.team9.game.entities.map
 
-import ru.hse.se.team9.game.entities.map.objects.EmptySpace
+import ru.hse.se.team9.gameobjects.EmptySpace
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.game.entities.map.objects.MapObject
-import ru.hse.se.team9.game.entities.map.objects.Wall
+import ru.hse.se.team9.gameobjects.MapObject
+import ru.hse.se.team9.gameobjects.Wall
 import ru.hse.se.team9.model.random.RandomPositionGenerator
 
 class GameMap(private val heroes: List<HeroOnMap>, private val width: Int, private val height: Int) {
-    private var map: MutableList<MutableList<MapObject>> =
+    private val map: MutableList<MutableList<MapObject>> =
         MutableList(width) { MutableList<MapObject>(height) { EmptySpace } }
 
     fun moveHero(heroToMove: HeroOnMap, newPosition: Position) {
