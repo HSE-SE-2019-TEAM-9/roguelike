@@ -7,19 +7,24 @@ import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.model.random.PositionGenerator
 
 class GameMap(
-    private val heroes: List<HeroOnMap>,
+    private val hero: HeroOnMap,
     private val map: MutableList<MutableList<MapObject>>,
     private val width: Int,
     private val height: Int,
     private val positionGenerator: PositionGenerator
 ) {
 
-    fun moveHero(heroToMove: HeroOnMap, newPosition: Position) {
-        for (hero in heroes) {
-            if (hero == heroToMove) {
-                hero.position = newPosition
-                break
-            }
+    fun moveHero(newPosition: Position) {
+        hero.position = newPosition
+    }
+
+    fun moveHero(direction: Direction) {
+        val (x, y) = hero.position
+        hero.position = when (direction) {
+            Direction.LEFT -> Position(x - 1, y)
+            Direction.RIGHT -> Position(x + 1, y)
+            Direction.DOWN -> Position(x, y - 1)
+            Direction.UP -> Position(x, y + 1)
         }
     }
 

@@ -1,6 +1,6 @@
 package ru.hse.se.team9.model.random
 
-import ru.hse.se.team9.model.random.DirectionGenerator.Companion.Direction
+import ru.hse.se.team9.game.entities.map.Direction
 import kotlin.random.Random
 
 object RandomDirection: DirectionGenerator {

@@ -5,11 +5,11 @@ import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
+import ru.hse.se.team9.game.entities.map.Direction.*
+import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.model.random.DirectionGenerator
-import ru.hse.se.team9.model.random.DirectionGenerator.Companion.Direction
-import ru.hse.se.team9.model.random.DirectionGenerator.Companion.Direction.*
 import ru.hse.se.team9.model.random.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
@@ -28,6 +28,7 @@ class RandomMapCreator(
             LEFT to Pair(0, -CHUNK_SIZE),
             RIGHT to Pair(0, CHUNK_SIZE)
         )
+
         data class Chunk(val h: Int, val w: Int)
     }
 
@@ -64,7 +65,7 @@ class RandomMapCreator(
 
         val hero = Hero(HeroStats(0, 0, 0, 0, 0, 0)) // not used in current version
         return GameMap(
-            listOf(HeroOnMap(hero, Position(0, 0))),
+            HeroOnMap(hero, Position(0, 0)),
             map,
             mapWidth,
             mapHeight,
