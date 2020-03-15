@@ -18,7 +18,7 @@ class RandomMapCreator(
     private val positionGenerator: PositionGenerator,
     private val mapWidth: Int,
     private val mapHeight: Int
-) : MapCreator {
+) {
 
     companion object {
         private const val CHUNK_SIZE = 4
@@ -39,8 +39,8 @@ class RandomMapCreator(
         require(mapHeight % CHUNK_SIZE == 0)
     }
 
-    override fun createMap(): GameMap {
-        val map = MutableList(mapHeight) { MutableList<MapObject>(mapWidth) { Wall } }
+    fun createMap(): GameMap {
+        val map = List(mapHeight) { MutableList<MapObject>(mapWidth) { Wall } }
         makeEmptyChunk(map, Chunk(0, 0))
         val dfsStack = mutableListOf(Chunk(0, 0))
 
@@ -74,7 +74,7 @@ class RandomMapCreator(
     }
 
 
-    private fun makeEmptyChunk(map: MutableList<MutableList<MapObject>>, chunk: Chunk) {
+    private fun makeEmptyChunk(map: List<MutableList<MapObject>>, chunk: Chunk) {
         for (i in 0 until CHUNK_SIZE) {
             for (j in 0 until CHUNK_SIZE) {
                 map[chunk.h + i][chunk.w + j] = EmptySpace
@@ -88,7 +88,7 @@ class RandomMapCreator(
     }
 
     private fun getDirectionsForNextMove(
-        map: MutableList<MutableList<MapObject>>,
+        map: List<MutableList<MapObject>>,
         chunk: Chunk
     ): List<Direction> = CHUNK_OFFSETS
         .mapValues {

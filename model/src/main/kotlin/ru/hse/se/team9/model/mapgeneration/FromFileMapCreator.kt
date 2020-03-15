@@ -1,9 +1,16 @@
 package ru.hse.se.team9.model.mapgeneration
 
+import arrow.core.Either
 import ru.hse.se.team9.game.entities.map.GameMap
+import ru.hse.se.team9.model.random.PositionGenerator
+import java.lang.RuntimeException
 
-object FromFileMapCreator: MapCreator {
-    override fun createMap(): GameMap {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+class FromFileMapCreator(private val positionGenerator: PositionGenerator) {
+    fun createMap(): Either<MapCreationError, GameMap> {
+        TODO()
     }
 }
+
+sealed class MapCreationError: RuntimeException()
+object FileNotChosen: MapCreationError()
+object ParseError: MapCreationError()
