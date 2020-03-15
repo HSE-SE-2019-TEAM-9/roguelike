@@ -29,6 +29,7 @@ class AppLogic(private val view: View) {
                     is Either.Left -> {
                         appStatus = AppStatus.IN_MENU
                         drawMenu()
+                        TODO() // need smth like drawError here
                     }
                     is Either.Right -> {
                         gameCycleLogic = result.b
@@ -37,7 +38,7 @@ class AppLogic(private val view: View) {
                     }
                 }
             }
-            MenuStatus.EXIT -> TODO()
+            MenuStatus.EXIT -> TODO("not implemented")
             MenuStatus.STAY_IN_MENU -> drawMenu()
         }
         return appStatus
