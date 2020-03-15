@@ -1,6 +1,6 @@
 package ru.hse.se.team9.model.random
 
-import ru.hse.se.team9.game.entities.map.Position
+import ru.hse.se.team9.positions.Position
 import kotlin.random.Random
 
 object RandomPositionGenerator {

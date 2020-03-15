@@ -1,9 +1,10 @@
 package ru.hse.se.team9.game.entities.map
 
-import ru.hse.se.team9.gameobjects.EmptySpace
+import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.gameobjects.MapObject
-import ru.hse.se.team9.gameobjects.Wall
+import ru.hse.se.team9.entities.MapObject
+import ru.hse.se.team9.positions.Position
+import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.model.random.RandomPositionGenerator
 
 class GameMap(private val heroes: List<HeroOnMap>, private val width: Int, private val height: Int) {

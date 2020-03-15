@@ -1,4 +1,4 @@
-package ru.hse.se.team9.gameobjects
+package ru.hse.se.team9.entities
 
 sealed class MapObject: GameObject
 
