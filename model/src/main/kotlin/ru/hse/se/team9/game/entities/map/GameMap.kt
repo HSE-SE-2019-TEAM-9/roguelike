@@ -17,6 +17,7 @@ import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.model.random.PositionGenerator
 
+// TODO add wrapper
 class GameMap(
     val hero: HeroOnMap,
     val map: List<MutableList<MapObject>>,
