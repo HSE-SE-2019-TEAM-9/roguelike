@@ -17,11 +17,12 @@ import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.model.random.PositionGenerator
 
+// TODO add wrapper
 class GameMap(
-    private val hero: HeroOnMap,
-    private val map: List<MutableList<MapObject>>,
-    private val width: Int,
-    private val height: Int,
+    val hero: HeroOnMap,
+    val map: List<MutableList<MapObject>>,
+    val width: Int,
+    val height: Int,
     private val positionGenerator: PositionGenerator
 ) {
 
