@@ -47,7 +47,7 @@ class GameMap(
 
     fun placeAtRandomPosition(mapObject: MapObject) {
         val (x, y) = getRandomNotWallPosition()
-        map[x][y] = mapObject
+        map[y][x] = mapObject
     }
 
     private fun isOnMap(position: Position): Boolean {
@@ -57,7 +57,7 @@ class GameMap(
 
     private fun isNotWall(position: Position): Boolean {
         val (x, y) = position
-        return map[x][y] !is Wall
+        return map[y][x] !is Wall
     }
 
     private fun canMoveTo(position: Position): Boolean {
@@ -68,7 +68,7 @@ class GameMap(
 
     private tailrec fun getRandomNotWallPosition(): Position {
         val (x, y) = positionGenerator.createPosition(width, height)
-        return if (map[x][y] is Wall) {
+        return if (map[y][x] is Wall) {
             getRandomNotWallPosition()
         } else {
             Position(x, y)
