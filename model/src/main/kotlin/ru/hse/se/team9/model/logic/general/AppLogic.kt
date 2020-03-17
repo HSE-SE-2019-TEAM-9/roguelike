@@ -69,7 +69,7 @@ class AppLogic(
     }
 
     private fun startLoadGame(): Either<MapCreationError, GameCycleLogic> {
-        val result = FromFileMapCreator(positionGenerator).createMap()
+        val result = FromFileMapCreator(positionGenerator).createMap(view)
         return result.map { GameCycleLogic(it) }
     }
 

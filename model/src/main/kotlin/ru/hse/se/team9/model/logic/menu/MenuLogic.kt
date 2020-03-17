@@ -11,6 +11,6 @@ class MenuLogic {
     }
 
     fun applyMenuAction(action: MenuAction): MenuStatus {
-        return MenuStatus.NEW_GAME
+        return MenuStatus.LOAD_GAME
     }
 }
