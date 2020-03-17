@@ -73,9 +73,9 @@ internal class MapComponent(
 
     companion object {
         private val BACKGROUND_COLOR = TextColor.ANSI.BLACK
-        private val HERO_COLOR = TextColor.ANSI.RED
+        private val HERO_COLOR = TextColor.RGB(255, 255, 0)
         private val EMPTY_SPACE_COLOR = TextColor.ANSI.YELLOW
-        private val WALL_COLOR = TextColor.ANSI.GREEN
+        private val WALL_COLOR = TextColor.RGB(0, 100, 0)
 
         private const val HERO_CHARACTER = '@'
         private const val EMPTY_SPACE_CHARACTER = '.'

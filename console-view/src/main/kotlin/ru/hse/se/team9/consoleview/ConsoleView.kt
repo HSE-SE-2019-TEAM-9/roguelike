@@ -53,7 +53,7 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
     override fun start() {
         thread(start = true, isDaemon = true) {
             while (true) {
-                sleep(1)
+                sleep(10)
                 try {
                     gui.updateScreen()
                     gui.processInput()
