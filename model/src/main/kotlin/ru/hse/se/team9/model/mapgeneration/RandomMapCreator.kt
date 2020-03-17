@@ -21,7 +21,7 @@ class RandomMapCreator(
 ) {
 
     companion object {
-        private const val CHUNK_SIZE = 4
+        private const val CHUNK_SIZE = 6
         private val CHUNK_OFFSETS = mapOf(
             UP to Pair(-CHUNK_SIZE, 0),
             DOWN to Pair(CHUNK_SIZE, 0),

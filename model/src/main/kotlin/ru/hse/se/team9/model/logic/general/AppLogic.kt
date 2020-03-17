@@ -83,7 +83,7 @@ class AppLogic(
     }
 
     companion object {
-        private const val MAP_WIDTH = 512
-        private const val MAP_HEIGHT = 512
+        private const val MAP_WIDTH = 516
+        private const val MAP_HEIGHT = 516
     }
 }
