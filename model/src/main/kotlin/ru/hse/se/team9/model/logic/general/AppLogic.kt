@@ -1,6 +1,7 @@
 package ru.hse.se.team9.model.logic.general
 
 import arrow.core.Either
+import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.model.logic.gamecycle.GameCycleLogic
 import ru.hse.se.team9.model.logic.gamecycle.GameStatus
 import ru.hse.se.team9.model.logic.gamecycle.Move
@@ -10,6 +11,7 @@ import ru.hse.se.team9.model.logic.menu.MenuStatus
 import ru.hse.se.team9.model.mapgeneration.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.MapCreationError
 import ru.hse.se.team9.model.mapgeneration.RandomMapCreator
+import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
 import ru.hse.se.team9.model.random.DirectionGenerator
 import ru.hse.se.team9.model.random.PositionGenerator
 import ru.hse.se.team9.view.View
@@ -17,7 +19,8 @@ import ru.hse.se.team9.view.View
 class AppLogic(
     private val view: View,
     private val directionGenerator: DirectionGenerator,
-    private val positionGenerator: PositionGenerator
+    private val positionGenerator: PositionGenerator,
+    private val fileChooser: FileChooser
 ) {
     private val menuLogic: MenuLogic = MenuLogic()
     private lateinit var gameCycleLogic: GameCycleLogic
@@ -69,7 +72,7 @@ class AppLogic(
     }
 
     private fun startLoadGame(): Either<MapCreationError, GameCycleLogic> {
-        val result = FromFileMapCreator(positionGenerator).createMap(view)
+        val result = FromFileMapCreator(positionGenerator).createMap(fileChooser)
         return result.map { GameCycleLogic(it) }
     }
 
