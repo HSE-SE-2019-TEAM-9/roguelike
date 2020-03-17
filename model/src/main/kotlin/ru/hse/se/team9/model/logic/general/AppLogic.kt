@@ -57,6 +57,8 @@ class AppLogic(
         if (status == GameStatus.FINISHED) {
             appStatus = AppStatus.IN_MENU
             drawMenu()
+        } else {
+            drawMap()
         }
         return appStatus
     }
