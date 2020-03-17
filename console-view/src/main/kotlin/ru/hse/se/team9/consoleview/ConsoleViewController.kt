@@ -2,10 +2,7 @@ package ru.hse.se.team9.consoleview
 
 import com.googlecode.lanterna.TerminalSize
 import com.googlecode.lanterna.TextColor
-import com.googlecode.lanterna.gui2.BasicWindow
-import com.googlecode.lanterna.gui2.MultiWindowTextGUI
-import com.googlecode.lanterna.gui2.Window
-import com.googlecode.lanterna.gui2.WindowBasedTextGUI
+import com.googlecode.lanterna.gui2.*
 import com.googlecode.lanterna.gui2.dialogs.ActionListDialogBuilder
 import com.googlecode.lanterna.gui2.dialogs.FileDialog
 import com.googlecode.lanterna.gui2.dialogs.MessageDialogBuilder
@@ -17,13 +14,13 @@ import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
-import ru.hse.se.team9.view.View
+import ru.hse.se.team9.view.ViewController
 import java.io.EOFException
 import java.io.File
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
-class ConsoleView(private val width: Int = 150, private val height: Int = 50): View {
+class ConsoleViewController(private val width: Int = 150, private val height: Int = 50): ViewController {
     private val gui: WindowBasedTextGUI
     private val mapWindow: BasicWindow
     private var mapView: MapComponent? = null
@@ -64,9 +61,23 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
         }
     }
 
-    override fun drawMainMenu(options: List<MenuOption>) {
+    override fun stop() {
+        gui.screen.stopScreen()
+    }
+
+    override fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit) {
+        this.keyPressedHandler = keyPressedHandler
+        mapView?.keyPressedHandler = keyPressedHandler
+    }
+
+    override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
+        mapView = MapComponent(map, heroPosition, gui.screen, keyPressedHandler)
+        mapWindow.component = mapView
+    }
+
+    override fun drawMenu(title: String, options: List<MenuOption>) {
         val builder = ActionListDialogBuilder()
-        builder.title = MAIN_MENU_TITLE
+        builder.title = title
         builder.isCanCancel = false
 
         for (option in options) {
@@ -77,12 +88,7 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
         dialog.showDialog(gui)
     }
 
-    override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
-        mapView = MapComponent(map, heroPosition, gui.screen, keyPressedHandler)
-        mapWindow.component = mapView
-    }
-
-    override fun drawError(error: String) {
+    override fun drawError(error: String, action: () -> Unit) {
         val builder = MessageDialogBuilder()
         builder.setTitle(ERROR_TITLE)
         builder.setText(error)
@@ -90,27 +96,24 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
         val dialog = builder.build()
         dialog.setHints(listOf(Window.Hint.CENTERED))
         dialog.showDialog(gui)
+        action()
     }
 
-    override fun drawFileDialog(selectedObject: File): File? {
-        return FileDialog(
+    override fun drawFileDialog(startFile: File): File? {
+        val dialog = FileDialog(
             CHOOSE_FILE_TITLE,
             null,
             "OK",
             TerminalSize(width / 2, height / 2),
             false,
-            selectedObject
-        ).showDialog(gui)
-    }
-
-    override fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit) {
-        this.keyPressedHandler = keyPressedHandler
-        mapView?.keyPressedHandler = keyPressedHandler
+            startFile
+        )
+        dialog.setHints(listOf(Window.Hint.CENTERED))
+        return dialog.showDialog(gui)
     }
 
     companion object {
         private const val APP_TITLE = "Roguelike-1"
-        private const val MAIN_MENU_TITLE = "Main menu"
         private const val CHOOSE_FILE_TITLE = "Choose file"
         private const val ERROR_TITLE = "Error"
     }

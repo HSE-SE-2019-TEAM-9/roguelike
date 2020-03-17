@@ -1,6 +1,6 @@
 package ru.hse.se.team9
 
-import ru.hse.se.team9.consoleview.ConsoleView
+import ru.hse.se.team9.consoleview.ConsoleViewController
 import ru.hse.se.team9.controller.GameController
 import ru.hse.se.team9.model.logic.general.AppLogic
 import ru.hse.se.team9.model.logic.menu.MenuAction
@@ -17,10 +17,8 @@ fun main(args: Array<String>) {
         it.write(file)
     }
 
-    val view = ConsoleView()
+    val view = ConsoleViewController()
     val appLogic = AppLogic(view, RandomDirection, RandomPosition, ViewFileChooser(view))
-    val controller = GameController(view, appLogic)
     view.start()
-    controller.start()
-    appLogic.applyMenuAction(MenuAction.CHOOSE)
+    appLogic.openMenu()
 }

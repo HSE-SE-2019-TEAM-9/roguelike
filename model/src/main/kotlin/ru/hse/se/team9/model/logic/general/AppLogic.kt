@@ -2,44 +2,61 @@ package ru.hse.se.team9.model.logic.general
 
 import arrow.core.Either
 import ru.hse.se.team9.files.FileChooser
-import ru.hse.se.team9.model.logic.gamecycle.GameCycleLogic
-import ru.hse.se.team9.model.logic.gamecycle.GameStatus
-import ru.hse.se.team9.model.logic.gamecycle.Move
+import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.MenuAction
-import ru.hse.se.team9.model.logic.menu.MenuLogic
-import ru.hse.se.team9.model.logic.menu.MenuStatus
 import ru.hse.se.team9.model.mapgeneration.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.MapCreationError
 import ru.hse.se.team9.model.mapgeneration.RandomMapCreator
-import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
 import ru.hse.se.team9.model.random.DirectionGenerator
 import ru.hse.se.team9.model.random.PositionGenerator
-import ru.hse.se.team9.view.View
+import ru.hse.se.team9.view.KeyPressedType
+import ru.hse.se.team9.view.MenuOption
+import ru.hse.se.team9.view.ViewController
 
 class AppLogic(
-    private val view: View,
+    private val viewController: ViewController,
     private val directionGenerator: DirectionGenerator,
     private val positionGenerator: PositionGenerator,
     private val fileChooser: FileChooser
 ) {
-    private val menuLogic: MenuLogic = MenuLogic()
     private lateinit var gameCycleLogic: GameCycleLogic
     private var appStatus: AppStatus = AppStatus.IN_MENU
+    private val menuOptions: List<MenuOption>
 
-    fun applyMenuAction(action: MenuAction): AppStatus {
+    init {
+        viewController.setKeyPressedHandler {
+            val move = when (it) {
+                KeyPressedType.UP -> Up
+                KeyPressedType.DOWN -> Down
+                KeyPressedType.LEFT -> Left
+                KeyPressedType.RIGHT -> Right
+            }
+            movePlayer(move)
+        }
+        menuOptions = listOf(
+            MenuOption(NEW_GAME_OPTION) { applyMenuAction(MenuAction.NEW_GAME) },
+            MenuOption(LOAD_GAME_OPTION) { applyMenuAction(MenuAction.LOAD_GAME) },
+            MenuOption(EXIT_OPTION) { applyMenuAction(MenuAction.EXIT) }
+        )
+    }
+
+    fun openMenu() {
+        drawMenu()
+    }
+
+    private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
-        when (menuLogic.applyMenuAction(action)) {
-            MenuStatus.NEW_GAME ->  {
+        when (action) {
+            MenuAction.NEW_GAME ->  {
                 gameCycleLogic = startRandomGame()
                 appStatus = AppStatus.IN_GAME
                 drawMap()
             }
-            MenuStatus.LOAD_GAME -> {
+            MenuAction.LOAD_GAME -> {
                 when (val result = startLoadGame()) {
                     is Either.Left -> {
                         appStatus = AppStatus.IN_MENU
-                        drawMenu()
-                        TODO() // need smth like drawError here
+                        drawError("Incorrect file")
                     }
                     is Either.Right -> {
                         gameCycleLogic = result.b
@@ -48,13 +65,12 @@ class AppLogic(
                     }
                 }
             }
-            MenuStatus.EXIT -> TODO("not implemented")
-            MenuStatus.STAY_IN_MENU -> drawMenu()
+            MenuAction.EXIT -> exit()
         }
         return appStatus
     }
 
-    fun movePlayer(move: Move): AppStatus {
+    private fun movePlayer(move: Move): AppStatus {
         require(appStatus == AppStatus.IN_GAME)
         val status = gameCycleLogic.movePlayer(move)
         if (status == GameStatus.FINISHED) {
@@ -78,17 +94,31 @@ class AppLogic(
 
     private fun drawMenu() {
         require(appStatus == AppStatus.IN_MENU)
-        TODO("not implemented") // need menu here
+        viewController.drawMenu(MAIN_MENU_TITLE, menuOptions)
+    }
+
+    private fun drawError(error: String) {
+        require(appStatus == AppStatus.IN_MENU)
+        viewController.drawError(error) { drawMenu() }
     }
 
     private fun drawMap() {
         require(appStatus == AppStatus.IN_GAME)
         val gameMap = gameCycleLogic.map
-        view.drawMap(gameMap.map, gameMap.width, gameMap.height, gameMap.hero.position)
+        viewController.drawMap(gameMap.map, gameMap.width, gameMap.height, gameMap.hero.position)
+    }
+
+    private fun exit() {
+        viewController.stop()
     }
 
     companion object {
         private const val MAP_WIDTH = 516
         private const val MAP_HEIGHT = 516
+
+        private const val MAIN_MENU_TITLE = "Main menu"
+        private const val NEW_GAME_OPTION = "New game"
+        private const val LOAD_GAME_OPTION = "Load game"
+        private const val EXIT_OPTION = "Exit"
     }
 }
