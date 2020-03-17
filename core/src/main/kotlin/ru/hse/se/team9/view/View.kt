@@ -5,6 +5,8 @@ import ru.hse.se.team9.positions.Position
 import java.io.File
 
 interface View {
+    fun start()
+
     fun drawMainMenu(options: List<MenuOption>)
 
     fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position)
@@ -13,5 +15,5 @@ interface View {
 
     fun drawFileDialog(selectedObject: File): File?
 
-    fun getPressedKey(): KeyPressedType
+    fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit)
 }

@@ -2,6 +2,7 @@ package ru.hse.se.team9.consoleview
 
 import com.googlecode.lanterna.TerminalSize
 import com.googlecode.lanterna.TextColor
+import com.googlecode.lanterna.gui2.BasicWindow
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI
 import com.googlecode.lanterna.gui2.Window
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI
@@ -9,9 +10,7 @@ import com.googlecode.lanterna.gui2.dialogs.ActionListDialogBuilder
 import com.googlecode.lanterna.gui2.dialogs.FileDialog
 import com.googlecode.lanterna.gui2.dialogs.MessageDialogBuilder
 import com.googlecode.lanterna.gui2.dialogs.MessageDialogButton
-import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.TerminalScreen
-import com.googlecode.lanterna.terminal.Terminal
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger
 import ru.hse.se.team9.entities.MapObject
@@ -19,14 +18,19 @@ import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.View
+import java.io.EOFException
 import java.io.File
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
 
 class ConsoleView(private val width: Int = 150, private val height: Int = 50): View {
-    private val terminal: Terminal
     private val gui: WindowBasedTextGUI
+    private val mapWindow: BasicWindow
+    private var mapView: MapComponent? = null
+    private var keyPressedHandler: (KeyPressedType) -> Unit = {}
 
     init {
-        terminal = SwingTerminalFrame(
+        val terminal = SwingTerminalFrame(
             APP_TITLE,
             TerminalSize(width, height),
             null,
@@ -35,12 +39,29 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
             TerminalEmulatorAutoCloseTrigger.CloseOnExitPrivateMode
         )
         terminal.isVisible = true
-        terminal.isResizable = false
         val screen = TerminalScreen(terminal)
         screen.startScreen()
         screen.cursorPosition = null
 
+        mapWindow = BasicWindow()
+        mapWindow.setHints(listOf(Window.Hint.NO_DECORATIONS, Window.Hint.FULL_SCREEN))
+
         gui = MultiWindowTextGUI(screen, TextColor.ANSI.BLACK)
+        gui.addWindow(mapWindow)
+    }
+
+    override fun start() {
+        thread(start = true, isDaemon = true) {
+            while (true) {
+                sleep(1)
+                try {
+                    gui.updateScreen()
+                    gui.processInput()
+                } catch (e: EOFException) {
+                    return@thread
+                }
+            }
+        }
     }
 
     override fun drawMainMenu(options: List<MenuOption>) {
@@ -57,8 +78,8 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
     }
 
     override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
-        gui.backgroundPane.component = MapComponent(map, this.width, this.height, heroPosition)
-        gui.updateScreen()
+        mapView = MapComponent(map, heroPosition, gui.screen, keyPressedHandler)
+        mapWindow.component = mapView
     }
 
     override fun drawError(error: String) {
@@ -82,15 +103,9 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
         ).showDialog(gui)
     }
 
-    override fun getPressedKey(): KeyPressedType {
-        val input = terminal.readInput()
-        return when (input.keyType) {
-            KeyType.ArrowUp -> KeyPressedType.UP
-            KeyType.ArrowDown -> KeyPressedType.DOWN
-            KeyType.ArrowLeft -> KeyPressedType.LEFT
-            KeyType.ArrowRight -> KeyPressedType.RIGHT
-            else -> KeyPressedType.OTHER
-        }
+    override fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit) {
+        this.keyPressedHandler = keyPressedHandler
+        mapView?.keyPressedHandler = keyPressedHandler
     }
 
     companion object {
@@ -100,3 +115,4 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
         private const val ERROR_TITLE = "Error"
     }
 }
+
