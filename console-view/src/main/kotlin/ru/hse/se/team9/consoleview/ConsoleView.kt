@@ -57,7 +57,7 @@ class ConsoleView(private val width: Int = 150, private val height: Int = 50): V
     }
 
     override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
-        gui.backgroundPane.component = MapComponent(map, width, height, heroPosition)
+        gui.backgroundPane.component = MapComponent(map, this.width, this.height, heroPosition)
         gui.updateScreen()
     }
 
