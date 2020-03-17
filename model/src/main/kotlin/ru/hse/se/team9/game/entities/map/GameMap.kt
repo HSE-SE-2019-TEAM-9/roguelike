@@ -27,22 +27,41 @@ class GameMap(
 ) {
 
     fun moveHero(newPosition: Position) {
-        hero.position = newPosition
+        if (canMoveTo(newPosition)) {
+            hero.position = newPosition
+        }
     }
 
     fun moveHero(direction: Direction) {
         val (x, y) = hero.position
-        hero.position = when (direction) {
+        val position = when (direction) {
             Direction.LEFT -> Position(x - 1, y)
             Direction.RIGHT -> Position(x + 1, y)
-            Direction.DOWN -> Position(x, y - 1)
-            Direction.UP -> Position(x, y + 1)
+            Direction.DOWN -> Position(x, y + 1)
+            Direction.UP -> Position(x, y - 1)
+        }
+        if (canMoveTo(position)) {
+            hero.position = position
         }
     }
 
     fun placeAtRandomPosition(mapObject: MapObject) {
         val (x, y) = getRandomNotWallPosition()
         map[x][y] = mapObject
+    }
+
+    private fun isOnMap(position: Position): Boolean {
+        val (x, y) = position
+        return x >= 0 && y >= 0 && x < width && y < height
+    }
+
+    private fun isNotWall(position: Position): Boolean {
+        val (x, y) = position
+        return map[x][y] !is Wall
+    }
+
+    private fun canMoveTo(position: Position): Boolean {
+        return isOnMap(position) && isNotWall(position)
     }
 
     fun serialize(): String = mapper.writeValueAsString(this)
