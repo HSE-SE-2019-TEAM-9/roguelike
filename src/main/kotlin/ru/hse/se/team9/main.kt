@@ -1,9 +1,7 @@
 package ru.hse.se.team9
 
 import ru.hse.se.team9.consoleview.ConsoleViewController
-import ru.hse.se.team9.controller.GameController
 import ru.hse.se.team9.model.logic.general.AppLogic
-import ru.hse.se.team9.model.logic.menu.MenuAction
 import ru.hse.se.team9.model.mapgeneration.RandomMapCreator
 import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
 import ru.hse.se.team9.model.random.RandomDirection

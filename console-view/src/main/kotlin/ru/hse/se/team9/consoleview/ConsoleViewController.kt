@@ -76,11 +76,13 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
     }
 
     override fun drawMenu(title: String, options: List<MenuOption>) {
+        mapView?.isEnabled = false
+
         val builder = ActionListDialogBuilder()
         builder.title = title
         builder.isCanCancel = false
 
-        for (option in options) {
+        for (option in options.filter { it.visible }) {
             builder.addAction(option.optionName, option.action)
         }
         val dialog = builder.build()
