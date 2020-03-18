@@ -1,10 +1,13 @@
 package ru.hse.se.team9.model.logic.general
 
 import arrow.core.Either
+import arrow.core.flatMap
 import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.model.logic.gamecycle.*
-import ru.hse.se.team9.model.logic.menu.MenuAction
+import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
+import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
+import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.random.DirectionGenerator
 import ru.hse.se.team9.model.random.PositionGenerator
 import ru.hse.se.team9.view.KeyPressedType
@@ -18,6 +21,7 @@ class AppLogic(
     private val fileChooser: FileChooser
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
+    private lateinit var mapCreator: Either<MapCreationError, MapCreator>
     private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
 
@@ -39,10 +43,10 @@ class AppLogic(
             }
         }
         menuOptions = listOf(
-            MenuOption(NEW_GAME_OPTION) { applyMenuAction(MenuAction.NEW_GAME) },
-            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(MenuAction.CONTINUE)},
-            MenuOption(LOAD_GAME_OPTION) { applyMenuAction(MenuAction.LOAD_GAME) },
-            MenuOption(EXIT_OPTION) { applyMenuAction(MenuAction.EXIT) }
+            MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
+            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue)},
+            MenuOption(LOAD_GAME_OPTION) { applyMenuAction(LoadGame) },
+            MenuOption(EXIT_OPTION) { applyMenuAction(Exit) }
         )
     }
 
@@ -53,35 +57,43 @@ class AppLogic(
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
-            MenuAction.NEW_GAME ->  {
-                gameCycleLogic = startRandomGame()
+            NewGame ->  mapCreator = RandomMapCreator.build(directionGenerator, positionGenerator, MAP_WIDTH, MAP_HEIGHT)
+            LoadGame -> mapCreator = FromFileMapCreator.build(positionGenerator, fileChooser)
+            Continue -> {
+                appStatus = AppStatus.IN_GAME
+                drawMap()
+            }
+            Exit -> exit()
+        }
+        if (action is StartGame) {
+            startGame()
+        }
+        return appStatus
+    }
+
+    private fun startGame() {
+        when (val result = mapCreator.flatMap { it.createMap() }.map { GameCycleLogic(it) }) {
+            is Either.Left -> {
+                appStatus = AppStatus.IN_MENU
+                printError(result.a)
+            }
+            is Either.Right -> {
+                gameCycleLogic = result.b
                 appStatus = AppStatus.IN_GAME
                 makeContinueOptionVisible()
                 drawMap()
             }
-            MenuAction.LOAD_GAME -> {
-                when (val result = startLoadGame()) {
-                    is Either.Left -> {
-                        appStatus = AppStatus.IN_MENU
-                        when (result.a) {
-                            is FileNotChosen -> drawError("File not chosen.")
-                            is ParseError -> drawError("Cannot parse map from a file")
-                        }
-                    }
-                    is Either.Right -> {
-                        gameCycleLogic = result.b
-                        appStatus = AppStatus.IN_GAME
-                        drawMap()
-                    }
-                }
-            }
-            MenuAction.CONTINUE -> {
-                appStatus = AppStatus.IN_GAME
-                drawMap()
-            }
-            MenuAction.EXIT -> exit()
         }
-        return appStatus
+    }
+
+    private fun printError(error: MapCreationError) {
+        when (error) {
+            FileNotChosen -> drawError("File not chosen.")
+            is ParseError -> drawError("Cannot parse map from a file")
+            MapTooBig -> drawError("Map is too big")
+            ChunkTooBig -> drawError("Chunk size must be smaller then map sizes")
+            NegativeSize -> drawError("Map sizes must be positive")
+        }
     }
 
     private fun makeContinueOptionVisible() {
@@ -102,16 +114,6 @@ class AppLogic(
             drawMap()
         }
         return appStatus
-    }
-
-    private fun startRandomGame(): GameCycleLogic {
-        val map = RandomMapCreator(directionGenerator, positionGenerator, MAP_WIDTH, MAP_HEIGHT).createMap()
-        return GameCycleLogic(map)
-    }
-
-    private fun startLoadGame(): Either<MapCreationError, GameCycleLogic> {
-        val result = FromFileMapCreator(positionGenerator, fileChooser).createMap()
-        return result.map { GameCycleLogic(it) }
     }
 
     private fun drawMenu() {
