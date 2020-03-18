@@ -5,5 +5,5 @@ import ru.hse.se.team9.view.ViewController
 import java.io.File
 
 class ViewFileChooser(private val viewController: ViewController): FileChooser {
-    override fun chooseFile(file: File) = viewController.drawFileDialog(File("."))
+    override fun chooseFile(startFile: File) = viewController.drawFileDialog(startFile)
 }
