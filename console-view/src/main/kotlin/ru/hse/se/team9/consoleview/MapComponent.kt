@@ -15,11 +15,13 @@ import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.view.KeyPressedType
 import java.lang.Integer.max
 import java.lang.Integer.min
+import java.util.*
 
 internal class MapComponent(
     private val map: List<List<MapObject>>,
     private val heroPosition: Position,
     private val screen: Screen,
+    private val actionQueue: Queue<() -> Unit>,
     var keyPressedHandler: (KeyPressedType) -> Unit) : AbstractInteractableComponent<MapComponent>() {
 
     override fun createDefaultRenderer(): InteractableRenderer<MapComponent>? {
@@ -36,7 +38,9 @@ internal class MapComponent(
             else -> null
         }
         if (key != null) {
-            keyPressedHandler(key)
+            actionQueue.add {
+                keyPressedHandler(key)
+            }
         }
         return Interactable.Result.HANDLED
     }
