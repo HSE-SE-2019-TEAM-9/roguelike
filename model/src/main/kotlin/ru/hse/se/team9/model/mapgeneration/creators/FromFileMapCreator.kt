@@ -1,8 +1,12 @@
-package ru.hse.se.team9.model.mapgeneration
+package ru.hse.se.team9.model.mapgeneration.creators
 
 import arrow.core.Either
 import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.game.entities.map.GameMap
+import ru.hse.se.team9.model.mapgeneration.FileNotChosen
+import ru.hse.se.team9.model.mapgeneration.MapCreationError
+import ru.hse.se.team9.model.mapgeneration.MapCreator
+import ru.hse.se.team9.model.mapgeneration.ParseError
 import ru.hse.se.team9.model.random.PositionGenerator
 import java.io.File
 import java.io.IOException
@@ -11,15 +15,15 @@ import java.io.IOException
  * @property positionGenerator position generator which will be used in loaded map
  * @property fileChooser used for traversing file system
  */
-class FromFileMapCreator(
+class FromFileMapCreator private constructor(
     private val positionGenerator: PositionGenerator,
     private val fileChooser: FileChooser
-) {
+): MapCreator {
     /** Loads map from file. Suggests user to choose file, starting from current directory
      * @return Either<MapCreationError, GameMap> if map couldn't be parsed then returns appropriate error
      * else returns parsed map
      */
-    fun createMap(): Either<MapCreationError, GameMap> {
+    override fun createMap(): Either<MapCreationError, GameMap> {
         val file = fileChooser.chooseFile(File(".")) ?: return Either.left(FileNotChosen)
         return try {
             GameMap.deserialize(file.readText(), positionGenerator).mapLeft {
@@ -29,8 +33,13 @@ class FromFileMapCreator(
             Either.left(ParseError(e))
         }
     }
+
+    companion object {
+        fun build(
+            positionGenerator: PositionGenerator,
+            fileChooser: FileChooser): Either<MapCreationError, FromFileMapCreator> {
+            return Either.right(FromFileMapCreator(positionGenerator, fileChooser))
+        }
+    }
 }
 
-sealed class MapCreationError(cause: Throwable? = null): RuntimeException(cause)
-object FileNotChosen: MapCreationError()
-class ParseError(cause: Throwable): MapCreationError(cause)
