@@ -18,6 +18,8 @@ import ru.hse.se.team9.view.ViewController
 import java.io.EOFException
 import java.io.File
 import java.lang.Thread.sleep
+import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.concurrent.thread
 
 class ConsoleViewController(private val width: Int = 150, private val height: Int = 50): ViewController {
@@ -25,6 +27,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
     private val mapWindow: BasicWindow
     private var mapView: MapComponent? = null
     private var keyPressedHandler: (KeyPressedType) -> Unit = {}
+    private val actionQueue: Queue<() -> Unit> = ConcurrentLinkedQueue()
 
     init {
         val terminal = SwingTerminalFrame(
@@ -41,6 +44,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         screen.cursorPosition = null
 
         mapWindow = BasicWindow()
+        mapWindow.component = EmptySpace(TextColor.ANSI.BLACK)
         mapWindow.setHints(listOf(Window.Hint.NO_DECORATIONS, Window.Hint.FULL_SCREEN))
 
         gui = MultiWindowTextGUI(screen, TextColor.ANSI.BLACK)
@@ -59,6 +63,16 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
                 }
             }
         }
+
+        thread(start = true, isDaemon = true) {
+            while (true) {
+                sleep(10)
+                val action = actionQueue.poll()
+                if (action != null) {
+                    action()
+                }
+            }
+        }
     }
 
     override fun stop() {
@@ -71,7 +85,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
     }
 
     override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
-        mapView = MapComponent(map, heroPosition, gui.screen, keyPressedHandler)
+        mapView = MapComponent(map, heroPosition, gui.screen, actionQueue, keyPressedHandler)
         mapWindow.component = mapView
     }
 
@@ -80,8 +94,10 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         builder.title = title
         builder.isCanCancel = false
 
-        for (option in options) {
-            builder.addAction(option.optionName, option.action)
+        for (option in options.filter { it.visible }) {
+            builder.addAction(option.optionName) {
+                actionQueue.add(option.action)
+            }
         }
         val dialog = builder.build()
         dialog.setHints(listOf(Window.Hint.CENTERED))
@@ -96,7 +112,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         val dialog = builder.build()
         dialog.setHints(listOf(Window.Hint.CENTERED))
         dialog.showDialog(gui)
-        action()
+        actionQueue.add(action)
     }
 
     override fun drawFileDialog(startFile: File): File? {

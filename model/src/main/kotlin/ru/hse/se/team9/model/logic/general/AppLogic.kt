@@ -4,9 +4,7 @@ import arrow.core.Either
 import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.MenuAction
-import ru.hse.se.team9.model.mapgeneration.FromFileMapCreator
-import ru.hse.se.team9.model.mapgeneration.MapCreationError
-import ru.hse.se.team9.model.mapgeneration.RandomMapCreator
+import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.random.DirectionGenerator
 import ru.hse.se.team9.model.random.PositionGenerator
 import ru.hse.se.team9.view.KeyPressedType
@@ -25,16 +23,24 @@ class AppLogic(
 
     init {
         viewController.setKeyPressedHandler {
-            val move = when (it) {
+            val action = when (it) {
                 KeyPressedType.UP -> Up
                 KeyPressedType.DOWN -> Down
                 KeyPressedType.LEFT -> Left
                 KeyPressedType.RIGHT -> Right
+                KeyPressedType.ESCAPE -> OpenMenu
             }
-            movePlayer(move)
+            when (action) {
+                is Move -> movePlayer(action)
+                is OpenMenu -> {
+                    appStatus = AppStatus.IN_MENU
+                    openMenu()
+                }
+            }
         }
         menuOptions = listOf(
             MenuOption(NEW_GAME_OPTION) { applyMenuAction(MenuAction.NEW_GAME) },
+            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(MenuAction.CONTINUE)},
             MenuOption(LOAD_GAME_OPTION) { applyMenuAction(MenuAction.LOAD_GAME) },
             MenuOption(EXIT_OPTION) { applyMenuAction(MenuAction.EXIT) }
         )
@@ -50,13 +56,17 @@ class AppLogic(
             MenuAction.NEW_GAME ->  {
                 gameCycleLogic = startRandomGame()
                 appStatus = AppStatus.IN_GAME
+                makeContinueOptionVisible()
                 drawMap()
             }
             MenuAction.LOAD_GAME -> {
                 when (val result = startLoadGame()) {
                     is Either.Left -> {
                         appStatus = AppStatus.IN_MENU
-                        drawError("Incorrect file")
+                        when (result.a) {
+                            is FileNotChosen -> drawError("File not chosen.")
+                            is ParseError -> drawError("Cannot parse map from a file")
+                        }
                     }
                     is Either.Right -> {
                         gameCycleLogic = result.b
@@ -65,9 +75,21 @@ class AppLogic(
                     }
                 }
             }
+            MenuAction.CONTINUE -> {
+                appStatus = AppStatus.IN_GAME
+                drawMap()
+            }
             MenuAction.EXIT -> exit()
         }
         return appStatus
+    }
+
+    private fun makeContinueOptionVisible() {
+        for (option in menuOptions) {
+            if (option.optionName == CONTINUE_OPTION) {
+                option.visible = true
+            }
+        }
     }
 
     private fun movePlayer(move: Move): AppStatus {
@@ -120,5 +142,6 @@ class AppLogic(
         private const val NEW_GAME_OPTION = "New game"
         private const val LOAD_GAME_OPTION = "Load game"
         private const val EXIT_OPTION = "Exit"
+        private const val CONTINUE_OPTION = "Continue"
     }
 }
