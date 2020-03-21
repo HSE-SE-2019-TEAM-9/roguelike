@@ -147,7 +147,7 @@ class RandomMapCreator private constructor(
             return if (m % n == 0) {
                 m
             } else {
-                n + m - (m % n)
+                m + n - (m % n)
             }
         }
     }
