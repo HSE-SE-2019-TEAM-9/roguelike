@@ -15,15 +15,18 @@ import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.entities.Wall
+import ru.hse.se.team9.game.entities.map.objects.MobOnMap
 import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.utils.getRandomNotWallPosition
+import ru.hse.se.team9.utils.plus
 
-// TODO add wrapper
 class GameMap(
     val hero: HeroOnMap,
     val map: List<MutableList<MapObject>>,
     val width: Int,
     val height: Int,
-    private val positionGenerator: PositionGenerator
+    private val positionGenerator: PositionGenerator,
+    val mobs: List<MobOnMap>
 ) {
 
     fun moveHero(newPosition: Position) {
@@ -33,20 +36,35 @@ class GameMap(
     }
 
     fun moveHero(direction: Direction) {
-        val (x, y) = hero.position
-        val position = when (direction) {
-            Direction.LEFT -> Position(x - 1, y)
-            Direction.RIGHT -> Position(x + 1, y)
-            Direction.DOWN -> Position(x, y + 1)
-            Direction.UP -> Position(x, y - 1)
-        }
+        val position = hero.position + direction
         if (canMoveTo(position)) {
             hero.position = position
         }
     }
 
+    fun moveMob(mobOnMap: MobOnMap, newPosition: Position) {
+        for (mob in mobs) {
+            if (mobOnMap == mob) {
+                if (canMoveTo(newPosition)) {
+                    mob.position = newPosition
+                }
+            }
+        }
+    }
+
+    fun moveMob(mobOnMap: MobOnMap, direction: Direction) {
+        for (mob in mobs) {
+            if (mobOnMap == mob) {
+                val position = mob.position + direction
+                if (canMoveTo(position)) {
+                    mob.position = position
+                }
+            }
+        }
+    }
+
     fun placeAtRandomPosition(mapObject: MapObject) {
-        val (x, y) = getRandomNotWallPosition()
+        val (x, y) = getRandomNotWallPosition(positionGenerator, map)
         map[y][x] = mapObject
     }
 
@@ -66,15 +84,7 @@ class GameMap(
 
     fun serialize(): String = mapper.writeValueAsString(this)
 
-    private tailrec fun getRandomNotWallPosition(): Position {
-        val (x, y) = positionGenerator.createPosition(width, height)
-        return if (map[y][x] is Wall) {
-            getRandomNotWallPosition()
-        } else {
-            Position(x, y)
-        }
-    }
-
+    // TODO add mobs serialization
     companion object Serialization {
         fun deserialize(string: String, positionGenerator: PositionGenerator): Either<Throwable, GameMap> {
             return try {
@@ -84,7 +94,8 @@ class GameMap(
                     deserialized.map,
                     deserialized.width,
                     deserialized.height,
-                    positionGenerator
+                    positionGenerator,
+                    deserialized.mobs
                 ))
             } catch(e: Throwable) {
                 Either.left(e)
@@ -101,7 +112,8 @@ class GameMap(
             val hero: HeroOnMap,
             val map: List<MutableList<MapObject>>,
             val width: Int,
-            val height: Int
+            val height: Int,
+            val mobs: List<MobOnMap>
         )
 
         private class GameMapSerializer : JsonSerializer<GameMap>() {
@@ -111,6 +123,7 @@ class GameMap(
                 gen.writeNumberField("width", value.width)
                 gen.writeNumberField("height", value.height)
                 gen.writeObjectField("map", value.map)
+                gen.writeObjectField("mobs", value.mobs)
                 gen.writeEndObject()
             }
         }

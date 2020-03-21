@@ -3,12 +3,14 @@ package ru.hse.se.team9.model.logic.general
 import arrow.core.Either
 import arrow.core.flatMap
 import ru.hse.se.team9.files.FileChooser
+import ru.hse.se.team9.game.entities.map.MapViewImpl
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.random.DirectionGenerator
+import ru.hse.se.team9.model.random.MobGenerator
 import ru.hse.se.team9.model.random.PositionGenerator
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
@@ -18,6 +20,7 @@ class AppLogic(
     private val viewController: ViewController,
     private val directionGenerator: DirectionGenerator,
     private val positionGenerator: PositionGenerator,
+    private val mobGenerator: MobGenerator,
     private val fileChooser: FileChooser
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
@@ -35,7 +38,9 @@ class AppLogic(
                 KeyPressedType.ESCAPE -> OpenMenu
             }
             when (action) {
-                is Move -> movePlayer(action)
+                is Move -> {
+                    doMove(action)
+                }
                 is OpenMenu -> {
                     appStatus = AppStatus.IN_MENU
                     openMenu()
@@ -44,7 +49,7 @@ class AppLogic(
         }
         menuOptions = listOf(
             MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
-            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue)},
+            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
             MenuOption(LOAD_GAME_OPTION) { applyMenuAction(LoadGame) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) }
         )
@@ -54,11 +59,18 @@ class AppLogic(
         drawMenu()
     }
 
+    private fun doMove(action: Move) {
+        movePlayer(action)
+        moveMobs()
+    }
+
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
-            NewGame ->  mapCreator = RandomMapCreator.build(directionGenerator, positionGenerator, MAP_WIDTH, MAP_HEIGHT)
-            LoadGame -> mapCreator = FromFileMapCreator.build(positionGenerator, fileChooser)
+            NewGame -> mapCreator =
+                RandomMapCreator.build(directionGenerator, positionGenerator, mobGenerator, MAP_WIDTH, MAP_HEIGHT)
+            LoadGame -> mapCreator =
+                FromFileMapCreator.build(positionGenerator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
                 drawMap()
@@ -106,14 +118,23 @@ class AppLogic(
 
     private fun movePlayer(move: Move): AppStatus {
         require(appStatus == AppStatus.IN_GAME)
-        val status = gameCycleLogic.movePlayer(move)
+        updateAppStatus(gameCycleLogic.movePlayer(move))
+        return appStatus
+    }
+
+    private fun moveMobs(): AppStatus {
+        require(appStatus == AppStatus.IN_GAME)
+        updateAppStatus(gameCycleLogic.moveMobs())
+        return appStatus
+    }
+
+    private fun updateAppStatus(status: GameStatus) {
         if (status == GameStatus.FINISHED) {
             appStatus = AppStatus.IN_MENU
             drawMenu()
         } else {
             drawMap()
         }
-        return appStatus
     }
 
     private fun drawMenu() {
@@ -129,7 +150,7 @@ class AppLogic(
     private fun drawMap() {
         require(appStatus == AppStatus.IN_GAME)
         val gameMap = gameCycleLogic.map
-        viewController.drawMap(gameMap.map, gameMap.width, gameMap.height, gameMap.hero.position)
+        viewController.drawMap(MapViewImpl(gameMap), gameMap.width, gameMap.height)
     }
 
     private fun exit() {
@@ -137,8 +158,8 @@ class AppLogic(
     }
 
     companion object {
-        private const val MAP_WIDTH = 516
-        private const val MAP_HEIGHT = 516
+        private const val MAP_WIDTH = 40
+        private const val MAP_HEIGHT = 40
 
         private const val MAIN_MENU_TITLE = "Main menu"
         private const val NEW_GAME_OPTION = "New game"

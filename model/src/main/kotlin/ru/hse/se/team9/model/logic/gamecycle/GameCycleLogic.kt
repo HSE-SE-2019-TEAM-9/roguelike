@@ -19,4 +19,12 @@ class GameCycleLogic(val map: GameMap) {
         }
         return GameStatus.IN_PROGRESS
     }
+
+    fun moveMobs(): GameStatus {
+        for (mobOnMap in map.mobs) {
+            val newPosition = mobOnMap.mob.strategy.makeMove(mobOnMap, map)
+            map.moveMob(mobOnMap, newPosition)
+        }
+        return GameStatus.IN_PROGRESS
+    }
 }
