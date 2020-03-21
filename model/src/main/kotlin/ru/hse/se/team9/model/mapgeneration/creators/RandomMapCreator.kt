@@ -128,10 +128,10 @@ class RandomMapCreator private constructor(
             mapWidth > MAX_WIDTH || mapHeight > MAX_HEIGHT || mapWidth * mapHeight > MAX_MAP_SIZE
 
         private fun nextDivisibleBy(n: Int, m: Int): Int {
-            return if (n % m == 0) {
-                n
+            return if (m % n == 0) {
+                m
             } else {
-                n + m - (n % m)
+                m + n - (m % n)
             }
         }
     }
