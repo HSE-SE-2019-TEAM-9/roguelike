@@ -18,6 +18,8 @@ import ru.hse.se.team9.game.entities.map.objects.MobOnMap
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.PassiveStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.RandomStrategy
+import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.random.directions.RandomDirection
 import ru.hse.se.team9.model.random.global.GameGenerator
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
@@ -99,8 +101,8 @@ class GameMap(
             addSerializer(GameMap::class.java, GameMapSerializer())
             addSerializer(MapObject::class.java, MapObjectSerializer())
             addDeserializer(MapObject::class.java, MapObjectDeserializer())
-            /*addSerializer(MobStrategy::class.java, StrategySerializer())
-            addDeserializer(MobStrategy::class.java, StrategyDeserializer(gameGenerator))*/
+            addSerializer(MobStrategy::class.java, StrategySerializer())
+            addDeserializer(MobStrategy::class.java, StrategyDeserializer(RandomDirection)) // TODO fix
         })
 
 
@@ -125,10 +127,12 @@ class GameMap(
         }
 
         // TODO fix
-        /*private class StrategyDeserializer : JsonDeserializer<MobStrategy>() {
+        private class StrategyDeserializer(
+            val directionGenerator: DirectionGenerator
+        ) : JsonDeserializer<MobStrategy>() {
             override fun deserialize(p: JsonParser, ctxt: DeserializationContext): MobStrategy {
                 return when (val str = p.valueAsString) {
-                    "R" -> RandomStrategy(gameGenerator)
+                    "R" -> RandomStrategy(directionGenerator)
                     "P" -> PassiveStrategy
                     else -> ctxt.handleWeirdStringValue(
                         MapObject::class.java,
@@ -146,7 +150,7 @@ class GameMap(
                     is PassiveStrategy -> gen.writeString("P")
                 }
             }
-        }*/
+        }
 
         private class MapObjectSerializer : JsonSerializer<MapObject>() {
             override fun serialize(value: MapObject, gen: JsonGenerator, serializers: SerializerProvider) {
