@@ -5,7 +5,7 @@ Simple turn-based console rogue-like game.
 `Java 11`, internet connection (for downloading some libraries as well as gradle distribution, connection is not required for gameplay).  
 
 ## Installation
-1. Clone this repository on your PC (or laptop)
+1. Clone this repository to your PC (or laptop)
 2. Checkout desired branch (see [branches](#branches-info))
 3. While in root directory, execute `./gradlew run` (or `./gradlew.bat run`, if you're on `Windows`).
 4. Enjoy the game!
