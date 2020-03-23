@@ -13,6 +13,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.Wall
+import ru.hse.se.team9.game.entities.map.distance.Descartes
+import ru.hse.se.team9.game.entities.map.distance.Distance
+import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.map.objects.MobOnMap
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
@@ -20,7 +23,6 @@ import ru.hse.se.team9.game.entities.mobs.strategies.PassiveStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.RandomStrategy
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import ru.hse.se.team9.model.random.directions.RandomDirection
-import ru.hse.se.team9.model.random.global.GameGenerator
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.getRandomNotWallPosition
@@ -32,8 +34,15 @@ class GameMap(
     val width: Int,
     val height: Int,
     private val positionGenerator: PositionGenerator,
-    val mobs: List<MobOnMap>
+    val mobs: List<MobOnMap>,
+    val distance: Distance,
+    val fogRadius: Int
 ) {
+    val fog = FogOfWar(distance, map, width, height, fogRadius)
+
+    init {
+        fog.updateVision(hero.position)
+    }
 
     fun moveHero(newPosition: Position) {
         if (canMoveTo(newPosition)) {
@@ -45,6 +54,7 @@ class GameMap(
         val position = hero.position + direction
         if (canMoveTo(position)) {
             hero.position = position
+            fog.updateVision(position)
         }
     }
 
@@ -79,18 +89,23 @@ class GameMap(
 
     fun serialize(): String = mapper.writeValueAsString(this)
 
-    // TODO add mobs serialization
+    // TODO need A LOT OF fixes
     companion object Serialization {
-        fun deserialize(string: String, positionGenerator: PositionGenerator): Either<Throwable, GameMap> {
+        fun deserialize(
+            string: String,
+            positionGenerator: PositionGenerator
+        ): Either<Throwable, GameMap> {
             return try {
-                val deserialized = mapper.readValue<DeserializedGameMap>(string)
+                val gameMap = mapper.readValue<DeserializedGameMap>(string)
                 Either.right(GameMap(
-                    deserialized.hero,
-                    deserialized.map,
-                    deserialized.width,
-                    deserialized.height,
+                    gameMap.hero,
+                    gameMap.map,
+                    gameMap.width,
+                    gameMap.height,
                     positionGenerator,
-                    deserialized.mobs
+                    gameMap.mobs,
+                    Manhattan,
+                    gameMap.fogRadius
                 ))
             } catch(e: Throwable) {
                 Either.left(e)
@@ -103,7 +118,33 @@ class GameMap(
             addDeserializer(MapObject::class.java, MapObjectDeserializer())
             addSerializer(MobStrategy::class.java, StrategySerializer())
             addDeserializer(MobStrategy::class.java, StrategyDeserializer(RandomDirection)) // TODO fix
+//            addSerializer(Distance::class.java, DistanceSerializer())
+//            addDeserializer(Distance::class.java, DistanceDeserializer())
         })
+
+        /*class DistanceDeserializer : JsonDeserializer<Distance>() {
+            override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Distance {
+                return when (val str = p.valueAsString) {
+                    "M" -> Manhattan
+                    "D" -> Descartes
+                    else -> ctxt.handleWeirdStringValue(
+                        Distance::class.java,
+                        str,
+                        "cannot deserialize map object"
+                    ) as Distance
+                }
+            }
+
+        }
+
+        class DistanceSerializer : JsonSerializer<Distance>() {
+            override fun serialize(value: Distance, gen: JsonGenerator, serializers: SerializerProvider) {
+                when (value) {
+                    is Manhattan -> gen.writeString("M")
+                    is Descartes -> gen.writeString("D")
+                }
+            }
+        }*/
 
 
         private data class DeserializedGameMap(
@@ -111,7 +152,8 @@ class GameMap(
             val map: List<MutableList<MapObject>>,
             val width: Int,
             val height: Int,
-            val mobs: List<MobOnMap>
+            val mobs: List<MobOnMap>,
+            val fogRadius: Int
         )
 
         private class GameMapSerializer : JsonSerializer<GameMap>() {
@@ -122,6 +164,8 @@ class GameMap(
                 gen.writeNumberField("height", value.height)
                 gen.writeObjectField("map", value.map)
                 gen.writeObjectField("mobs", value.mobs)
+                //gen.writeObjectField("distance", value.distance)
+                gen.writeNumberField("fogRadius", value.fogRadius)
                 gen.writeEndObject()
             }
         }
@@ -135,7 +179,7 @@ class GameMap(
                     "R" -> RandomStrategy(directionGenerator)
                     "P" -> PassiveStrategy
                     else -> ctxt.handleWeirdStringValue(
-                        MapObject::class.java,
+                        MobStrategy::class.java,
                         str,
                         "cannot deserialize map object"
                     ) as MobStrategy

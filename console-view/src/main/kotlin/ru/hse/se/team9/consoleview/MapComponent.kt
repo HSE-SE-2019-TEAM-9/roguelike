@@ -60,6 +60,7 @@ internal class MapComponent(
             val heroPosition = component.map.hero.position
             val gameMap = component.map.map
             val mobs = component.map.mobs
+            val fog = component.map.fog
 
             val screenSize = component.screen.terminalSize
             val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns, component.map.width)
@@ -67,6 +68,28 @@ internal class MapComponent(
             drawMap(xLeft, xRight, yHigh, yLow, gameMap, graphics)
             drawMobs(xLeft, yHigh, mobs, graphics)
             drawHero(xLeft, yHigh, heroPosition, graphics)
+            drawFog(xLeft, xRight, yHigh, yLow, fog, graphics)
+        }
+
+        private fun drawFog(
+            xLeft: Int,
+            xRight: Int,
+            yHigh: Int,
+            yLow: Int,
+            fog: List<List<Boolean>>,
+            graphics: TextGUIGraphics
+        ) {
+            for (x in xLeft until xRight) {
+                for (y in yHigh until yLow) {
+                    if (fog[y][x]) {
+                        graphics.setCharacter(
+                            x - xLeft,
+                            y - yHigh,
+                            TextCharacter(HIDDEN_CHARACTER, HIDDEN_COLOR, HIDDEN_BACKGROUND_COLOR)
+                        )
+                    }
+                }
+            }
         }
 
         private fun drawMobs(xLeft: Int, yHigh: Int, mobs: List<MobView>, graphics: TextGUIGraphics) {
@@ -127,12 +150,15 @@ internal class MapComponent(
         private val BIG_MOB_COLOR = TextColor.RGB(255, 0, 0)
         private val MEDIUM_MOB_COLOR = TextColor.RGB(255, 0, 255)
         private val SMALL_MOB_COLOR = TextColor.RGB(0, 0, 255)
+        private val HIDDEN_BACKGROUND_COLOR = TextColor.RGB(121, 121, 121)
+        private val HIDDEN_COLOR = TextColor.ANSI.BLACK
 
         private const val HERO_CHARACTER = '@'
         private const val EMPTY_SPACE_CHARACTER = '.'
         private const val WALL_CHARACTER = '#'
         private const val NOTHING_CHARACTER = ' '
         private const val MOB_CHARACTER = 'U'
+        private const val HIDDEN_CHARACTER = '?'
 
         private fun getBounds(position: Int, width: Int, maxWidth: Int): Pair<Int, Int> {
             val minBound = position - (width - 1) / 2

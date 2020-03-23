@@ -18,4 +18,5 @@ class MapViewImpl(private val gameMap: GameMap) : MapView {
     override val map: List<List<MapObject>> = gameMap.map
     override val width = gameMap.map[0].size
     override val height = gameMap.map.size
+    override val fog = gameMap.fog.hidden
 }

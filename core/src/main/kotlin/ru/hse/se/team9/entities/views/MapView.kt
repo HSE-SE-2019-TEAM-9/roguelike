@@ -8,4 +8,5 @@ interface MapView {
     val map: List<List<MapObject>>
     val width: Int
     val height: Int
+    val fog: List<List<Boolean>>
 }

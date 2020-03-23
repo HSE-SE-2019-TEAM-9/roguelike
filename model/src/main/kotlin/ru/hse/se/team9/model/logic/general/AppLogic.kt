@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.game.entities.map.MapViewImpl
+import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
@@ -17,7 +18,8 @@ import ru.hse.se.team9.view.ViewController
 class AppLogic(
     private val viewController: ViewController,
     private val generator: GameGenerator,
-    private val fileChooser: FileChooser
+    private val fileChooser: FileChooser,
+    private val distance: Distance
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
@@ -59,7 +61,7 @@ class AppLogic(
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
             NewGame -> mapCreator =
-                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT)
+                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance)
             LoadGame -> mapCreator =
                 FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
@@ -139,8 +141,9 @@ class AppLogic(
     }
 
     companion object {
-        private const val MAP_WIDTH = 40
-        private const val MAP_HEIGHT = 40
+        private const val MAP_WIDTH = 100
+        private const val MAP_HEIGHT = 100
+        private const val FOG_RADIUS = 10
 
         private const val MAIN_MENU_TITLE = "Main menu"
         private const val NEW_GAME_OPTION = "New game"

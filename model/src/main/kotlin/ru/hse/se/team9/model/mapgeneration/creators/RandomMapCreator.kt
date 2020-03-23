@@ -9,6 +9,8 @@ import ru.hse.se.team9.game.entities.hero.HeroStats
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.GameMap
+import ru.hse.se.team9.game.entities.map.distance.Distance
+import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.map.objects.MobOnMap
 import ru.hse.se.team9.model.mapgeneration.*
@@ -20,7 +22,9 @@ class RandomMapCreator private constructor(
     private val generator: GameGenerator,
     private val mapWidth: Int = MAX_WIDTH,
     private val mapHeight: Int = MAX_HEIGHT,
-    private val chunkSize: Int = DEFAULT_CHUNK_SIZE
+    private val chunkSize: Int = DEFAULT_CHUNK_SIZE,
+    private val distance: Distance = Manhattan,
+    private val fogRadius: Int
 ) : MapCreator {
     private val chunkOffsets: Map<Direction, Pair<Int, Int>> = mapOf(
         UP to Pair(-chunkSize, 0),
@@ -58,7 +62,9 @@ class RandomMapCreator private constructor(
                 mapWidth,
                 mapHeight,
                 generator,
-                mobs
+                mobs,
+                distance,
+                fogRadius
             )
         )
     }
@@ -118,14 +124,16 @@ class RandomMapCreator private constructor(
             generator: GameGenerator,
             mapWidth: Int = MAX_WIDTH,
             mapHeight: Int = MAX_HEIGHT,
-            chunkSize: Int = DEFAULT_CHUNK_SIZE
+            chunkSize: Int = DEFAULT_CHUNK_SIZE,
+            distance: Distance,
+            fogRadius: Int
         ): Either<MapCreationError, RandomMapCreator> {
             val n = nextDivisibleBy(chunkSize, mapWidth)
             val m = nextDivisibleBy(chunkSize, mapHeight)
             if (checkChunkSize(chunkSize, n, m)) return Either.left(ChunkTooBig)
             if (checkNegativeSize(n, m)) return Either.left(NegativeSize)
             if (checkBigMap(n, m)) return Either.left(MapTooBig)
-            return Either.Right(RandomMapCreator(generator, n, m, chunkSize))
+            return Either.Right(RandomMapCreator(generator, n, m, chunkSize, distance, fogRadius))
         }
 
         private fun checkNegativeSize(mapWidth: Int, mapHeight: Int): Boolean =
