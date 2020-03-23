@@ -150,7 +150,7 @@ internal class MapComponent(
         private val BIG_MOB_COLOR = TextColor.RGB(255, 0, 0)
         private val MEDIUM_MOB_COLOR = TextColor.RGB(255, 0, 255)
         private val SMALL_MOB_COLOR = TextColor.RGB(0, 0, 255)
-        private val HIDDEN_BACKGROUND_COLOR = TextColor.RGB(121, 121, 121)
+        private val HIDDEN_BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HIDDEN_COLOR = TextColor.ANSI.BLACK
 
         private const val HERO_CHARACTER = '@'
