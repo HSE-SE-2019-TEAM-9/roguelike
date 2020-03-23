@@ -9,10 +9,7 @@ import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
-import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import ru.hse.se.team9.model.random.global.GameGenerator
-import ru.hse.se.team9.model.random.mobs.MobGenerator
-import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController

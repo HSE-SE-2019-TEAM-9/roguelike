@@ -1,8 +1,6 @@
 package ru.hse.se.team9.view
 
-import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.views.MapView
-import ru.hse.se.team9.positions.Position
 import java.io.File
 
 interface ViewController {
