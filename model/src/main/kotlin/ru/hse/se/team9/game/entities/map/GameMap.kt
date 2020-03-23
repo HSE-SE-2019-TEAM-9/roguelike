@@ -18,6 +18,13 @@ import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.model.random.PositionGenerator
 
 // TODO add wrapper
+/** Represents game map
+ * @property hero hero and its position on map
+ * @property map two-dimensional array of MapObject, stores landscape elements and not active participants of game
+ * @property width width of map
+ * @property height height of map
+ * @property positionGenerator object using for generating random positions on map
+ */
 class GameMap(
     val hero: HeroOnMap,
     val map: List<MutableList<MapObject>>,
@@ -26,12 +33,18 @@ class GameMap(
     private val positionGenerator: PositionGenerator
 ) {
 
+    /** Moves hero to the given position. If map has wall at this position, does nothing
+     * @param newPosition position to move hero to
+     */
     fun moveHero(newPosition: Position) {
         if (canMoveTo(newPosition)) {
             hero.position = newPosition
         }
     }
 
+    /** Moves hero to the neighbor cell according to the direction. If map has wall at this position, does nothing.
+     * @param direction direction to move towards
+     */
     fun moveHero(direction: Direction) {
         val (x, y) = hero.position
         val position = when (direction) {
@@ -43,11 +56,6 @@ class GameMap(
         if (canMoveTo(position)) {
             hero.position = position
         }
-    }
-
-    fun placeAtRandomPosition(mapObject: MapObject) {
-        val (x, y) = getRandomNotWallPosition()
-        map[y][x] = mapObject
     }
 
     private fun isOnMap(position: Position): Boolean {
@@ -64,6 +72,7 @@ class GameMap(
         return isOnMap(position) && isNotWall(position)
     }
 
+    /** Writes this map object as string */
     fun serialize(): String = mapper.writeValueAsString(this)
 
     private tailrec fun getRandomNotWallPosition(): Position {
