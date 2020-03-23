@@ -47,3 +47,10 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "11"
 }
+
+task createMap(type: JavaExec) {
+    description = "Create a map which can be loaded and place it in working directory"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "ru.hse.se.team9.MainKt"
+    args 'create-map'
+}

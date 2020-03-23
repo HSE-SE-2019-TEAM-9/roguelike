@@ -14,17 +14,20 @@ import java.io.File
 fun main(args: Array<String>) {
     val generator = GlobalRandom(RandomDirection, RandomPosition, RandomMob(RandomDirection))
 
-    File("map_example").writer().use {
-        val file =
-        RandomMapCreator.build(
-            generator,
-            36,
-            36,
-            4,
-            Manhattan,
-            4
-        ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.serialize()
-        it.write(file)
+    if (args.contains("create-map")) {
+        File("map_example").writer().use {
+            val file =
+                RandomMapCreator.build(
+                    generator,
+                    36,
+                    36,
+                    4,
+                    Manhattan,
+                    4
+                ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.serialize()
+            it.write(file)
+        }
+        return
     }
 
     val view = ConsoleViewController()
