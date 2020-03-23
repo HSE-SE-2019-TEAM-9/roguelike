@@ -3,7 +3,7 @@ package ru.hse.se.team9.utils
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.map.Direction
-import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
 operator fun Position.plus(direction: Direction) =

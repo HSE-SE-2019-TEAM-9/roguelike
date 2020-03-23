@@ -12,7 +12,7 @@ interface ViewController {
 
     fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit)
 
-    fun drawMap(map: MapView, width: Int, height: Int)
+    fun drawMap(map: MapView)
 
     fun drawMenu(title: String, options: List<MenuOption>)
 

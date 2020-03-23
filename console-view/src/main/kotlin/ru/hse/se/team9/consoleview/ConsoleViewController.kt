@@ -85,7 +85,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         mapView?.keyPressedHandler = keyPressedHandler
     }
 
-    override fun drawMap(map: MapView, width: Int, height: Int) {
+    override fun drawMap(map: MapView) {
         mapView = MapComponent(map, gui.screen, actionQueue, keyPressedHandler)
         mapWindow.component = mapView
     }

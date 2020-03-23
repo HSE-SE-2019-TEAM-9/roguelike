@@ -6,4 +6,6 @@ interface MapView {
     val mobs: List<MobView>
     val hero: HeroView
     val map: List<List<MapObject>>
+    val width: Int
+    val height: Int
 }

@@ -6,22 +6,18 @@ import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
-import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.Direction
+import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.map.objects.MobOnMap
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.random.DirectionGenerator
-import ru.hse.se.team9.model.random.MobGenerator
-import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.model.random.global.GameGenerator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.getRandomNotWallPosition
 
 class RandomMapCreator private constructor(
-    private val directionGenerator: DirectionGenerator,
-    private val positionGenerator: PositionGenerator,
-    private val mobGenerator: MobGenerator,
+    private val generator: GameGenerator,
     private val mapWidth: Int = MAX_WIDTH,
     private val mapHeight: Int = MAX_HEIGHT,
     private val chunkSize: Int = DEFAULT_CHUNK_SIZE
@@ -45,7 +41,7 @@ class RandomMapCreator private constructor(
                 dfsStack.pop()
                 continue
             }
-            val nextDirection = directionGenerator.createDirection(directions)
+            val nextDirection = generator.createDirection(directions)
             val intermediateChunk = moveChunk(lastChunk, nextDirection)
             val finalChunk = moveChunk(intermediateChunk, nextDirection)
             makeEmptyChunk(map, intermediateChunk)
@@ -61,7 +57,7 @@ class RandomMapCreator private constructor(
                 map,
                 mapWidth,
                 mapHeight,
-                positionGenerator,
+                generator,
                 mobs
             )
         )
@@ -69,7 +65,7 @@ class RandomMapCreator private constructor(
 
     private fun createRandomMobs(mobAmount: Int, map: List<List<MapObject>>): List<MobOnMap> {
         return List(mobAmount) {
-            MobOnMap(mobGenerator.createMob(), getRandomNotWallPosition(positionGenerator, map))
+            MobOnMap(generator.createMob(), getRandomNotWallPosition(generator, map))
         }.filter { it.position != START_HERO_POSITION }
     }
 
@@ -119,9 +115,7 @@ class RandomMapCreator private constructor(
         internal data class Chunk(val h: Int, val w: Int)
 
         fun build(
-            directionGenerator: DirectionGenerator,
-            positionGenerator: PositionGenerator,
-            mobGenerator: MobGenerator,
+            generator: GameGenerator,
             mapWidth: Int = MAX_WIDTH,
             mapHeight: Int = MAX_HEIGHT,
             chunkSize: Int = DEFAULT_CHUNK_SIZE
@@ -131,7 +125,7 @@ class RandomMapCreator private constructor(
             if (checkChunkSize(chunkSize, n, m)) return Either.left(ChunkTooBig)
             if (checkNegativeSize(n, m)) return Either.left(NegativeSize)
             if (checkBigMap(n, m)) return Either.left(MapTooBig)
-            return Either.Right(RandomMapCreator(directionGenerator, positionGenerator, mobGenerator, n, m, chunkSize))
+            return Either.Right(RandomMapCreator(generator, n, m, chunkSize))
         }
 
         private fun checkNegativeSize(mapWidth: Int, mapHeight: Int): Boolean =

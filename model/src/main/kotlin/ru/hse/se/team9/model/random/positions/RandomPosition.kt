@@ -1,5 +1,6 @@
-package ru.hse.se.team9.model.random
+package ru.hse.se.team9.model.random.positions
 
+import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 import kotlin.random.Random
 

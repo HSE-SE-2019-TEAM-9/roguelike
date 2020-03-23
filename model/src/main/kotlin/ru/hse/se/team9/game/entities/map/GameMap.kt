@@ -9,14 +9,18 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.*
+import com.fasterxml.jackson.module.kotlin.readValue
 import ru.hse.se.team9.entities.EmptySpace
-import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.entities.Wall
+import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.map.objects.MobOnMap
-import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
+import ru.hse.se.team9.game.entities.mobs.strategies.PassiveStrategy
+import ru.hse.se.team9.game.entities.mobs.strategies.RandomStrategy
+import ru.hse.se.team9.model.random.global.GameGenerator
+import ru.hse.se.team9.model.random.positions.PositionGenerator
+import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.getRandomNotWallPosition
 import ru.hse.se.team9.utils.plus
 
@@ -47,17 +51,6 @@ class GameMap(
             if (mobOnMap == mob) {
                 if (canMoveTo(newPosition)) {
                     mob.position = newPosition
-                }
-            }
-        }
-    }
-
-    fun moveMob(mobOnMap: MobOnMap, direction: Direction) {
-        for (mob in mobs) {
-            if (mobOnMap == mob) {
-                val position = mob.position + direction
-                if (canMoveTo(position)) {
-                    mob.position = position
                 }
             }
         }
@@ -106,7 +99,10 @@ class GameMap(
             addSerializer(GameMap::class.java, GameMapSerializer())
             addSerializer(MapObject::class.java, MapObjectSerializer())
             addDeserializer(MapObject::class.java, MapObjectDeserializer())
+            /*addSerializer(MobStrategy::class.java, StrategySerializer())
+            addDeserializer(MobStrategy::class.java, StrategyDeserializer(gameGenerator))*/
         })
+
 
         private data class DeserializedGameMap(
             val hero: HeroOnMap,
@@ -127,6 +123,30 @@ class GameMap(
                 gen.writeEndObject()
             }
         }
+
+        // TODO fix
+        /*private class StrategyDeserializer : JsonDeserializer<MobStrategy>() {
+            override fun deserialize(p: JsonParser, ctxt: DeserializationContext): MobStrategy {
+                return when (val str = p.valueAsString) {
+                    "R" -> RandomStrategy(gameGenerator)
+                    "P" -> PassiveStrategy
+                    else -> ctxt.handleWeirdStringValue(
+                        MapObject::class.java,
+                        str,
+                        "cannot deserialize map object"
+                    ) as MobStrategy
+                }
+            }
+        }
+
+        private class StrategySerializer : JsonSerializer<MobStrategy>() {
+            override fun serialize(value: MobStrategy, gen: JsonGenerator, serializers: SerializerProvider) {
+                when (value) {
+                    is RandomStrategy -> gen.writeString("R")
+                    is PassiveStrategy -> gen.writeString("P")
+                }
+            }
+        }*/
 
         private class MapObjectSerializer : JsonSerializer<MapObject>() {
             override fun serialize(value: MapObject, gen: JsonGenerator, serializers: SerializerProvider) {

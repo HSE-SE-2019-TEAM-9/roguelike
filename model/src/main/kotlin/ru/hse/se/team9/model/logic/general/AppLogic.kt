@@ -9,18 +9,17 @@ import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
-import ru.hse.se.team9.model.random.DirectionGenerator
-import ru.hse.se.team9.model.random.MobGenerator
-import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.random.global.GameGenerator
+import ru.hse.se.team9.model.random.mobs.MobGenerator
+import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
 
 class AppLogic(
     private val viewController: ViewController,
-    private val directionGenerator: DirectionGenerator,
-    private val positionGenerator: PositionGenerator,
-    private val mobGenerator: MobGenerator,
+    private val generator: GameGenerator,
     private val fileChooser: FileChooser
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
@@ -39,7 +38,7 @@ class AppLogic(
             }
             when (action) {
                 is Move -> {
-                    doMove(action)
+                    makeMove(action)
                 }
                 is OpenMenu -> {
                     appStatus = AppStatus.IN_MENU
@@ -59,18 +58,13 @@ class AppLogic(
         drawMenu()
     }
 
-    private fun doMove(action: Move) {
-        movePlayer(action)
-        moveMobs()
-    }
-
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
             NewGame -> mapCreator =
-                RandomMapCreator.build(directionGenerator, positionGenerator, mobGenerator, MAP_WIDTH, MAP_HEIGHT)
+                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT)
             LoadGame -> mapCreator =
-                FromFileMapCreator.build(positionGenerator, fileChooser)
+                FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
                 drawMap()
@@ -116,20 +110,10 @@ class AppLogic(
         }
     }
 
-    private fun movePlayer(move: Move): AppStatus {
-        require(appStatus == AppStatus.IN_GAME)
-        updateAppStatus(gameCycleLogic.movePlayer(move))
-        return appStatus
-    }
 
-    private fun moveMobs(): AppStatus {
+    private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
-        updateAppStatus(gameCycleLogic.moveMobs())
-        return appStatus
-    }
-
-    private fun updateAppStatus(status: GameStatus) {
-        if (status == GameStatus.FINISHED) {
+        if (gameCycleLogic.makeMove(move) is Finished) {
             appStatus = AppStatus.IN_MENU
             drawMenu()
         } else {
@@ -150,7 +134,7 @@ class AppLogic(
     private fun drawMap() {
         require(appStatus == AppStatus.IN_GAME)
         val gameMap = gameCycleLogic.map
-        viewController.drawMap(MapViewImpl(gameMap), gameMap.width, gameMap.height)
+        viewController.drawMap(MapViewImpl(gameMap))
     }
 
     private fun exit() {

@@ -62,8 +62,8 @@ internal class MapComponent(
             val mobs = component.map.mobs
 
             val screenSize = component.screen.terminalSize
-            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns, gameMap[0].size)
-            val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows, gameMap.size)
+            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns, component.map.width)
+            val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows, component.map.height)
             drawMap(xLeft, xRight, yHigh, yLow, gameMap, graphics)
             drawMobs(xLeft, yHigh, mobs, graphics)
             drawHero(xLeft, yHigh, heroPosition, graphics)

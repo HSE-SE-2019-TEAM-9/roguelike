@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random
+package ru.hse.se.team9.model.random.directions
 
 import ru.hse.se.team9.game.entities.map.Direction
 
