@@ -11,6 +11,7 @@ import com.googlecode.lanterna.screen.TerminalScreen
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger
 import ru.hse.se.team9.entities.MapObject
+import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
@@ -84,8 +85,8 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         mapView?.keyPressedHandler = keyPressedHandler
     }
 
-    override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
-        mapView = MapComponent(map, heroPosition, gui.screen, actionQueue, keyPressedHandler)
+    override fun drawMap(map: MapView) {
+        mapView = MapComponent(map, gui.screen, actionQueue, keyPressedHandler)
         mapWindow.component = mapView
     }
 

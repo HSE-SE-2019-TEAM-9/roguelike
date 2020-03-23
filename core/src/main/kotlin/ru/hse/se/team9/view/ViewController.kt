@@ -1,7 +1,6 @@
 package ru.hse.se.team9.view
 
-import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.positions.Position
+import ru.hse.se.team9.entities.views.MapView
 import java.io.File
 
 interface ViewController {
@@ -11,7 +10,7 @@ interface ViewController {
 
     fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit)
 
-    fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position)
+    fun drawMap(map: MapView)
 
     fun drawMenu(title: String, options: List<MenuOption>)
 

@@ -6,21 +6,25 @@ import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
-import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.Direction
+import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.GameMap
+import ru.hse.se.team9.game.entities.map.distance.Distance
+import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
+import ru.hse.se.team9.game.entities.map.objects.MobOnMap
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.random.DirectionGenerator
-import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.model.random.global.GameGenerator
 import ru.hse.se.team9.positions.Position
+import ru.hse.se.team9.utils.getRandomNotWallPosition
 
 class RandomMapCreator private constructor(
-    private val directionGenerator: DirectionGenerator,
-    private val positionGenerator: PositionGenerator,
-    private val mapWidth: Int,
-    private val mapHeight: Int,
-    private val chunkSize: Int = 6
+    private val generator: GameGenerator,
+    private val mapWidth: Int = MAX_WIDTH,
+    private val mapHeight: Int = MAX_HEIGHT,
+    private val chunkSize: Int = DEFAULT_CHUNK_SIZE,
+    private val distance: Distance = Manhattan,
+    private val fogRadius: Int
 ) : MapCreator {
     private val chunkOffsets: Map<Direction, Pair<Int, Int>> = mapOf(
         UP to Pair(-chunkSize, 0),
@@ -41,7 +45,7 @@ class RandomMapCreator private constructor(
                 dfsStack.pop()
                 continue
             }
-            val nextDirection = directionGenerator.createDirection(directions)
+            val nextDirection = generator.createDirection(directions)
             val intermediateChunk = moveChunk(lastChunk, nextDirection)
             val finalChunk = moveChunk(intermediateChunk, nextDirection)
             makeEmptyChunk(map, intermediateChunk)
@@ -50,15 +54,25 @@ class RandomMapCreator private constructor(
         }
 
         val hero = Hero(HeroStats(0, 0, 0, 0, 0, 0)) // not used in current version
+        val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map)
         return Either.right(
             GameMap(
-                HeroOnMap(hero, Position(0, 0)),
+                HeroOnMap(hero, START_HERO_POSITION),
                 map,
                 mapWidth,
                 mapHeight,
-                positionGenerator
+                generator,
+                mobs,
+                distance,
+                fogRadius
             )
         )
+    }
+
+    private fun createRandomMobs(mobAmount: Int, map: List<List<MapObject>>): List<MobOnMap> {
+        return List(mobAmount) {
+            MobOnMap(generator.createMob(), getRandomNotWallPosition(generator, map))
+        }.filter { it.position != START_HERO_POSITION }
     }
 
     private fun makeEmptyChunk(map: List<MutableList<MapObject>>, chunk: Chunk) {
@@ -100,22 +114,26 @@ class RandomMapCreator private constructor(
         private const val MAX_WIDTH = 10_000
         private const val MAX_HEIGHT = 10_000
         private const val MAX_MAP_SIZE = 1_000_000
+        private const val DEFAULT_MOB_AMOUNT = 20
+        private const val DEFAULT_CHUNK_SIZE = 4
+        private val START_HERO_POSITION = Position(0, 0)
 
         internal data class Chunk(val h: Int, val w: Int)
 
         fun build(
-            directionGenerator: DirectionGenerator,
-            positionGenerator: PositionGenerator,
-            mapWidth: Int,
-            mapHeight: Int,
-            chunkSize: Int = 6
+            generator: GameGenerator,
+            mapWidth: Int = MAX_WIDTH,
+            mapHeight: Int = MAX_HEIGHT,
+            chunkSize: Int = DEFAULT_CHUNK_SIZE,
+            distance: Distance,
+            fogRadius: Int
         ): Either<MapCreationError, RandomMapCreator> {
             val n = nextDivisibleBy(chunkSize, mapWidth)
             val m = nextDivisibleBy(chunkSize, mapHeight)
             if (checkChunkSize(chunkSize, n, m)) return Either.left(ChunkTooBig)
             if (checkNegativeSize(n, m)) return Either.left(NegativeSize)
             if (checkBigMap(n, m)) return Either.left(MapTooBig)
-            return Either.Right(RandomMapCreator(directionGenerator, positionGenerator, n, m, chunkSize))
+            return Either.Right(RandomMapCreator(generator, n, m, chunkSize, distance, fogRadius))
         }
 
         private fun checkNegativeSize(mapWidth: Int, mapHeight: Int): Boolean =
