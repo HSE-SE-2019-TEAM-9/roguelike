@@ -1,5 +1,5 @@
 rootProject.name = 'roguelike'
-include 'controller'
+include 'core'
 include 'model'
 include 'console-view'
-include 'core'
+
