@@ -128,7 +128,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         actionQueue.add(action)
     }
 
-    /** Shows laterna's native file dialog */
+    /** Shows lanterna's native file dialog */
     override fun drawFileDialog(startFile: File): File? {
         val dialog = FileDialog(
             CHOOSE_FILE_TITLE,
