@@ -14,6 +14,15 @@ import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
 
+/**
+ * Represents all logic of the application.
+ * Creates GameCycleLogic for the logic of a single game.
+ *
+ * @param viewController responsible for ui and keyboard actions
+ * @param directionGenerator generates random or predetermined directions
+ * @param positionGenerator generates random or predetermined positions
+ * @param fileChooser chooses file from filesystem. Needed for FromFileMapCreator
+ */
 class AppLogic(
     private val viewController: ViewController,
     private val directionGenerator: DirectionGenerator,
@@ -22,7 +31,7 @@ class AppLogic(
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
-    private var appStatus: AppStatus = AppStatus.IN_MENU
+    @Volatile private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
 
     init {
@@ -44,12 +53,13 @@ class AppLogic(
         }
         menuOptions = listOf(
             MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
-            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue)},
+            MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
             MenuOption(LOAD_GAME_OPTION) { applyMenuAction(LoadGame) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) }
         )
     }
 
+    /** starts application and opens main menu */
     fun openMenu() {
         drawMenu()
     }
@@ -57,7 +67,7 @@ class AppLogic(
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
-            NewGame ->  mapCreator = RandomMapCreator.build(directionGenerator, positionGenerator, MAP_WIDTH, MAP_HEIGHT)
+            NewGame -> mapCreator = RandomMapCreator.build(directionGenerator, positionGenerator, MAP_WIDTH, MAP_HEIGHT)
             LoadGame -> mapCreator = FromFileMapCreator.build(positionGenerator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME

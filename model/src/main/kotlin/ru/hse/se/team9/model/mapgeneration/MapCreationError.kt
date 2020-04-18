@@ -1,12 +1,17 @@
 package ru.hse.se.team9.model.mapgeneration
 
-sealed class MapCreationError(cause: Throwable? = null): RuntimeException(cause)
+/** Base class for all errors returned by MapCreators. */
+sealed class MapCreationError(cause: Throwable? = null) : RuntimeException(cause)
 
-object FileNotChosen: MapCreationError()
+/** A file with map was not chosen by player. */
+object FileNotChosen : MapCreationError()
 
-class ParseError(cause: Throwable): MapCreationError(cause)
+/** a file cannot be parsed. */
+class ParseError(cause: Throwable) : MapCreationError(cause)
 
-sealed class BadSizeError(cause: Throwable? = null): MapCreationError(cause)
-object MapTooBig: BadSizeError()
-object ChunkTooBig: BadSizeError()
-object NegativeSize: BadSizeError()
+/** Some map dimension are not valid. */
+sealed class BadSizeError(cause: Throwable? = null) : MapCreationError(cause)
+
+object MapTooBig : BadSizeError()
+object ChunkTooBig : BadSizeError()
+object NegativeSize : BadSizeError()

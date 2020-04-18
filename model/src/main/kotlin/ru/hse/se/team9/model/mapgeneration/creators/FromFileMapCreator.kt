@@ -11,15 +11,17 @@ import ru.hse.se.team9.model.random.PositionGenerator
 import java.io.File
 import java.io.IOException
 
-/** Class used for loading maps from files
+/**
+ * Class used for loading maps from files
  * @property positionGenerator position generator which will be used in loaded map
  * @property fileChooser used for traversing file system
  */
 class FromFileMapCreator private constructor(
     private val positionGenerator: PositionGenerator,
     private val fileChooser: FileChooser
-): MapCreator {
-    /** Loads map from file. Suggests user to choose file, starting from current directory
+) : MapCreator {
+    /**
+     * Loads map from file. Suggests user to choose file, starting from current directory
      * @return Either<MapCreationError, GameMap> if map couldn't be parsed then returns appropriate error
      * else returns parsed map
      */
@@ -35,9 +37,11 @@ class FromFileMapCreator private constructor(
     }
 
     companion object {
+        /** Constructs new FromFileMapCreator from PositionGenerator and FileChooser.*/
         fun build(
             positionGenerator: PositionGenerator,
-            fileChooser: FileChooser): Either<MapCreationError, FromFileMapCreator> {
+            fileChooser: FileChooser
+        ): Either<MapCreationError, FromFileMapCreator> {
             return Either.right(FromFileMapCreator(positionGenerator, fileChooser))
         }
     }

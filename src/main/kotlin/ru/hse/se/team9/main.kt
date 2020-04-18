@@ -6,7 +6,10 @@ import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
 import ru.hse.se.team9.model.random.RandomDirection
 import ru.hse.se.team9.model.random.RandomPosition
 
-fun main(args: Array<String>) {
+/**
+ * Injects dependencies and starts components of the app.
+ */
+fun main() {
     val view = ConsoleViewController()
     val appLogic = AppLogic(view, RandomDirection, RandomPosition, ViewFileChooser(view))
     view.start()

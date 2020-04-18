@@ -15,6 +15,11 @@ import ru.hse.se.team9.model.random.DirectionGenerator
 import ru.hse.se.team9.model.random.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
+/**
+ * This class is used for creating pseudo-random or predetermined maps.
+ * The class itself does not perform any random actions: the only random sources are
+ * directionGenerator and positionGenerator.
+ */
 class RandomMapCreator private constructor(
     private val directionGenerator: DirectionGenerator,
     private val positionGenerator: PositionGenerator,
@@ -29,6 +34,7 @@ class RandomMapCreator private constructor(
         RIGHT to Pair(0, chunkSize)
     )
 
+    /** Creates a labyrinth-like map. */
     override fun createMap(): Either<MapCreationError, GameMap> {
         val map = List(mapHeight) { MutableList<MapObject>(mapWidth) { Wall } }
         makeEmptyChunk(map, Chunk(0, 0))
@@ -103,6 +109,17 @@ class RandomMapCreator private constructor(
 
         internal data class Chunk(val h: Int, val w: Int)
 
+        /**
+         * Checks provided arguments and returns Right<RandomMapCreator> if all arguments are valid.
+         *
+         * @param directionGenerator source of random or predetermined directions
+         * @param positionGenerator source of random or predetermined positions
+         * @param mapWidth should not be more than 10000 or less than chunkSize.
+         * Will be rounded up to the closest integer divisible by chunkSize.
+         * @param mapHeight should not be more than 10000 or less than chunkSize
+         * Will be rounded up to the closest integer divisible by chunkSize.
+         * @param chunkSize a minimal square filled with objects of one type.
+         */
         fun build(
             directionGenerator: DirectionGenerator,
             positionGenerator: PositionGenerator,

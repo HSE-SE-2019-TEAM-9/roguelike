@@ -20,14 +20,17 @@ import java.io.File
 import java.lang.Thread.sleep
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
+/** A ViewController implementation with terminal-like gui which uses https://github.com/mabe02/lanterna framework. */
 class ConsoleViewController(private val width: Int = 150, private val height: Int = 50): ViewController {
     private val gui: WindowBasedTextGUI
     private val mapWindow: BasicWindow
     private var mapView: MapComponent? = null
     private var keyPressedHandler: (KeyPressedType) -> Unit = {}
-    private val actionQueue: Queue<() -> Unit> = ConcurrentLinkedQueue()
+    private val actionQueue: LinkedBlockingQueue<() -> Unit> = LinkedBlockingQueue()
 
     init {
         val terminal = SwingTerminalFrame(
@@ -51,6 +54,9 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         gui.addWindow(mapWindow)
     }
 
+    /**
+     * Starts ui-thread and a thread for processing new actions.
+     */
     override fun start() {
         thread(start = true, isDaemon = true) {
             while (true) {
@@ -66,29 +72,35 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
 
         thread(start = true, isDaemon = true) {
             while (true) {
-                sleep(10)
-                val action = actionQueue.poll()
-                if (action != null) {
+                val action = actionQueue.poll(Long.MAX_VALUE, TimeUnit.DAYS)
+                if (action != null) { // action is never null
                     action()
                 }
             }
         }
     }
 
+    /** closes GUI */
     override fun stop() {
         gui.screen.stopScreen()
     }
 
+    /**
+     * Sets callbacks for keyboard actions.
+     * All callbacks will be run in the one thread. Therefore it is allowed for callbacks to be not thread-safe.
+     */
     override fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit) {
         this.keyPressedHandler = keyPressedHandler
         mapView?.keyPressedHandler = keyPressedHandler
     }
 
+    /** Shows game map. */
     override fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position) {
         mapView = MapComponent(map, heroPosition, gui.screen, actionQueue, keyPressedHandler)
         mapWindow.component = mapView
     }
 
+    /** Shows menu with provided menu options */
     override fun drawMenu(title: String, options: List<MenuOption>) {
         val builder = ActionListDialogBuilder()
         builder.title = title
@@ -104,6 +116,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         dialog.showDialog(gui)
     }
 
+    /** Shows error in a small window */
     override fun drawError(error: String, action: () -> Unit) {
         val builder = MessageDialogBuilder()
         builder.setTitle(ERROR_TITLE)
@@ -115,6 +128,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         actionQueue.add(action)
     }
 
+    /** Shows laterna's native file dialog */
     override fun drawFileDialog(startFile: File): File? {
         val dialog = FileDialog(
             CHOOSE_FILE_TITLE,

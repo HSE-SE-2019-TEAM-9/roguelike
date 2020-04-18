@@ -17,6 +17,7 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
 
+/** Represents a screen with a game map. */
 internal class MapComponent(
     private val map: List<List<MapObject>>,
     private val heroPosition: Position,
