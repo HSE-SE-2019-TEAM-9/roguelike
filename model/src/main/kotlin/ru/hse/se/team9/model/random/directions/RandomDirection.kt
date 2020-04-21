@@ -10,15 +10,4 @@ object RandomDirection : DirectionGenerator {
         require(allowedDirections.isNotEmpty())
         return allowedDirections[Random.nextInt(allowedDirections.size)]
     }
-
-    override fun createDirection(): Direction {
-        return createDirection(
-            listOf(
-                Direction.UP,
-                Direction.DOWN,
-                Direction.RIGHT,
-                Direction.LEFT
-            )
-        )
-    }
 }

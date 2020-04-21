@@ -10,7 +10,7 @@ import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
 import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.MobModifier
+import ru.hse.se.team9.entities.MobProperty
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.entities.views.MobView
@@ -98,7 +98,7 @@ internal class MapComponent(
             for (mob in mobs) {
                 val color = getMobColor(mob.hp, mob.maxHp)
                 val character =
-                    if (mob.modifiers.contains(MobModifier.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
+                    if (mob.properties.contains(MobProperty.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
                 graphics.setCharacter(
                     mob.position.x - xLeft, mob.position.y - yHigh,
                     TextCharacter(character, color, BACKGROUND_COLOR)

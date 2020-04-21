@@ -1,9 +1,12 @@
 package ru.hse.se.team9.model.logic.menu
 
+/**
+ * Corresponds to all player action in menu.
+ */
 sealed class MenuAction
-sealed class StartGame: MenuAction()
-object NewGame: StartGame()
-object LoadGame: StartGame()
+sealed class StartGame : MenuAction()
+object NewGame : StartGame()
+object LoadGame : StartGame()
 
-object Continue: MenuAction()
-object Exit: MenuAction()
+object Continue : MenuAction()
+object Exit : MenuAction()

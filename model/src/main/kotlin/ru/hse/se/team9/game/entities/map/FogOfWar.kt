@@ -7,6 +7,7 @@ import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.plus
 import java.util.*
 
+/** Determines which part of the map is hidden for the hero. */
 class FogOfWar(
     private val distance: Distance,
     private val map: List<MutableList<MapObject>>,
@@ -17,6 +18,7 @@ class FogOfWar(
     val hidden: List<MutableList<Boolean>> = List(height) { MutableList(width) { true } }
     private val directions = listOf(Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT)
 
+    /** Opens new map cells for hero base on current hero position */
     fun updateVision(position: Position) {
         val queue: Queue<Position> = ArrayDeque<Position>()
         val used: List<MutableList<Boolean>> = List(height) { MutableList(width) { false } }

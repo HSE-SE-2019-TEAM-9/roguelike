@@ -59,7 +59,7 @@ class RandomMapCreator private constructor(
             dfsStack.add(finalChunk)
         }
 
-        val hero = Hero(HeroStats(30, 30, 1, 10, 0, 1)) // not used in current version
+        val hero = Hero(createDefaultStats())
         val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map)
         return Either.right(
             GameMap(
@@ -130,6 +130,8 @@ class RandomMapCreator private constructor(
 
         internal data class Chunk(val h: Int, val w: Int)
 
+        private fun createDefaultStats(): HeroStats = HeroStats(30, 30, 1, 10, 0, 1)
+
         /**
          * Checks provided arguments and returns Right<RandomMapCreator> if all arguments are valid.
          *
@@ -140,6 +142,8 @@ class RandomMapCreator private constructor(
          * @param mapHeight should not be more than 10000 or less than chunkSize
          * Will be rounded up to the closest integer divisible by chunkSize.
          * @param chunkSize a minimal square filled with objects of one type.
+         * @param distance a distance metric which is used in fog computations and in mob strategies
+         * @param fogRadius how far player sees
          */
         fun build(
             generator: GameGenerator,

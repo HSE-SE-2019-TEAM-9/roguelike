@@ -17,12 +17,6 @@ import kotlin.math.roundToInt
  * @property map game map used in this game
  */
 class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator) {
-    private var tick: Tick = Tick()
-
-    fun processTick(): GameStatus {
-        return InProgress
-    }
-
     // VisibleForTesting
     internal fun movePlayer(move: Move): Either<Finished, InProgress> {
         val direction = when (move) {
@@ -69,7 +63,7 @@ class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator)
 
     private fun removeDeadMobCorpses(): Either<Finished, InProgress> {
         map.mobs.filterValues { it.hp <= 0 }.forEach {
-            map.mobs.remove(it.key)
+            map.removeMob(it.key)
         }
         return if (map.mobs.isEmpty()) {
             Either.left(Win)
@@ -89,6 +83,23 @@ class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator)
 
     private fun getDamageReduceMultiplier(armor: Int): Double = (1 - armor / MAX_ARMOR)
 
+    /**
+     * Makes one game move. One game move consists of 6 stages:
+     *
+     * 1. Player tries to make a move. If that cell is empty, then player successfully makes the move.
+     * if the cell is occupied by mob, then a battle occurs. Mobs get instant damage. Damage for hero is
+     * added to effects
+     *
+     * 2. Dead mobs are deleted from maps. If all mobs are dead then player wins.
+     *
+     * 3. Accumulated hero effects are applied (e.g. HP decreases)
+     *
+     * 4. Mobs try to make a move according to their strategy. The logic is equivalent to step 1.
+     *
+     * 5. Dead mobs are deleted from maps. If all mobs are dead then player wins.
+     *
+     * 6. Accumulated hero effects are applied (e.g. HP decreases)
+     */
     fun makeMove(move: Move): GameStatus {
         return Either.right(InProgress)
             .flatMap { movePlayer(move) }

@@ -1,6 +1,7 @@
 package ru.hse.se.team9.game.entities.hero
 
-/** Stores hero stats
+/**
+ * Stores hero stats
  * @property hp current health points
  * @property maxHp maximal health points of hero at the current level
  * @property armor armor value
