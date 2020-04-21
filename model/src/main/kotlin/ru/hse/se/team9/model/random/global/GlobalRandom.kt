@@ -11,7 +11,7 @@ class GlobalRandom(
     private val directionGenerator: DirectionGenerator,
     private val positionGenerator: PositionGenerator,
     private val mobGenerator: MobGenerator
-): GameGenerator {
+) : GameGenerator {
     override fun createDirection(allowedDirections: List<Direction>): Direction {
         return directionGenerator.createDirection(allowedDirections)
     }

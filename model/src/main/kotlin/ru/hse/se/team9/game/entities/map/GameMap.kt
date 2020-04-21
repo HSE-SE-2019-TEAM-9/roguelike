@@ -13,7 +13,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.Wall
-import ru.hse.se.team9.game.entities.map.distance.Descartes
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
@@ -139,17 +138,19 @@ class GameMap(
         ): Either<Throwable, GameMap> {
             return try {
                 val gameMap = mapper.readValue<DeserializedGameMap>(string)
-                Either.right(GameMap(
-                    gameMap.hero,
-                    gameMap.map,
-                    gameMap.width,
-                    gameMap.height,
-                    positionGenerator,
-                    gameMap.mobs,
-                    Manhattan,
-                    gameMap.fogRadius
-                ))
-            } catch(e: Throwable) {
+                Either.right(
+                    GameMap(
+                        gameMap.hero,
+                        gameMap.map,
+                        gameMap.width,
+                        gameMap.height,
+                        positionGenerator,
+                        gameMap.mobs,
+                        Manhattan,
+                        gameMap.fogRadius
+                    )
+                )
+            } catch (e: Throwable) {
                 Either.left(e)
             }
         }

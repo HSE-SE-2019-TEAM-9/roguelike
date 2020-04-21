@@ -7,11 +7,11 @@ import ru.hse.se.team9.entities.views.MobView
 
 class MapViewImpl(private val gameMap: GameMap) : MapView {
     override val mobs: List<MobView> = gameMap.mobs.map {
-            object : MobView {
-                override val position = it.position
-                override val type = it.mob.type
-            }
+        object : MobView {
+            override val position = it.position
+            override val type = it.mob.type
         }
+    }
     override val hero: HeroView = object : HeroView {
         override val position = gameMap.hero.position
     }

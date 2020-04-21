@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 /** A ViewController implementation with terminal-like gui which uses https://github.com/mabe02/lanterna framework. */
-class ConsoleViewController(private val width: Int = 150, private val height: Int = 50): ViewController {
+class ConsoleViewController(private val width: Int = 150, private val height: Int = 50) : ViewController {
     private val gui: WindowBasedTextGUI
     private val mapWindow: BasicWindow
     private var mapView: MapComponent? = null

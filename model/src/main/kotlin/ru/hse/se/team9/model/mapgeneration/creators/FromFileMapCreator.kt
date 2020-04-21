@@ -19,7 +19,7 @@ import java.io.IOException
 class FromFileMapCreator private constructor(
     private val positionGenerator: PositionGenerator,
     private val fileChooser: FileChooser
-): MapCreator {
+) : MapCreator {
     /**
      * Loads map from file. Suggests user to choose file, starting from current directory
      * @return Either<MapCreationError, GameMap> if map couldn't be parsed then returns appropriate error
@@ -40,7 +40,8 @@ class FromFileMapCreator private constructor(
         /** Constructs new FromFileMapCreator from PositionGenerator and FileChooser.*/
         fun build(
             positionGenerator: PositionGenerator,
-            fileChooser: FileChooser): Either<MapCreationError, FromFileMapCreator> {
+            fileChooser: FileChooser
+        ): Either<MapCreationError, FromFileMapCreator> {
             return Either.right(FromFileMapCreator(positionGenerator, fileChooser))
         }
     }

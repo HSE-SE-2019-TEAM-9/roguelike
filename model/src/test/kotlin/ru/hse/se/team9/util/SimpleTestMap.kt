@@ -24,10 +24,10 @@ internal object SimpleTestMap {
     val startPosition = Position(2, 2)
     val map: List<MutableList<MapObject>>
         get() = listOf(
-            mutableListOf(EmptySpace, Wall,       EmptySpace, EmptySpace, EmptySpace, Wall),
-            mutableListOf(EmptySpace, Wall,       EmptySpace, Wall,       EmptySpace, EmptySpace),
-            mutableListOf(EmptySpace, EmptySpace, EmptySpace, Wall,       EmptySpace, Wall),
-            mutableListOf(Wall,       Wall,       Wall,       Wall,       EmptySpace, Wall)
+            mutableListOf(EmptySpace, Wall, EmptySpace, EmptySpace, EmptySpace, Wall),
+            mutableListOf(EmptySpace, Wall, EmptySpace, Wall, EmptySpace, EmptySpace),
+            mutableListOf(EmptySpace, EmptySpace, EmptySpace, Wall, EmptySpace, Wall),
+            mutableListOf(Wall, Wall, Wall, Wall, EmptySpace, Wall)
         )
     val gameMap: GameMap
         get() = GameMap(

@@ -25,6 +25,7 @@ internal class FromFileMapCreatorTest {
         assertTrue(FromFileMapCreator.build(
             RandomPosition,
             DummyFileChooser(getResourceFile(this::class.java, "/empty.txt"))
-        ).getOrHandle { throw it }.createMap().isLeft())
+        ).getOrHandle { throw it }.createMap().isLeft()
+        )
     }
 }

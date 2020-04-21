@@ -7,7 +7,7 @@ package ru.hse.se.team9.entities
 sealed class MapObject
 
 /** Object representing wall -- entity, through which neither player nor anybody else can walk */
-object Wall: MapObject()
+object Wall : MapObject()
 
 /** Object representing empty space -- it can be stepped over by anyone */
-object EmptySpace: MapObject()
+object EmptySpace : MapObject()
