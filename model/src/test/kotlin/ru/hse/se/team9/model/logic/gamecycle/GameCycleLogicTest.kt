@@ -1,18 +1,10 @@
 package ru.hse.se.team9.model.logic.gamecycle
 
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
+import arrow.core.Right
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import ru.hse.se.team9.entities.EmptySpace
+import org.junit.jupiter.api.Test
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
-import ru.hse.se.team9.game.entities.hero.Hero
-import ru.hse.se.team9.game.entities.hero.HeroStats
-import ru.hse.se.team9.game.entities.map.Direction
-import ru.hse.se.team9.game.entities.map.GameMap
-import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.model.random.RandomPosition
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.util.SimpleTestMap
 
@@ -40,21 +32,21 @@ internal class GameCycleLogicTest {
          * ..@x.#
          * ##x#.#
          */
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Down))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Down))
         assertEquals(startPosition, gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Right))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Right))
         assertEquals(startPosition, gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Up))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
         assertEquals(Position(startPosition.x, startPosition.y - 1), gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Up))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
         assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Left))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Left))
         assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Up))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
         assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Right))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Right))
         assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogic.map.hero.position)
-        assertEquals(GameStatus.IN_PROGRESS, gameCycleLogic.movePlayer(Up))
+        assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
         assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogic.map.hero.position)
     }
 }

@@ -15,7 +15,8 @@ class GameCycleLogic(val map: GameMap) {
         return InProgress
     }
 
-    private fun movePlayer(move: Move): Either<Finished, InProgress> {
+    // VisibleForTesting
+    internal fun movePlayer(move: Move): Either<Finished, InProgress> {
         when (move) {
             is Left -> map.moveHero(Direction.LEFT)
             is Up -> map.moveHero(Direction.UP)

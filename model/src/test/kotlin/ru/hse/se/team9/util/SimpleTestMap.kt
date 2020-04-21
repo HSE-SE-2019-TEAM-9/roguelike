@@ -6,8 +6,9 @@ import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
 import ru.hse.se.team9.game.entities.map.GameMap
+import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.model.random.RandomPosition
+import ru.hse.se.team9.model.random.positions.RandomPosition
 import ru.hse.se.team9.positions.Position
 
 /**
@@ -37,7 +38,10 @@ internal object SimpleTestMap {
             map,
             width,
             height,
-            RandomPosition
+            RandomPosition,
+            listOf(),
+            Manhattan,
+            10
         )
 
 }

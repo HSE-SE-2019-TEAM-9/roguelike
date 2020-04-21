@@ -1,10 +1,9 @@
 package ru.hse.se.team9.game.entities.mobs
 
-import ru.hse.se.team9.entities.GameObject
 import ru.hse.se.team9.entities.MobType
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 
-data class Mob(val hp: Int, val damage: Int, val armor: Int, val expGain: Int, val strategy: MobStrategy): GameObject {
+data class Mob(val hp: Int, val damage: Int, val armor: Int, val expGain: Int, val strategy: MobStrategy) {
     private val id: Int
     val type: MobType
 

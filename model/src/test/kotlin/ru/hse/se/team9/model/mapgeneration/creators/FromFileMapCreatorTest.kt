@@ -4,7 +4,7 @@ import arrow.core.getOrHandle
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import ru.hse.se.team9.model.random.RandomPosition
+import ru.hse.se.team9.model.random.positions.RandomPosition
 import ru.hse.se.team9.util.DummyFileChooser
 import ru.hse.se.team9.util.SimpleTestMap
 import ru.hse.se.team9.util.getResourceFile
