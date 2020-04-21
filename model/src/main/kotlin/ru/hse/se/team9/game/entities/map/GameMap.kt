@@ -75,6 +75,28 @@ class GameMap(
     /** Writes this map object as string */
     fun serialize(): String = mapper.writeValueAsString(this)
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as GameMap
+
+        if (hero != other.hero) return false
+        if (map != other.map) return false
+        if (width != other.width) return false
+        if (height != other.height) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = hero.hashCode()
+        result = 31 * result + map.hashCode()
+        result = 31 * result + width
+        result = 31 * result + height
+        return result
+    }
+
     companion object Serialization {
         /**
          * Reads map from string and puts specified positionGenerator in it.

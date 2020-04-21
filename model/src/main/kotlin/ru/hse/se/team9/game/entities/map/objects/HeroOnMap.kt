@@ -8,4 +8,4 @@ import ru.hse.se.team9.positions.Position
  * @param hero the hero itself
  * @param position position of hero on map
  */
-class HeroOnMap(val hero: Hero, var position: Position)
+data class HeroOnMap(val hero: Hero, var position: Position)
