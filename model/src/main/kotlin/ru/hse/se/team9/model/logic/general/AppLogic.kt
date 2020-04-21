@@ -3,13 +3,14 @@ package ru.hse.se.team9.model.logic.general
 import arrow.core.Either
 import arrow.core.flatMap
 import ru.hse.se.team9.files.FileChooser
+import ru.hse.se.team9.game.entities.map.MapViewImpl
+import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
-import ru.hse.se.team9.model.random.DirectionGenerator
-import ru.hse.se.team9.model.random.PositionGenerator
+import ru.hse.se.team9.model.random.global.GameGenerator
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
@@ -19,19 +20,19 @@ import ru.hse.se.team9.view.ViewController
  * Creates GameCycleLogic for the logic of a single game.
  *
  * @param viewController responsible for ui and keyboard actions
- * @param directionGenerator generates random or predetermined directions
+ * @param directioGnenerator generates random or predetermined directions
  * @param positionGenerator generates random or predetermined positions
  * @param fileChooser chooses file from filesystem. Needed for FromFileMapCreator
  */
 class AppLogic(
     private val viewController: ViewController,
-    private val directionGenerator: DirectionGenerator,
-    private val positionGenerator: PositionGenerator,
-    private val fileChooser: FileChooser
+    private val generator: GameGenerator,
+    private val fileChooser: FileChooser,
+    private val distance: Distance
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
-    @Volatile private var appStatus: AppStatus = AppStatus.IN_MENU
+    private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
 
     init {
@@ -44,7 +45,9 @@ class AppLogic(
                 KeyPressedType.ESCAPE -> OpenMenu
             }
             when (action) {
-                is Move -> movePlayer(action)
+                is Move -> {
+                    makeMove(action)
+                }
                 is OpenMenu -> {
                     appStatus = AppStatus.IN_MENU
                     openMenu()
@@ -67,10 +70,13 @@ class AppLogic(
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
-            NewGame -> mapCreator = RandomMapCreator.build(directionGenerator, positionGenerator, MAP_WIDTH, MAP_HEIGHT)
-            LoadGame -> mapCreator = FromFileMapCreator.build(positionGenerator, fileChooser)
+            NewGame -> mapCreator =
+                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance)
+            LoadGame -> mapCreator =
+                FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
+                makeContinueOptionVisible()
                 drawMap()
             }
             Exit -> exit()
@@ -114,16 +120,15 @@ class AppLogic(
         }
     }
 
-    private fun movePlayer(move: Move): AppStatus {
+
+    private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
-        val status = gameCycleLogic.movePlayer(move)
-        if (status == GameStatus.FINISHED) {
+        if (gameCycleLogic.makeMove(move) is Finished) {
             appStatus = AppStatus.IN_MENU
             drawMenu()
         } else {
             drawMap()
         }
-        return appStatus
     }
 
     private fun drawMenu() {
@@ -139,7 +144,7 @@ class AppLogic(
     private fun drawMap() {
         require(appStatus == AppStatus.IN_GAME)
         val gameMap = gameCycleLogic.map
-        viewController.drawMap(gameMap.map, gameMap.width, gameMap.height, gameMap.hero.position)
+        viewController.drawMap(MapViewImpl(gameMap))
     }
 
     private fun exit() {
@@ -147,8 +152,9 @@ class AppLogic(
     }
 
     companion object {
-        private const val MAP_WIDTH = 516
-        private const val MAP_HEIGHT = 516
+        private const val MAP_WIDTH = 100
+        private const val MAP_HEIGHT = 100
+        private const val FOG_RADIUS = 10
 
         private const val MAIN_MENU_TITLE = "Main menu"
         private const val NEW_GAME_OPTION = "New game"

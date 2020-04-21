@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random
+package ru.hse.se.team9.model.random.directions
 
 import ru.hse.se.team9.game.entities.map.Direction
 
@@ -6,4 +6,5 @@ import ru.hse.se.team9.game.entities.map.Direction
 interface DirectionGenerator {
     /** Chooses one direction from the allowdDirections list. */
     fun createDirection(allowedDirections: List<Direction>): Direction
+    fun createDirection(): Direction
 }

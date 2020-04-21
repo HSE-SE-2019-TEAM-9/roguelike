@@ -1,7 +1,6 @@
 package ru.hse.se.team9.view
 
-import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.positions.Position
+import ru.hse.se.team9.entities.views.MapView
 import java.io.File
 
 /**
@@ -19,7 +18,7 @@ interface ViewController {
     fun setKeyPressedHandler(keyPressedHandler: (KeyPressedType) -> Unit)
 
     /** Shows specified map to user. */
-    fun drawMap(map: List<List<MapObject>>, width: Int, height: Int, heroPosition: Position)
+    fun drawMap(map: MapView)
 
     /** Shows menu with provided menu options */
     fun drawMenu(title: String, options: List<MenuOption>)
