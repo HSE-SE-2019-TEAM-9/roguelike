@@ -10,7 +10,7 @@ import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
 import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.MobType.*
+import ru.hse.se.team9.entities.MobModifier
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.entities.views.MobView
@@ -19,6 +19,7 @@ import ru.hse.se.team9.view.KeyPressedType
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
+import kotlin.math.roundToInt
 
 /** Represents a screen with a game map. */
 internal class MapComponent(
@@ -95,14 +96,12 @@ internal class MapComponent(
 
         private fun drawMobs(xLeft: Int, yHigh: Int, mobs: List<MobView>, graphics: TextGUIGraphics) {
             for (mob in mobs) {
-                val color = when (mob.type) {
-                    BIG -> BIG_MOB_COLOR
-                    MEDIUM -> MEDIUM_MOB_COLOR
-                    SMALL -> SMALL_MOB_COLOR
-                }
+                val color = getMobColor(mob.hp, mob.maxHp)
+                val character =
+                    if (mob.modifiers.contains(MobModifier.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
                 graphics.setCharacter(
                     mob.position.x - xLeft, mob.position.y - yHigh,
-                    TextCharacter(MOB_CHARACTER, color, BACKGROUND_COLOR)
+                    TextCharacter(character, color, BACKGROUND_COLOR)
                 )
             }
         }
@@ -145,12 +144,11 @@ internal class MapComponent(
 
     companion object {
         private val BACKGROUND_COLOR = TextColor.ANSI.BLACK
-        private val HERO_COLOR = TextColor.RGB(255, 255, 0)
+        private val HERO_COLOR = TextColor.Indexed.fromRGB(255, 255, 0)
         private val EMPTY_SPACE_COLOR = TextColor.ANSI.YELLOW
-        private val WALL_COLOR = TextColor.RGB(0, 100, 0)
-        private val BIG_MOB_COLOR = TextColor.RGB(255, 0, 0)
-        private val MEDIUM_MOB_COLOR = TextColor.RGB(255, 0, 255)
-        private val SMALL_MOB_COLOR = TextColor.RGB(0, 0, 255)
+        private val FULL_HP_MOB_COLOR = TextColor.ANSI.GREEN
+        private val NO_HP_MOB_COLOR = TextColor.ANSI.RED
+        private val WALL_COLOR = TextColor.Indexed.fromRGB(0, 100, 0)
         private val HIDDEN_BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HIDDEN_COLOR = TextColor.ANSI.BLACK
 
@@ -160,6 +158,7 @@ internal class MapComponent(
         private const val NOTHING_CHARACTER = ' '
         private const val MOB_CHARACTER = 'U'
         private const val HIDDEN_CHARACTER = '?'
+        private const val CONFUSED_MOB_CHARACTER = '?'
 
         private fun getBounds(position: Int, width: Int, maxWidth: Int): Pair<Int, Int> {
             val minBound = position - (width - 1) / 2
@@ -169,6 +168,20 @@ internal class MapComponent(
                 maxBound > maxWidth -> Pair(max(maxWidth - width, 0), maxWidth)
                 else -> Pair(minBound, maxBound)
             }
+        }
+
+        private fun normalizeRgbColor(component: Double): Int = max(0, min(255, component.roundToInt()))
+
+        private fun getMobColor(hp: Int, fullHp: Int): TextColor.Indexed {
+            val hpFraction = hp * 1.0 / fullHp
+            val red = NO_HP_MOB_COLOR.toColor().red +
+                    (FULL_HP_MOB_COLOR.toColor().red - NO_HP_MOB_COLOR.toColor().red) * hpFraction
+            val green = NO_HP_MOB_COLOR.toColor().green +
+                    (FULL_HP_MOB_COLOR.toColor().green - NO_HP_MOB_COLOR.toColor().green) * hpFraction
+            val blue = NO_HP_MOB_COLOR.toColor().blue +
+                    (FULL_HP_MOB_COLOR.toColor().blue - NO_HP_MOB_COLOR.toColor().blue) * hpFraction
+
+            return TextColor.Indexed.fromRGB(normalizeRgbColor(red), normalizeRgbColor(green), normalizeRgbColor(blue))
         }
     }
 }

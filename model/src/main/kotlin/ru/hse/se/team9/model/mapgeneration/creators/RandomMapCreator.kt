@@ -12,9 +12,9 @@ import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.game.entities.map.objects.MobOnMap
+import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.random.global.GameGenerator
+import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.getRandomNotWallPosition
 
@@ -59,7 +59,7 @@ class RandomMapCreator private constructor(
             dfsStack.add(finalChunk)
         }
 
-        val hero = Hero(HeroStats(0, 0, 0, 0, 0, 0)) // not used in current version
+        val hero = Hero(HeroStats(30, 30, 1, 10, 0, 1)) // not used in current version
         val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map)
         return Either.right(
             GameMap(
@@ -75,11 +75,15 @@ class RandomMapCreator private constructor(
         )
     }
 
-    private fun createRandomMobs(mobAmount: Int, map: List<List<MapObject>>): List<MobOnMap> {
-        return List(mobAmount) {
-            MobOnMap(generator.createMob(), getRandomNotWallPosition(generator, map))
-        }.filter { it.position != START_HERO_POSITION }
-    }
+    private fun createRandomMobs(mobAmount: Int, map: List<List<MapObject>>): MutableMap<Position, Mob> =
+        generateSequence { getRandomNotWallPosition(generator, map) }
+            .distinct()
+            .filter { it != START_HERO_POSITION }
+            .take(mobAmount)
+            .map { Pair(it, generator.createMob()) }
+            .toMap()
+            .toMutableMap()
+
 
     private fun makeEmptyChunk(map: List<MutableList<MapObject>>, chunk: Chunk) {
         for (i in 0 until chunkSize) {
@@ -121,7 +125,7 @@ class RandomMapCreator private constructor(
         private const val MAX_HEIGHT = 10_000
         private const val MAX_MAP_SIZE = 1_000_000
         private const val DEFAULT_MOB_AMOUNT = 20
-        private const val DEFAULT_CHUNK_SIZE = 4
+        private const val DEFAULT_CHUNK_SIZE = 6
         private val START_HERO_POSITION = Position(0, 0)
 
         internal data class Chunk(val h: Int, val w: Int)

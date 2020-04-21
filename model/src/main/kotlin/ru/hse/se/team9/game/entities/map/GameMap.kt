@@ -16,10 +16,10 @@ import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.game.entities.map.objects.MobOnMap
+import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.PassiveStrategy
-import ru.hse.se.team9.game.entities.mobs.strategies.RandomStrategy
+import ru.hse.se.team9.game.entities.mobs.strategies.CowardStrategy
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import ru.hse.se.team9.model.random.directions.RandomDirection
 import ru.hse.se.team9.model.random.positions.PositionGenerator
@@ -28,56 +28,57 @@ import ru.hse.se.team9.utils.getRandomNotWallPosition
 import ru.hse.se.team9.utils.plus
 
 /** Represents game map
- * @property hero hero and its position on map
+ * @property heroOnMap hero and its position on map
  * @property map two-dimensional array of MapObject, stores landscape elements and not active participants of game
  * @property width width of map
  * @property height height of map
  * @property positionGenerator object using for generating random positions on map
  */
 class GameMap(
-    val hero: HeroOnMap,
+    val heroOnMap: HeroOnMap,
     val map: List<MutableList<MapObject>>,
     val width: Int,
     val height: Int,
     private val positionGenerator: PositionGenerator,
-    val mobs: List<MobOnMap>,
+    var mobs: MutableMap<Position, Mob>,
     val distance: Distance,
     val fogRadius: Int
 ) {
     val fog = FogOfWar(distance, map, width, height, fogRadius)
 
     init {
-        fog.updateVision(hero.position)
+        fog.updateVision(heroOnMap.position)
     }
 
-    /** Moves hero to the given position. If map has wall at this position, does nothing
-     * @param newPosition position to move hero to
-     */
-    fun moveHero(newPosition: Position) {
-        if (canMoveTo(newPosition)) {
-            hero.position = newPosition
-        }
-    }
-
-    /** Moves hero to the neighbor cell according to the direction. If map has wall at this position, does nothing.
+    /** Moves hero to the neighbor cell according to the direction. If this position is occupied, does nothing.
      * @param direction direction to move towards
      */
     fun moveHero(direction: Direction) {
-        val position = hero.position + direction
+        val position = heroOnMap.position + direction
         if (canMoveTo(position)) {
-            hero.position = position
+            heroOnMap.position = position
             fog.updateVision(position)
         }
     }
 
-    fun moveMob(mobOnMap: MobOnMap, newPosition: Position) {
-        for (mob in mobs) {
-            if (mobOnMap == mob) {
-                if (canMoveTo(newPosition)) {
-                    mob.position = newPosition
-                }
+    /** Moves mob to the given position.
+     * If this position is occupied or no mob is located at previous position, does nothing
+     * @param previousPosition position of moving mob
+     * @param newPosition position to move hero to
+     */
+    fun moveMob(previousPosition: Position, newPosition: Position) {
+        if (canMoveTo(newPosition)) {
+            mobs.remove(previousPosition)?.let {
+                mobs.put(newPosition, it)
             }
         }
+    }
+
+    /**
+     * Removes mob from map. If no mob is located at given position does nothing
+     */
+    fun removeMob(position: Position) {
+        mobs.remove(position)
     }
 
     fun placeAtRandomPosition(mapObject: MapObject) {
@@ -95,8 +96,12 @@ class GameMap(
         return map[y][x] !is Wall
     }
 
-    private fun canMoveTo(position: Position): Boolean {
-        return isOnMap(position) && isNotWall(position)
+    private fun isNotMob(position: Position): Boolean {
+        return !mobs.containsKey(position)
+    }
+
+    fun canMoveTo(position: Position): Boolean {
+        return isOnMap(position) && isNotWall(position) && isNotMob(position)
     }
 
     /** Writes this map object as string */
@@ -108,7 +113,7 @@ class GameMap(
 
         other as GameMap
 
-        if (hero != other.hero) return false
+        if (heroOnMap != other.heroOnMap) return false
         if (map != other.map) return false
         if (width != other.width) return false
         if (height != other.height) return false
@@ -118,7 +123,7 @@ class GameMap(
     }
 
     override fun hashCode(): Int {
-        var result = hero.hashCode()
+        var result = heroOnMap.hashCode()
         result = 31 * result + map.hashCode()
         result = 31 * result + width
         result = 31 * result + height
@@ -195,14 +200,14 @@ class GameMap(
             val map: List<MutableList<MapObject>>,
             val width: Int,
             val height: Int,
-            val mobs: List<MobOnMap>,
+            val mobs: MutableMap<Position, Mob>,
             val fogRadius: Int
         )
 
         private class GameMapSerializer : JsonSerializer<GameMap>() {
             override fun serialize(value: GameMap, gen: JsonGenerator, serializers: SerializerProvider) {
                 gen.writeStartObject()
-                gen.writeObjectField("hero", value.hero)
+                gen.writeObjectField("hero", value.heroOnMap)
                 gen.writeNumberField("width", value.width)
                 gen.writeNumberField("height", value.height)
                 gen.writeObjectField("map", value.map)
@@ -219,7 +224,7 @@ class GameMap(
         ) : JsonDeserializer<MobStrategy>() {
             override fun deserialize(p: JsonParser, ctxt: DeserializationContext): MobStrategy {
                 return when (val str = p.valueAsString) {
-                    "R" -> RandomStrategy(directionGenerator)
+                    "R" -> CowardStrategy(directionGenerator)
                     "P" -> PassiveStrategy
                     else -> ctxt.handleWeirdStringValue(
                         MobStrategy::class.java,
@@ -233,7 +238,7 @@ class GameMap(
         private class StrategySerializer : JsonSerializer<MobStrategy>() {
             override fun serialize(value: MobStrategy, gen: JsonGenerator, serializers: SerializerProvider) {
                 when (value) {
-                    is RandomStrategy -> gen.writeString("R")
+                    is CowardStrategy -> gen.writeString("R")
                     is PassiveStrategy -> gen.writeString("P")
                 }
             }

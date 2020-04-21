@@ -33,20 +33,20 @@ internal class GameCycleLogicTest {
          * ##x#.#
          */
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Down))
-        assertEquals(startPosition, gameCycleLogic.map.hero.position)
+        assertEquals(startPosition, gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Right))
-        assertEquals(startPosition, gameCycleLogic.map.hero.position)
+        assertEquals(startPosition, gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
-        assertEquals(Position(startPosition.x, startPosition.y - 1), gameCycleLogic.map.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 1), gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Left))
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Right))
-        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogic.map.hero.position)
+        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogic.map.heroOnMap.position)
         assertEquals(Right(InProgress), gameCycleLogic.movePlayer(Up))
-        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogic.map.hero.position)
+        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogic.map.heroOnMap.position)
     }
 }

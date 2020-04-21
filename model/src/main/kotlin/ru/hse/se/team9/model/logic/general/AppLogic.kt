@@ -10,7 +10,7 @@ import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
-import ru.hse.se.team9.model.random.global.GameGenerator
+import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
@@ -88,7 +88,11 @@ class AppLogic(
     }
 
     private fun startGame() {
-        when (val result = mapCreator.flatMap { it.createMap() }.map { GameCycleLogic(it) }) {
+        val result = mapCreator
+            .flatMap { it.createMap() }
+            .map { GameCycleLogic(it, generator) }
+
+        when (result) {
             is Either.Left -> {
                 appStatus = AppStatus.IN_MENU
                 printError(result.a)
@@ -124,16 +128,18 @@ class AppLogic(
     private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
         if (gameCycleLogic.makeMove(move) is Finished) {
+            drawMap()
             appStatus = AppStatus.IN_MENU
-            drawMenu()
+            drawMenu(true)
         } else {
             drawMap()
         }
     }
 
-    private fun drawMenu() {
+    private fun drawMenu(wasGameOver: Boolean = false) {
         require(appStatus == AppStatus.IN_MENU)
-        viewController.drawMenu(MAIN_MENU_TITLE, menuOptions)
+        val title = if (wasGameOver) GAME_OVER_TITLE else MAIN_MENU_TITLE
+        viewController.drawMenu(title, menuOptions)
     }
 
     private fun drawError(error: String) {
@@ -156,6 +162,7 @@ class AppLogic(
         private const val MAP_HEIGHT = 100
         private const val FOG_RADIUS = 10
 
+        private const val GAME_OVER_TITLE = "Game Over"
         private const val MAIN_MENU_TITLE = "Main menu"
         private const val NEW_GAME_OPTION = "New game"
         private const val LOAD_GAME_OPTION = "Load game"

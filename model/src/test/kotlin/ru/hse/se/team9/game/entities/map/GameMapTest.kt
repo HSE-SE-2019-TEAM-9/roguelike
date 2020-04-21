@@ -4,9 +4,7 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.util.SimpleTestMap
 import ru.hse.se.team9.util.getResourceFile
@@ -28,30 +26,6 @@ internal class GameMapTest {
     }
 
     @Test
-    fun testMoveHeroToEmptySpace() {
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                if (map[y][x] == EmptySpace) {
-                    gameMap.moveHero(Position(x, y))
-                    assertEquals(Position(x, y), gameMap.hero.position)
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testMoveHeroToWall() {
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                if (map[y][x] == Wall) {
-                    gameMap.moveHero(Position(x, y))
-                    assertEquals(startPosition, gameMap.hero.position)
-                }
-            }
-        }
-    }
-
-    @Test
     fun testMoveHeroToDirection() {
         /*   ??
          * .x++.#
@@ -60,21 +34,21 @@ internal class GameMapTest {
          * ##x#.#
          */
         gameMap.moveHero(Direction.DOWN)
-        assertEquals(startPosition, gameMap.hero.position)
+        assertEquals(startPosition, gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.RIGHT)
-        assertEquals(startPosition, gameMap.hero.position)
+        assertEquals(startPosition, gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPosition.x, startPosition.y - 1), gameMap.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 1), gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameMap.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.LEFT)
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameMap.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameMap.hero.position)
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.RIGHT)
-        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameMap.hero.position)
+        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameMap.heroOnMap.position)
         gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameMap.hero.position)
+        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameMap.heroOnMap.position)
     }
 
     @Test

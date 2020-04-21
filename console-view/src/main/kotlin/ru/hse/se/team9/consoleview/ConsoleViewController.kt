@@ -59,7 +59,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
      * Starts ui-thread and a thread for processing new actions.
      */
     override fun start() {
-        thread(start = true, isDaemon = true) {
+        thread(start = true, isDaemon = true, name = "gui updater thread") {
             while (true) {
                 sleep(10)
                 try {
@@ -71,7 +71,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
             }
         }
 
-        thread(start = true, isDaemon = true) {
+        thread(start = true, isDaemon = true, name = "actionQueue poller thread") {
             while (true) {
                 val action = actionQueue.poll(Long.MAX_VALUE, TimeUnit.DAYS)
                 if (action != null) { // action is never null
