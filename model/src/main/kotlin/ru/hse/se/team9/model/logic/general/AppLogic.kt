@@ -124,12 +124,20 @@ class AppLogic(
         }
     }
 
+    private fun makeContinueOptionInvisible() {
+        for (option in menuOptions) {
+            if (option.optionName == CONTINUE_OPTION) {
+                option.visible = false
+            }
+        }
+    }
 
     private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
         if (gameCycleLogic.makeMove(move) is Finished) {
             drawMap()
             appStatus = AppStatus.IN_MENU
+            makeContinueOptionInvisible()
             drawMenu(true)
         } else {
             drawMap()
