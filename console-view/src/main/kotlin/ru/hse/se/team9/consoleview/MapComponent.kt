@@ -146,8 +146,8 @@ internal class MapComponent(
         private val BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HERO_COLOR = TextColor.Indexed.fromRGB(255, 255, 0)
         private val EMPTY_SPACE_COLOR = TextColor.ANSI.YELLOW
-        private val FULL_HP_MOB_COLOR = TextColor.ANSI.GREEN
-        private val NO_HP_MOB_COLOR = TextColor.ANSI.RED
+        private val FULL_HP_MOB_COLOR = TextColor.Indexed.fromRGB(190, 255, 0)
+        private val NO_HP_MOB_COLOR = TextColor.Indexed.fromRGB(255, 0, 0)
         private val WALL_COLOR = TextColor.Indexed.fromRGB(0, 100, 0)
         private val HIDDEN_BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HIDDEN_COLOR = TextColor.ANSI.BLACK
