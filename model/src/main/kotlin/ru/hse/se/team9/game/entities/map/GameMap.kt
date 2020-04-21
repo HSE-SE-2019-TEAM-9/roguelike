@@ -85,6 +85,7 @@ class GameMap(
         if (map != other.map) return false
         if (width != other.width) return false
         if (height != other.height) return false
+        if (positionGenerator != other.positionGenerator) return false
 
         return true
     }
@@ -94,6 +95,7 @@ class GameMap(
         result = 31 * result + map.hashCode()
         result = 31 * result + width
         result = 31 * result + height
+        result = 31 * result + positionGenerator.hashCode()
         return result
     }
 
