@@ -31,6 +31,10 @@ class RandomMapCreator private constructor(
     private val distance: Distance = Manhattan,
     private val fogRadius: Int
 ) : MapCreator {
+    private val borderSize = BORDER_CHUNK_SIZE * chunkSize
+    private val mapHeightAdjusted = mapHeight + BORDER_CHUNK_SIZE * chunkSize
+    private val mapWidthAdjusted = mapWidth + BORDER_CHUNK_SIZE * chunkSize
+
     private val chunkOffsets: Map<Direction, Pair<Int, Int>> = mapOf(
         UP to Pair(-chunkSize, 0),
         DOWN to Pair(chunkSize, 0),
@@ -40,9 +44,16 @@ class RandomMapCreator private constructor(
 
     /** Creates a labyrinth-like map. */
     override fun createMap(): Either<MapCreationError, GameMap> {
-        val map = List(mapHeight) { MutableList<MapObject>(mapWidth) { Wall } }
-        makeEmptyChunk(map, Chunk(0, 0))
-        val dfsStack = mutableListOf(Chunk(0, 0))
+        val borderSize = BORDER_CHUNK_SIZE * chunkSize
+        val mapHeightAdjusted = mapHeight + BORDER_CHUNK_SIZE * chunkSize
+        val mapWidthAdjusted = mapWidth + BORDER_CHUNK_SIZE * chunkSize
+        val heroPosition = Position(borderSize, borderSize)
+
+        val map =
+            List(mapHeightAdjusted) { MutableList<MapObject>(mapWidthAdjusted) { Wall } }
+
+        makeEmptyChunk(map, Chunk(borderSize, borderSize))
+        val dfsStack = mutableListOf(Chunk(borderSize, borderSize))
 
         while (dfsStack.isNotEmpty()) {
             val lastChunk = dfsStack.last()
@@ -60,13 +71,13 @@ class RandomMapCreator private constructor(
         }
 
         val hero = Hero(createDefaultStats())
-        val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map)
+        val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map, heroPosition)
         return Either.right(
             GameMap(
-                HeroOnMap(hero, START_HERO_POSITION),
+                HeroOnMap(hero, heroPosition),
                 map,
-                mapWidth,
-                mapHeight,
+                mapWidthAdjusted,
+                mapHeightAdjusted,
                 generator,
                 mobs,
                 distance,
@@ -75,10 +86,14 @@ class RandomMapCreator private constructor(
         )
     }
 
-    private fun createRandomMobs(mobAmount: Int, map: List<List<MapObject>>): MutableMap<Position, Mob> =
+    private fun createRandomMobs(
+        mobAmount: Int,
+        map: List<List<MapObject>>,
+        heroPosition: Position
+    ): MutableMap<Position, Mob> =
         generateSequence { getRandomNotWallPosition(generator, map) }
             .distinct()
-            .filter { it != START_HERO_POSITION }
+            .filter { it != heroPosition }
             .take(mobAmount)
             .map { Pair(it, generator.createMob()) }
             .toMap()
@@ -110,7 +125,12 @@ class RandomMapCreator private constructor(
         }
         .filter { (_, offset) ->
             val (offsetH, offsetW) = offset
-            map.getOrNull(chunk.h + offsetH)?.getOrNull(chunk.w + offsetW) == Wall
+            val newH = chunk.h + offsetH
+            val newW = chunk.w + offsetW
+            val isWall = map.getOrNull(newH)?.getOrNull(newW) == Wall
+            val hNotBorder = newH >= borderSize && newH < (mapHeightAdjusted - borderSize)
+            val wNotBorder = newW >= borderSize && newW < (mapWidthAdjusted - borderSize)
+            isWall && hNotBorder && wNotBorder
         }
         .keys
         .toList()
@@ -126,7 +146,7 @@ class RandomMapCreator private constructor(
         private const val MAX_MAP_SIZE = 1_000_000
         private const val DEFAULT_MOB_AMOUNT = 20
         private const val DEFAULT_CHUNK_SIZE = 6
-        private val START_HERO_POSITION = Position(0, 0)
+        private const val BORDER_CHUNK_SIZE = 2
 
         internal data class Chunk(val h: Int, val w: Int)
 
@@ -135,12 +155,13 @@ class RandomMapCreator private constructor(
         /**
          * Checks provided arguments and returns Right<RandomMapCreator> if all arguments are valid.
          *
-         * @param directionGenerator source of random or predetermined directions
-         * @param positionGenerator source of random or predetermined positions
+         * @param generator generators for game entities on map
          * @param mapWidth should not be more than 10000 or less than chunkSize.
          * Will be rounded up to the closest integer divisible by chunkSize.
+         * Does not include border.
          * @param mapHeight should not be more than 10000 or less than chunkSize
          * Will be rounded up to the closest integer divisible by chunkSize.
+         * Does not include border.
          * @param chunkSize a minimal square filled with objects of one type.
          * @param distance a distance metric which is used in fog computations and in mob strategies
          * @param fogRadius how far player sees

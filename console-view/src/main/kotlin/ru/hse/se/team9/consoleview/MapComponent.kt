@@ -52,7 +52,7 @@ internal class MapComponent(
 
     private class MapRenderer : InteractableRenderer<MapComponent> {
         override fun getPreferredSize(component: MapComponent): TerminalSize {
-            return TerminalSize.ONE
+            return TerminalSize(Int.MAX_VALUE, Int.MAX_VALUE)
         }
 
         override fun drawComponent(graphics: TextGUIGraphics, component: MapComponent) {
@@ -83,7 +83,7 @@ internal class MapComponent(
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
-                    if (fog[y][x]) {
+                    if (fog.getOrNull(y)?.getOrNull(x) != false) {
                         graphics.setCharacter(
                             x - xLeft,
                             y - yHigh,
@@ -128,7 +128,7 @@ internal class MapComponent(
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
-                    val character = when (gameMap[y][x]) {
+                    val character = when (gameMap.getOrNull(y)?.getOrNull(x) ?: Wall) {
                         Wall -> TextCharacter(WALL_CHARACTER, WALL_COLOR, BACKGROUND_COLOR)
                         EmptySpace -> TextCharacter(EMPTY_SPACE_CHARACTER, EMPTY_SPACE_COLOR, BACKGROUND_COLOR)
                     }
@@ -163,11 +163,7 @@ internal class MapComponent(
         private fun getBounds(position: Int, width: Int, maxWidth: Int): Pair<Int, Int> {
             val minBound = position - (width - 1) / 2
             val maxBound = position + (width + 2) / 2
-            return when {
-                minBound < 0 -> Pair(0, min(width, maxWidth))
-                maxBound > maxWidth -> Pair(max(maxWidth - width, 0), maxWidth)
-                else -> Pair(minBound, maxBound)
-            }
+            return Pair(minBound, maxBound)
         }
 
         private fun normalizeRgbColor(component: Double): Int = max(0, min(255, component.roundToInt()))

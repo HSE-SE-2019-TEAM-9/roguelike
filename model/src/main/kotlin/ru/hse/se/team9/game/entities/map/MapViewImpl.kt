@@ -18,6 +18,7 @@ class MapViewImpl(gameMap: GameMap) : MapView {
     }
     override val hero: HeroView = object : HeroView {
         override val position = gameMap.heroOnMap.position
+        override val hp = gameMap.heroOnMap.hero.stats.hp
     }
     override val map: List<List<MapObject>> = gameMap.map
     override val width = gameMap.map[0].size

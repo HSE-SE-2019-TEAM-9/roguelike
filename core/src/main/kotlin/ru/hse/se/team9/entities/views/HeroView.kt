@@ -6,4 +6,6 @@ import ru.hse.se.team9.positions.Position
 interface HeroView {
     /** Position of hero on the map */
     val position: Position
+    /** Health of hero */
+    val hp: Int
 }

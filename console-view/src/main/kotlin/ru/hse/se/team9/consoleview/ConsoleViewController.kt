@@ -10,17 +10,13 @@ import com.googlecode.lanterna.gui2.dialogs.MessageDialogButton
 import com.googlecode.lanterna.screen.TerminalScreen
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger
-import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.views.MapView
-import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
 import java.io.EOFException
 import java.io.File
 import java.lang.Thread.sleep
-import java.util.*
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -98,7 +94,13 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
     /** Shows game map. */
     override fun drawMap(map: MapView) {
         mapView = MapComponent(map, gui.screen, actionQueue, keyPressedHandler)
-        mapWindow.component = mapView
+        val hpPanel = Panel()
+        hpPanel.addComponent(Label("HP: ${map.hero.hp}"))
+        val panel = Panel()
+        panel.layoutManager = LinearLayout(Direction.VERTICAL)
+        panel.addComponent(hpPanel)
+        panel.addComponent(mapView)
+        mapWindow.component = panel
     }
 
     /** Shows menu with provided menu options */
