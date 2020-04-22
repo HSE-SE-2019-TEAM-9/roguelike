@@ -7,7 +7,7 @@ import ru.hse.se.team9.game.entities.hero.effects.DecreaseHpEffect
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.mobs.Mob
-import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.random.GameGeneratorMediator
 import ru.hse.se.team9.utils.get
 import ru.hse.se.team9.utils.plus
 import kotlin.math.ceil
@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 /** Represents all logic within one game -- moves hero, tells if game is finished etc.
  * @property map game map used in this game
  */
-class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator) {
+class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGeneratorMediator) {
     // VisibleForTesting
     internal fun movePlayer(move: Move): Either<Finished, InProgress> {
         val direction = when (move) {

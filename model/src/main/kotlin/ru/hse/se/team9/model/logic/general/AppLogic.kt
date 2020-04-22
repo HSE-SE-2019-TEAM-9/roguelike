@@ -10,7 +10,7 @@ import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
-import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.random.GameGeneratorMediator
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
@@ -26,7 +26,7 @@ import ru.hse.se.team9.view.ViewController
  */
 class AppLogic(
     private val viewController: ViewController,
-    private val generator: GameGenerator,
+    private val generator: GameGeneratorMediator,
     private val fileChooser: FileChooser,
     private val distance: Distance
 ) {

@@ -9,13 +9,13 @@ import ru.hse.se.team9.model.random.mobs.MobGenerator
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
-/** A GameGenerator implementation which redirects all calls to underlying "small" generators.  */
+/** An implementation of all generators which redirects all calls to underlying "small" generators.  */
 class GameGeneratorMediator(
     private val directionGenerator: DirectionGenerator,
     private val positionGenerator: PositionGenerator,
     private val mobGenerator: MobGenerator,
     private val strategyModifierGenerator: StrategyModifierGenerator
-) : GameGenerator {
+) : DirectionGenerator, MobGenerator, PositionGenerator, StrategyModifierGenerator {
     override fun createDirection(allowedDirections: List<Direction>): Direction {
         return directionGenerator.createDirection(allowedDirections)
     }

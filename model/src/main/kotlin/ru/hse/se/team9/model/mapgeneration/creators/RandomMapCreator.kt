@@ -14,7 +14,7 @@ import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.random.GameGeneratorMediator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.getRandomNotWallPosition
 
@@ -24,7 +24,7 @@ import ru.hse.se.team9.utils.getRandomNotWallPosition
  * directionGenerator and positionGenerator.
  */
 class RandomMapCreator private constructor(
-    private val generator: GameGenerator,
+    private val generator: GameGeneratorMediator,
     private val mapWidth: Int = MAX_WIDTH,
     private val mapHeight: Int = MAX_HEIGHT,
     private val chunkSize: Int = DEFAULT_CHUNK_SIZE,
@@ -167,7 +167,7 @@ class RandomMapCreator private constructor(
          * @param fogRadius how far player sees
          */
         fun build(
-            generator: GameGenerator,
+            generator: GameGeneratorMediator,
             mapWidth: Int = MAX_WIDTH,
             mapHeight: Int = MAX_HEIGHT,
             chunkSize: Int = DEFAULT_CHUNK_SIZE,
