@@ -21,17 +21,17 @@ class FogOfWar(
     /** Opens new map cells for hero base on current hero position */
     fun updateVision(position: Position) {
         val queue: Queue<Position> = ArrayDeque<Position>()
-        val used: List<MutableList<Boolean>> = List(height) { MutableList(width) { false } }
+        val used: MutableMap<Int, Boolean> = mutableMapOf()
         queue.add(position)
         while (!queue.isEmpty()) {
             val currentPosition = queue.poll()
             val (x, y) = currentPosition
             hidden[y][x] = false
-            used[y][x] = true
+            used[y * width + x] = true
 
             for (direction in directions) {
                 val newPosition = currentPosition + direction
-                if (!isOnMap(newPosition) || used[newPosition.y][newPosition.x]) {
+                if (!isOnMap(newPosition) || used[newPosition.y * width + newPosition.x] == true) {
                     continue
                 }
                 if (distance(position, newPosition) <= radius && canExploreFrom(currentPosition, newPosition)) {
