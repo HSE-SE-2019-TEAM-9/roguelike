@@ -65,8 +65,8 @@ internal class MapComponent(
             val fog = component.map.fog
 
             val screenSize = component.screen.terminalSize
-            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns, component.map.width)
-            val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows, component.map.height)
+            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns)
+            val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows)
             drawMap(xLeft, xRight, yHigh, yLow, gameMap, graphics)
             drawMobs(xLeft, yHigh, mobs, graphics)
             drawHero(xLeft, yHigh, heroPosition, graphics)
@@ -160,7 +160,7 @@ internal class MapComponent(
         private const val HIDDEN_CHARACTER = '?'
         private const val CONFUSED_MOB_CHARACTER = '?'
 
-        private fun getBounds(position: Int, width: Int, maxWidth: Int): Pair<Int, Int> {
+        private fun getBounds(position: Int, width: Int): Pair<Int, Int> {
             val minBound = position - (width - 1) / 2
             val maxBound = position + (width + 2) / 2
             return Pair(minBound, maxBound)
