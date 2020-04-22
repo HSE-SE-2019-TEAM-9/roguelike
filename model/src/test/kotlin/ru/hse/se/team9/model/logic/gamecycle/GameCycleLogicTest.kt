@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.model.random.GameGeneratorMediator
+import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
 import ru.hse.se.team9.model.random.mobs.RandomMob
 import ru.hse.se.team9.model.random.positions.RandomPosition
@@ -23,7 +23,7 @@ internal class GameCycleLogicTest {
 
     @BeforeEach
     fun init() {
-        val generator = GameGeneratorMediator(
+        val generator = GameGenerator(
             SimpleTestMap.upDirectionGenerator,
             RandomPosition,
             RandomMob(SimpleTestMap.upDirectionGenerator),

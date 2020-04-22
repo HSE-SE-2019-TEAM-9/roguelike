@@ -10,7 +10,7 @@ import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
 /** An implementation of all generators which redirects all calls to underlying "small" generators.  */
-class GameGeneratorMediator(
+class GameGenerator(
     private val directionGenerator: DirectionGenerator,
     private val positionGenerator: PositionGenerator,
     private val mobGenerator: MobGenerator,
