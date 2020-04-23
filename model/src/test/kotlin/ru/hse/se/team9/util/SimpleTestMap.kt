@@ -1,8 +1,7 @@
 package ru.hse.se.team9.util
 
-import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
+import ru.hse.se.team9.entities.MapObject.*
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
 import ru.hse.se.team9.game.entities.map.Direction
@@ -23,16 +22,16 @@ import ru.hse.se.team9.positions.Position
  * ####U#
  */
 internal object SimpleTestMap {
-    val width = 6
-    val height = 4
+    const val width = 6
+    const val height = 4
     val startPosition = Position(2, 2)
     val startMobPosition = Position(4, 3)
     val map: List<MutableList<MapObject>>
         get() = listOf(
-            mutableListOf(EmptySpace, Wall, EmptySpace, EmptySpace, EmptySpace, Wall),
-            mutableListOf(EmptySpace, Wall, EmptySpace, Wall, EmptySpace, EmptySpace),
-            mutableListOf(EmptySpace, EmptySpace, EmptySpace, Wall, EmptySpace, Wall),
-            mutableListOf(Wall, Wall, Wall, Wall, EmptySpace, Wall)
+            mutableListOf(EMPTY_SPACE, WALL,        EMPTY_SPACE, EMPTY_SPACE, EMPTY_SPACE, WALL),
+            mutableListOf(EMPTY_SPACE, WALL,        EMPTY_SPACE, WALL,        EMPTY_SPACE, EMPTY_SPACE),
+            mutableListOf(EMPTY_SPACE, EMPTY_SPACE, EMPTY_SPACE, WALL,        EMPTY_SPACE, WALL),
+            mutableListOf(WALL,        WALL,        WALL,        WALL,        EMPTY_SPACE, WALL)
         )
 
     val upDirectionGenerator = object : DirectionGenerator {

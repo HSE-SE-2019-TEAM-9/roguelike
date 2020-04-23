@@ -12,17 +12,16 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.plus
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
-import kotlin.text.Charsets.UTF_8
 
 /**
  * Represents game map
@@ -87,7 +86,7 @@ class GameMap(
 
     private fun isNotWall(position: Position): Boolean {
         val (x, y) = position
-        return map[y][x] !is Wall
+        return map[y][x] != MapObject.WALL
     }
 
     private fun isNotMob(position: Position): Boolean {
@@ -131,7 +130,11 @@ class GameMap(
         private val serializedState: ByteArray
 
         constructor(gameMap: GameMap) {
-            serializedState = gzip(mapper.writeValueAsString(gameMap))
+            val out = ByteArrayOutputStream()
+            val gzipOut = GZIPOutputStream(out, bufferSize, true)
+            mapper.writeValue(gzipOut, gameMap)
+            gzipOut.flush()
+            serializedState = out.toByteArray()
         }
 
         constructor(serialized: ByteArray) {
@@ -144,21 +147,14 @@ class GameMap(
 
         fun restore(): Either<Throwable, GameMap> {
             return try {
-                val gameMap = mapper.readValue<GameMap>(ungzip(serializedState))
+                val gameMap = mapper.readValue<GameMap>(
+                    GZIPInputStream(ByteArrayInputStream(serializedState), bufferSize)
+                )
                 Right(gameMap)
             } catch (e: Throwable) {
                 Left(e)
             }
         }
-
-        private fun gzip(content: String): ByteArray {
-            val bos = ByteArrayOutputStream()
-            GZIPOutputStream(bos).bufferedWriter(UTF_8).use { it.write(content) }
-            return bos.toByteArray()
-        }
-
-        private fun ungzip(content: ByteArray): String =
-            GZIPInputStream(content.inputStream()).bufferedReader(UTF_8).use { it.readText() }
 
         private class PositionKeySerializer : JsonSerializer<Position>() {
             override fun serialize(value: Position, gen: JsonGenerator, serializers: SerializerProvider) {
@@ -174,7 +170,9 @@ class GameMap(
         }
 
         companion object {
-            val mapper: ObjectMapper = jacksonObjectMapper()
+            private const val bufferSize = 8096
+            private val mapper: ObjectMapper = jacksonObjectMapper()
+                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
                 .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
                 .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
                 .setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE)

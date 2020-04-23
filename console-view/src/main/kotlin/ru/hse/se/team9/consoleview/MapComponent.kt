@@ -8,10 +8,7 @@ import com.googlecode.lanterna.gui2.*
 import com.googlecode.lanterna.input.KeyStroke
 import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
-import ru.hse.se.team9.entities.EmptySpace
-import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.MobProperty
-import ru.hse.se.team9.entities.Wall
+import ru.hse.se.team9.entities.*
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.entities.views.MobView
 import ru.hse.se.team9.positions.Position
@@ -128,9 +125,9 @@ internal class MapComponent(
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
-                    val character = when (gameMap.getOrNull(y)?.getOrNull(x) ?: Wall) {
-                        Wall -> TextCharacter(WALL_CHARACTER, WALL_COLOR, BACKGROUND_COLOR)
-                        EmptySpace -> TextCharacter(EMPTY_SPACE_CHARACTER, EMPTY_SPACE_COLOR, BACKGROUND_COLOR)
+                    val character = when (gameMap.getOrNull(y)?.getOrNull(x) ?: MapObject.WALL) {
+                        MapObject.WALL -> TextCharacter(WALL_CHARACTER, WALL_COLOR, BACKGROUND_COLOR)
+                        MapObject.EMPTY_SPACE -> TextCharacter(EMPTY_SPACE_CHARACTER, EMPTY_SPACE_COLOR, BACKGROUND_COLOR)
                     }
                     graphics.setCharacter(x - xLeft, y - yHigh, character)
                 }

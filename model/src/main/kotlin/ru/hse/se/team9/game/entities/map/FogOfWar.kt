@@ -1,7 +1,6 @@
 package ru.hse.se.team9.game.entities.map
 
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.plus
@@ -44,7 +43,7 @@ class FogOfWar(
     private fun canExploreFrom(from: Position, position: Position): Boolean {
         val (x1, y1) = from
         val (x2, y2) = position
-        return !(map[y1][x1] is Wall && map[y2][x2] !is Wall)
+        return !(map[y1][x1] == MapObject.WALL && map[y2][x2] != MapObject.WALL)
     }
 
     private fun isOnMap(position: Position): Boolean {

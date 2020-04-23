@@ -1,13 +1,12 @@
 package ru.hse.se.team9.entities
 
 /**
- * Class representing landscape object -- object lying on map and, mostly, not moving.
- * Used for map representation in view
+ * Represents map landscape.
+ * Used for map representation in view.
  */
-sealed class MapObject
-
-/** Object representing wall -- entity, through which neither player nor anybody else can walk */
-object Wall : MapObject()
-
-/** Object representing empty space -- it can be stepped over by anyone */
-object EmptySpace : MapObject()
+enum class MapObject {
+    /** Entity, through which neither player nor anybody else can walk */
+    WALL,
+    /** Can be stepped over by anyone */
+    EMPTY_SPACE
+}

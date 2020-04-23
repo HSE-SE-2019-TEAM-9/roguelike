@@ -1,7 +1,6 @@
 package ru.hse.se.team9.utils
 
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
@@ -24,7 +23,7 @@ tailrec fun getRandomNotWallPosition(
     map: List<List<MapObject>>
 ): Position {
     val (x, y) = positionGenerator.createPosition(map[0].size, map.size)
-    return if (map[y][x] is Wall) {
+    return if (map[y][x] == MapObject.WALL) {
         getRandomNotWallPosition(positionGenerator, map)
     } else {
         Position(x, y)

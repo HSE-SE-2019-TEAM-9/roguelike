@@ -1,9 +1,7 @@
 package ru.hse.se.team9.model.mapgeneration.creators
 
 import arrow.core.Either
-import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
 import ru.hse.se.team9.game.entities.map.Direction
@@ -49,8 +47,7 @@ class RandomMapCreator private constructor(
         val mapWidthAdjusted = mapWidth + BORDER_CHUNK_SIZE * chunkSize
         val heroPosition = Position(borderSize, borderSize)
 
-        val map =
-            List(mapHeightAdjusted) { MutableList<MapObject>(mapWidthAdjusted) { Wall } }
+        val map = List(mapHeightAdjusted) { MutableList(mapWidthAdjusted) { MapObject.WALL } }
 
         makeEmptyChunk(map, Chunk(borderSize, borderSize))
         val dfsStack = mutableListOf(Chunk(borderSize, borderSize))
@@ -103,7 +100,7 @@ class RandomMapCreator private constructor(
     private fun makeEmptyChunk(map: List<MutableList<MapObject>>, chunk: Chunk) {
         for (i in 0 until chunkSize) {
             for (j in 0 until chunkSize) {
-                map[chunk.h + i][chunk.w + j] = EmptySpace
+                map[chunk.h + i][chunk.w + j] = MapObject.EMPTY_SPACE
             }
         }
     }
@@ -127,7 +124,7 @@ class RandomMapCreator private constructor(
             val (offsetH, offsetW) = offset
             val newH = chunk.h + offsetH
             val newW = chunk.w + offsetW
-            val isWall = map.getOrNull(newH)?.getOrNull(newW) == Wall
+            val isWall = map.getOrNull(newH)?.getOrNull(newW) == MapObject.WALL
             val hNotBorder = newH >= borderSize && newH < (mapHeightAdjusted - borderSize)
             val wNotBorder = newW >= borderSize && newW < (mapWidthAdjusted - borderSize)
             isWall && hNotBorder && wNotBorder
