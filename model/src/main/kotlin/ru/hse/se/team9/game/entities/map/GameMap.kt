@@ -122,13 +122,19 @@ class GameMap(
         return result
     }
 
+    /** Returns GameMap snapshot */
     fun getCurrentState(): State {
         return State(this)
     }
 
+    /**
+     * Holds GameMap snapshot.
+     * Can be used to save and restore game state.
+     */
     class State {
         private val serializedState: ByteArray
 
+        /** Creates representation of specified GameMap current state */
         constructor(gameMap: GameMap) {
             val out = ByteArrayOutputStream()
             val gzipOut = GZIPOutputStream(out, bufferSize, true)
@@ -137,14 +143,22 @@ class GameMap(
             serializedState = out.toByteArray()
         }
 
+        /** Creates State from its serialization.
+         * Note that this constructor does not throw anything if its argument is not a correct serialization.
+         */
         constructor(serialized: ByteArray) {
             serializedState = serialized
         }
 
+        /** Serializes map snapshot to ByteArray */
         fun serialize(): ByteArray {
             return serializedState
         }
 
+        /**
+         * Restores GameMap from snapshot.
+         * @return Left<Throwable> if some error occurred and Right<GameMap> if restored successfully.
+         */
         fun restore(): Either<Throwable, GameMap> {
             return try {
                 val gameMap = mapper.readValue<GameMap>(
@@ -169,7 +183,7 @@ class GameMap(
             }
         }
 
-        companion object {
+        private companion object {
             private const val bufferSize = 8096
             private val mapper: ObjectMapper = jacksonObjectMapper()
                 .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
