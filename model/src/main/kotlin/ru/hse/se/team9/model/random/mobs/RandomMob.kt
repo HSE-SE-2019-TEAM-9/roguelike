@@ -8,7 +8,7 @@ import ru.hse.se.team9.game.entities.mobs.strategies.CowardStrategy
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import kotlin.random.Random
 
-class RandomMob(directionGenerator: DirectionGenerator) :
+class RandomMob(private val directionGenerator: DirectionGenerator) : // FIXME kostyl for serialization
     MobGenerator {
     private val strategies = listOf(
         AggressiveStrategy(directionGenerator),

@@ -32,8 +32,8 @@ fun main(args: Array<String>) {
                     36,
                     4,
                     Manhattan,
-                    4
-                ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.serialize()
+                    6
+                ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.getCurrentState().serialize()
             it.write(file)
         }
         return
