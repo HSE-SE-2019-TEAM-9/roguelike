@@ -24,18 +24,15 @@ fun main(args: Array<String>) {
     )
 
     if (args.contains("create-map")) {
-        File("map_example").writer().use {
-            val file =
-                RandomMapCreator.build(
-                    generator,
-                    36,
-                    36,
-                    4,
-                    Manhattan,
-                    6
-                ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.getCurrentState().serialize()
-            it.write(file)
-        }
+        val file = RandomMapCreator.build(
+            generator,
+            36,
+            36,
+            4,
+            Manhattan,
+            6
+        ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.getCurrentState().serialize()
+        File("map_example").writeBytes(file)
         return
     }
 

@@ -28,7 +28,7 @@ class FromFileMapCreator private constructor(
     override fun createMap(): Either<MapCreationError, GameMap> {
         val file = fileChooser.chooseFile(File(".")) ?: return Either.left(FileNotChosen)
         return try {
-            GameMap.State(file.readText()).restore().mapLeft {
+            GameMap.State(file.readBytes()).restore().mapLeft {
                 ParseError(it)
             }
         } catch (e: IOException) {

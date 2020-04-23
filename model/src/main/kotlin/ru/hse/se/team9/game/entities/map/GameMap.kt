@@ -18,8 +18,11 @@ import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
-import ru.hse.se.team9.utils.getRandomNotWallPosition
 import ru.hse.se.team9.utils.plus
+import java.io.ByteArrayOutputStream
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
+import kotlin.text.Charsets.UTF_8
 
 /**
  * Represents game map
@@ -125,28 +128,37 @@ class GameMap(
     }
 
     class State {
-        private val serializedState: String
+        private val serializedState: ByteArray
 
         constructor(gameMap: GameMap) {
-            serializedState = mapper.writeValueAsString(gameMap)
+            serializedState = gzip(mapper.writeValueAsString(gameMap))
         }
 
-        constructor(serialized: String) {
+        constructor(serialized: ByteArray) {
             serializedState = serialized
         }
 
-        fun serialize(): String {
+        fun serialize(): ByteArray {
             return serializedState
         }
 
         fun restore(): Either<Throwable, GameMap> {
             return try {
-                val gameMap = mapper.readValue<GameMap>(serializedState)
+                val gameMap = mapper.readValue<GameMap>(ungzip(serializedState))
                 Right(gameMap)
             } catch (e: Throwable) {
                 Left(e)
             }
         }
+
+        private fun gzip(content: String): ByteArray {
+            val bos = ByteArrayOutputStream()
+            GZIPOutputStream(bos).bufferedWriter(UTF_8).use { it.write(content) }
+            return bos.toByteArray()
+        }
+
+        private fun ungzip(content: ByteArray): String =
+            GZIPInputStream(content.inputStream()).bufferedReader(UTF_8).use { it.readText() }
 
         private class PositionKeySerializer : JsonSerializer<Position>() {
             override fun serialize(value: Position, gen: JsonGenerator, serializers: SerializerProvider) {
