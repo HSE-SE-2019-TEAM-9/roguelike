@@ -1,5 +1,6 @@
 package ru.hse.se.team9.game.entities.map
 
+import arrow.core.getOrHandle
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.util.SimpleTestMap
+import ru.hse.se.team9.util.getResourceFile
+import java.io.File
 
 internal class GameMapTest {
     private lateinit var map: List<MutableList<MapObject>>
@@ -85,10 +88,8 @@ internal class GameMapTest {
         assertEquals(Position(2, 1), getPos())
     }
 
-    //TODO: fixme
-//    @Test
-//    fun testSerialize() {
-//        val expected = getResourceFile(this::class.java, "/serializedMap.txt").readText()
-//        assertEquals(expected, gameMap.serialize())
-//    }
+    @Test
+    fun testSerialize() {
+        assertEquals(gameMap, GameMap.State(gameMap.getCurrentState().serialize()).restore().getOrHandle { throw it })
+    }
 }
