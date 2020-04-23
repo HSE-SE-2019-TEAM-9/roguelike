@@ -1,19 +1,24 @@
 package ru.hse.se.team9.game.entities.mobs.strategies
 
-import ru.hse.se.team9.entities.MobModifier
+import ru.hse.se.team9.entities.MobProperty
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.plus
 
+/** Makes some predetermined number of random moves. Then returns to inner strategy */
 class ConfusedStrategy(
     private val innerStrategy: MobStrategy,
     private val directionGenerator: DirectionGenerator,
     private val invocationCount: Int = 0
 ) : MobStrategy {
 
+    /**
+     * Makes random move. If number of invocations is more than MAX_INVOCATIONS then returns underlying strategy.
+     * otherwise returns confused strategy
+     */
     override fun makeMove(position: Position, map: GameMap): Pair<Position, MobStrategy> {
-        val (newInnerPos, newInnerStrategy) = innerStrategy.makeMove(position, map)
+        val (_, newInnerStrategy) = innerStrategy.makeMove(position, map)
         val confusedPos = position + directionGenerator.createDirection()
 
         return if (invocationCount < MAX_INVOCATIONS) {
@@ -23,8 +28,9 @@ class ConfusedStrategy(
         }
     }
 
-    override fun getModifiers(): List<MobModifier> =
-        innerStrategy.getModifiers().plus(MobModifier.CONFUSED)
+    /** Returns special confused mob property */
+    override fun getProperties(): List<MobProperty> =
+        innerStrategy.getProperties().plus(MobProperty.CONFUSED)
 
     companion object ConfusedStrategy {
         private const val MAX_INVOCATIONS = 10

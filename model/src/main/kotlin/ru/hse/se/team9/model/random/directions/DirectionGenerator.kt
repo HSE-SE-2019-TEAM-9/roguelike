@@ -7,5 +7,6 @@ interface DirectionGenerator {
     /** Chooses one direction from the allowdDirections list. */
     fun createDirection(allowedDirections: List<Direction>): Direction
 
-    fun createDirection(): Direction
+    /** Chooses one direction from all possible directions. */
+    fun createDirection(): Direction = createDirection(Direction.values().toList())
 }

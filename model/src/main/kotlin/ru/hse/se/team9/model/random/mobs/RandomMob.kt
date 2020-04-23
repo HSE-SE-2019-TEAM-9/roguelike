@@ -8,8 +8,11 @@ import ru.hse.se.team9.game.entities.mobs.strategies.CowardStrategy
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import kotlin.random.Random
 
-class RandomMob(private val directionGenerator: DirectionGenerator) : // FIXME kostyl for serialization
-    MobGenerator {
+/**
+ * An implementation of MobGenerator which uses specified directionGenerator (used for strategies) and
+ * kotlin.random.Random (used for mob stats) and generates random mobs.
+ */
+class RandomMob(private val directionGenerator: DirectionGenerator) : MobGenerator {
     private val strategies = listOf(
         AggressiveStrategy(directionGenerator),
         AggressiveStrategy(directionGenerator),
@@ -17,6 +20,7 @@ class RandomMob(private val directionGenerator: DirectionGenerator) : // FIXME k
         PassiveStrategy
     )
 
+    /** Generates one Mob with random stats and one random strategy */
     override fun createMob(): Mob {
         val hp = Random.nextInt(1, MAX_HP)
         val damage = Random.nextInt(1, MAX_DMG)

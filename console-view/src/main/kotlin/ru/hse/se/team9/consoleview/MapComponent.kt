@@ -10,7 +10,7 @@ import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
 import ru.hse.se.team9.entities.EmptySpace
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.entities.MobModifier
+import ru.hse.se.team9.entities.MobProperty
 import ru.hse.se.team9.entities.Wall
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.entities.views.MobView
@@ -52,7 +52,7 @@ internal class MapComponent(
 
     private class MapRenderer : InteractableRenderer<MapComponent> {
         override fun getPreferredSize(component: MapComponent): TerminalSize {
-            return TerminalSize.ONE
+            return TerminalSize(Int.MAX_VALUE, Int.MAX_VALUE)
         }
 
         override fun drawComponent(graphics: TextGUIGraphics, component: MapComponent) {
@@ -65,8 +65,8 @@ internal class MapComponent(
             val fog = component.map.fog
 
             val screenSize = component.screen.terminalSize
-            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns, component.map.width)
-            val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows, component.map.height)
+            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns)
+            val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows)
             drawMap(xLeft, xRight, yHigh, yLow, gameMap, graphics)
             drawMobs(xLeft, yHigh, mobs, graphics)
             drawHero(xLeft, yHigh, heroPosition, graphics)
@@ -83,7 +83,7 @@ internal class MapComponent(
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
-                    if (fog[y][x]) {
+                    if (fog.getOrNull(y)?.getOrNull(x) != false) {
                         graphics.setCharacter(
                             x - xLeft,
                             y - yHigh,
@@ -98,7 +98,7 @@ internal class MapComponent(
             for (mob in mobs) {
                 val color = getMobColor(mob.hp, mob.maxHp)
                 val character =
-                    if (mob.modifiers.contains(MobModifier.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
+                    if (mob.properties.contains(MobProperty.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
                 graphics.setCharacter(
                     mob.position.x - xLeft, mob.position.y - yHigh,
                     TextCharacter(character, color, BACKGROUND_COLOR)
@@ -128,7 +128,7 @@ internal class MapComponent(
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
-                    val character = when (gameMap[y][x]) {
+                    val character = when (gameMap.getOrNull(y)?.getOrNull(x) ?: Wall) {
                         Wall -> TextCharacter(WALL_CHARACTER, WALL_COLOR, BACKGROUND_COLOR)
                         EmptySpace -> TextCharacter(EMPTY_SPACE_CHARACTER, EMPTY_SPACE_COLOR, BACKGROUND_COLOR)
                     }
@@ -148,7 +148,7 @@ internal class MapComponent(
         private val EMPTY_SPACE_COLOR = TextColor.ANSI.YELLOW
         private val FULL_HP_MOB_COLOR = TextColor.Indexed.fromRGB(190, 255, 0)
         private val NO_HP_MOB_COLOR = TextColor.Indexed.fromRGB(255, 0, 0)
-        private val WALL_COLOR = TextColor.Indexed.fromRGB(0, 100, 0)
+        private val WALL_COLOR = TextColor.Indexed.fromRGB(71, 51, 68)
         private val HIDDEN_BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HIDDEN_COLOR = TextColor.ANSI.BLACK
 
@@ -160,14 +160,10 @@ internal class MapComponent(
         private const val HIDDEN_CHARACTER = '?'
         private const val CONFUSED_MOB_CHARACTER = '?'
 
-        private fun getBounds(position: Int, width: Int, maxWidth: Int): Pair<Int, Int> {
+        private fun getBounds(position: Int, width: Int): Pair<Int, Int> {
             val minBound = position - (width - 1) / 2
             val maxBound = position + (width + 2) / 2
-            return when {
-                minBound < 0 -> Pair(0, min(width, maxWidth))
-                maxBound > maxWidth -> Pair(max(maxWidth - width, 0), maxWidth)
-                else -> Pair(minBound, maxBound)
-            }
+            return Pair(minBound, maxBound)
         }
 
         private fun normalizeRgbColor(component: Double): Int = max(0, min(255, component.roundToInt()))

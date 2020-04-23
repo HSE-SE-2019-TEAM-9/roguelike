@@ -20,9 +20,9 @@ import ru.hse.se.team9.view.ViewController
  * Creates GameCycleLogic for the logic of a single game.
  *
  * @param viewController responsible for ui and keyboard actions
- * @param directioGnenerator generates random or predetermined directions
- * @param positionGenerator generates random or predetermined positions
+ * @param generator generates random or predetermined game entities or concepts
  * @param fileChooser chooses file from filesystem. Needed for FromFileMapCreator
+ * @param distance a distance metric which is used in fog computations and in mob strategies
  */
 class AppLogic(
     private val viewController: ViewController,

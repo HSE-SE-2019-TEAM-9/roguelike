@@ -6,7 +6,7 @@ import ru.hse.se.team9.model.logic.general.AppLogic
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
 import ru.hse.se.team9.model.random.directions.RandomDirection
-import ru.hse.se.team9.model.random.GlobalRandom
+import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
 import ru.hse.se.team9.model.random.mobs.RandomMob
 import ru.hse.se.team9.model.random.positions.RandomPosition
@@ -16,7 +16,7 @@ import java.io.File
  * Injects dependencies and starts components of the app.
  */
 fun main(args: Array<String>) {
-    val generator = GlobalRandom(
+    val generator = GameGenerator(
         RandomDirection,
         RandomPosition,
         RandomMob(RandomDirection),

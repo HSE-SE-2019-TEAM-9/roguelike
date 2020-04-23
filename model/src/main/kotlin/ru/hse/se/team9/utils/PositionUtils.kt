@@ -6,6 +6,10 @@ import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.model.random.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
+/**
+ * Adds direction to position. This operation is equivalent to taking one step in the specified direction from
+ * receiver-position.
+ */
 operator fun Position.plus(direction: Direction) =
     when (direction) {
         Direction.LEFT -> Position(x - 1, y)
@@ -14,6 +18,7 @@ operator fun Position.plus(direction: Direction) =
         Direction.UP -> Position(x, y - 1)
     }
 
+/** Generates position with PositionGenerator until generated position is not wall. */
 tailrec fun getRandomNotWallPosition(
     positionGenerator: PositionGenerator,
     map: List<List<MapObject>>

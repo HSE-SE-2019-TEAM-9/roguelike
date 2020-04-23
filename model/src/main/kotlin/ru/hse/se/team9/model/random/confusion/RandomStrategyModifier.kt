@@ -5,7 +5,12 @@ import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
 import kotlin.random.Random
 
+/**
+ * An implementation of StrategyModifierGenerator which creates ConfusedStrategy or
+ * identity modifier with equal (0.5) probabilities
+ */
 class RandomStrategyModifier(private val directionGenerator: DirectionGenerator) : StrategyModifierGenerator {
+    /** Creates confusion strategy modifier or identity modifer */
     override fun createModifier(): (MobStrategy) -> MobStrategy =
         if (Random.nextBoolean()) {
             { mobStrategy ->

@@ -1,6 +1,6 @@
 package ru.hse.se.team9.model.logic.gamecycle
 
-/** Represents all action player can make in the app */
+/** Defines all action player can make in the app */
 sealed class PlayerAction
 
 object OpenMenu : PlayerAction()

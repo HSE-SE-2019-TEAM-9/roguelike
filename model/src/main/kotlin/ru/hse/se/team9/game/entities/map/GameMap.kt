@@ -21,12 +21,16 @@ import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.getRandomNotWallPosition
 import ru.hse.se.team9.utils.plus
 
-/** Represents game map
+/**
+ * Represents game map
  * @property heroOnMap hero and its position on map
  * @property map two-dimensional array of MapObject, stores landscape elements and not active participants of game
  * @property width width of map
  * @property height height of map
  * @property positionGenerator object using for generating random positions on map
+ * @property mobs a map from mob position to mob
+ * @property distance a metric used for map-related processes
+ * @property fogRadius how far hero sees
  */
 class GameMap(
     val heroOnMap: HeroOnMap,
@@ -68,16 +72,9 @@ class GameMap(
         }
     }
 
-    /**
-     * Removes mob from map. If no mob is located at given position does nothing
-     */
+    /** Removes mob from map. If no mob is located at given position does nothing */
     fun removeMob(position: Position) {
         mobs.remove(position)
-    }
-
-    fun placeAtRandomPosition(mapObject: MapObject) {
-        val (x, y) = getRandomNotWallPosition(positionGenerator, map)
-        map[y][x] = mapObject
     }
 
     private fun isOnMap(position: Position): Boolean {
@@ -94,6 +91,7 @@ class GameMap(
         return !mobs.containsKey(position)
     }
 
+    /** Checks that given position exists and is not occupied. */
     fun canMoveTo(position: Position): Boolean {
         return isOnMap(position) && isNotWall(position) && isNotMob(position)
     }
