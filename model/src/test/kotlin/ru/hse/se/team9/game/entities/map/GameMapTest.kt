@@ -8,8 +8,6 @@ import org.junit.jupiter.api.BeforeEach
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.util.SimpleTestMap
-import ru.hse.se.team9.util.getResourceFile
-import java.io.File
 
 internal class GameMapTest {
     private lateinit var map: List<MutableList<MapObject>>
