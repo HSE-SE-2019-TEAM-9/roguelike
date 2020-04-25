@@ -16,6 +16,7 @@ import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
 import java.io.EOFException
 import java.io.File
+import java.lang.NullPointerException
 import java.lang.Thread.sleep
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
@@ -61,6 +62,9 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
                 try {
                     gui.updateScreen()
                     gui.processInput()
+                } catch (e: NullPointerException) {
+                    // Although it is stated that it is safe to work with Lanterna from multiple threads
+                    // it has a concurrency bug (AbstractComposite.setComponent is NOT thread safe)
                 } catch (e: EOFException) {
                     return@thread
                 }
