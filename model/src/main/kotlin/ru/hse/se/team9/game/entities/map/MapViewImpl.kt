@@ -2,9 +2,9 @@ package ru.hse.se.team9.game.entities.map
 
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.MobProperty
-import ru.hse.se.team9.entities.views.HeroView
-import ru.hse.se.team9.entities.views.MapView
-import ru.hse.se.team9.entities.views.MobView
+import ru.hse.se.team9.entities.views.*
+import ru.hse.se.team9.game.entities.hero.inventory.items.ItemViewImpl
+import java.util.stream.Collectors
 
 /** Adapts GameMap to MapView interface */
 class MapViewImpl(gameMap: GameMap) : MapView {
@@ -19,6 +19,12 @@ class MapViewImpl(gameMap: GameMap) : MapView {
     override val hero: HeroView = object : HeroView {
         override val position = gameMap.heroOnMap.position
         override val hp = gameMap.heroOnMap.hero.stats.hp
+        override val armor = gameMap.heroOnMap.hero.stats.armor
+        override val damage = gameMap.heroOnMap.hero.stats.damage
+        override val inventory = gameMap.heroOnMap.hero.inventory.stream()
+                .map { ItemViewImpl(it) }.collect(Collectors.toList())
+        override val equipment = gameMap.heroOnMap.hero.equipment.getItems().stream()
+                .map { ItemViewImpl(it) }.collect(Collectors.toList())
     }
     override val map: List<List<MapObject>> = gameMap.map
     override val width = gameMap.map[0].size

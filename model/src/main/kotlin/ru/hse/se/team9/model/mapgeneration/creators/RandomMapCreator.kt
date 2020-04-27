@@ -4,6 +4,8 @@ import arrow.core.Either
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
+import ru.hse.se.team9.game.entities.hero.inventory.Equipment
+import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.GameMap
@@ -67,7 +69,7 @@ class RandomMapCreator private constructor(
             dfsStack.add(finalChunk)
         }
 
-        val hero = Hero(createDefaultStats())
+        val hero = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
         val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map, heroPosition)
         return Either.right(
             GameMap(
@@ -81,6 +83,13 @@ class RandomMapCreator private constructor(
                 fogRadius
             )
         )
+    }
+
+    private fun createDefaultEquipment(): Equipment {
+        val boots = generator.createBoots()
+        val underwear = generator.createUnderwear()
+        val weapon = generator.createWeapon()
+        return Equipment(boots, underwear, weapon)
     }
 
     private fun createRandomMobs(
@@ -148,7 +157,6 @@ class RandomMapCreator private constructor(
         internal data class Chunk(val h: Int, val w: Int)
 
         private fun createDefaultStats(): HeroStats = HeroStats(30, 30, 1, 10, 0, 1)
-
         /**
          * Checks provided arguments and returns Right<RandomMapCreator> if all arguments are valid.
          *

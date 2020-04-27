@@ -8,4 +8,12 @@ interface HeroView {
     val position: Position
     /** Health of hero */
     val hp: Int
+    /** Armor of hero */
+    val armor: Int
+    /** Damage of hero */
+    val damage: Int
+    /** All collected items, excluding equipped */
+    val inventory: List<ItemView>
+    /** All equipped items */
+    val equipment: List<ItemView>
 }

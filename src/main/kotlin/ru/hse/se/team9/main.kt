@@ -8,6 +8,7 @@ import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
 import ru.hse.se.team9.model.random.directions.RandomDirection
 import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
+import ru.hse.se.team9.model.random.items.RandomItem
 import ru.hse.se.team9.model.random.mobs.RandomMob
 import ru.hse.se.team9.model.random.positions.RandomPosition
 import java.io.File
@@ -17,20 +18,21 @@ import java.io.File
  */
 fun main(args: Array<String>) {
     val generator = GameGenerator(
-        RandomDirection,
-        RandomPosition,
-        RandomMob(RandomDirection),
-        RandomStrategyModifier(RandomDirection)
+            RandomDirection,
+            RandomPosition,
+            RandomMob(RandomDirection),
+            RandomStrategyModifier(RandomDirection),
+            RandomItem
     )
 
     if (args.contains("create-map")) {
         val file = RandomMapCreator.build(
-            generator,
-            36,
-            36,
-            4,
-            Manhattan,
-            6
+                generator,
+                36,
+                36,
+                4,
+                Manhattan,
+                6
         ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.getCurrentState().serialize()
         File("map_example").writeBytes(file)
         return
