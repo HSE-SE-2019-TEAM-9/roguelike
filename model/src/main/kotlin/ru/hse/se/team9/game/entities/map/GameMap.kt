@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.hse.se.team9.entities.MapObject
+import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
@@ -44,7 +45,8 @@ class GameMap(
     var mobs: MutableMap<Position, Mob>,
     val distance: Distance,
     val fogRadius: Int,
-    val items: MutableMap<Position, Item>
+    val items: MutableMap<Position, Item>,
+    val consumables: MutableMap<Position, Consumable>
 ) {
     val fog = FogOfWar(distance, map, width, height, fogRadius)
 

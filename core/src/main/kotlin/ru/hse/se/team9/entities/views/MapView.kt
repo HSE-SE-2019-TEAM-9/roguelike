@@ -13,4 +13,5 @@ interface MapView {
     val height: Int
     val fog: List<List<FogType>>
     val items: Map<Position, ItemView>
+    val consumables: Map<Position, ConsumableView>
 }

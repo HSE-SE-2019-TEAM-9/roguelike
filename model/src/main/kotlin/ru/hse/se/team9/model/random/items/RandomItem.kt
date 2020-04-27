@@ -1,11 +1,14 @@
 package ru.hse.se.team9.model.random.items
 
 import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
+import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
 import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 import kotlin.random.Random
 
 object RandomItem : ItemGenerator {
+    override fun createItem(): Item = listOf(createWeapon(), createUnderwear(), createBoots()).random()
+
     override fun createBoots(): Boots {
         val hpGain = Random.nextInt(MAX_HP_GAIN_BOOTS + 1)
         val armorGain = Random.nextInt(MAX_ARMOR_GAIN + 1)

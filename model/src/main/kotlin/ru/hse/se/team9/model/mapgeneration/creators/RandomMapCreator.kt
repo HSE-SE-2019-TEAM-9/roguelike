@@ -4,6 +4,7 @@ import arrow.core.Either
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
+import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.hero.inventory.Equipment
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.map.Direction
@@ -72,6 +73,7 @@ class RandomMapCreator private constructor(
         val hero = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
         val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map, heroPosition)
         val items = mutableMapOf<Position, Item>() // fix
+        val consumables = mutableMapOf<Position, Consumable>()
         return Either.right(
             GameMap(
                 HeroOnMap(hero, heroPosition),
@@ -82,7 +84,8 @@ class RandomMapCreator private constructor(
                 mobs,
                 distance,
                 fogRadius,
-                items
+                items,
+                consumables
             )
         )
     }
