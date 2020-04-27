@@ -27,6 +27,7 @@ import kotlin.math.roundToInt
 internal class MapComponent(
     private val map: MapView,
     private val screen: Screen,
+    private val sidePanelWidth: Int,
     private val actionQueue: Queue<() -> Unit>,
     var keyPressedHandler: (KeyPressedType) -> Unit
 ) : AbstractInteractableComponent<MapComponent>() {
@@ -67,7 +68,7 @@ internal class MapComponent(
             val fog = component.map.fog
 
             val screenSize = component.screen.terminalSize
-            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns)
+            val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns - component.sidePanelWidth)
             val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows)
             drawMap(xLeft, xRight, yHigh, yLow, gameMap, fog, graphics)
             drawMobs(xLeft, yHigh, mobs, fog, graphics)

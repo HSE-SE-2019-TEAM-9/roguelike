@@ -2,7 +2,9 @@ package ru.hse.se.team9.game.entities.map
 
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.MobProperty
-import ru.hse.se.team9.entities.views.*
+import ru.hse.se.team9.entities.views.HeroView
+import ru.hse.se.team9.entities.views.MapView
+import ru.hse.se.team9.entities.views.MobView
 import ru.hse.se.team9.game.entities.hero.inventory.items.ItemViewImpl
 import java.util.stream.Collectors
 
@@ -30,4 +32,5 @@ class MapViewImpl(gameMap: GameMap) : MapView {
     override val width = gameMap.map[0].size
     override val height = gameMap.map.size
     override val fog = gameMap.fog.fog
+    override val items = gameMap.items.mapValues { ItemViewImpl(it.value) }
 }

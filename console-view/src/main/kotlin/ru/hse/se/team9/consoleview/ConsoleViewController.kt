@@ -10,6 +10,7 @@ import com.googlecode.lanterna.gui2.dialogs.MessageDialogButton
 import com.googlecode.lanterna.screen.TerminalScreen
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger
+import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
@@ -97,12 +98,41 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
 
     /** Shows game map. */
     override fun drawMap(map: MapView) {
-        mapView = MapComponent(map, gui.screen, actionQueue, keyPressedHandler)
-        val hpPanel = Panel()
-        hpPanel.addComponent(Label("HP: ${map.hero.hp}"))
+        mapView = MapComponent(map, gui.screen, SIDE_PANEL_WIDTH, actionQueue, keyPressedHandler)
+
+        val infoPanel = Panel()
+        infoPanel.preferredSize = TerminalSize(SIDE_PANEL_WIDTH, INFINITY)
+
+        val stats = Label("HP: ${map.hero.hp}\nArmor: ${map.hero.armor}\nDamage: ${map.hero.damage}")
+        stats.preferredSize = TerminalSize(INFINITY, 3)
+        infoPanel.addComponent(stats.withBorder(Borders.singleLine("Stats")))
+
+        val inventory = map.hero.inventory.mapIndexed { index, itemView ->
+            Pair(index, itemView)
+        }
+        val equipment = map.hero.equipment.mapIndexed { index, itemView ->
+            Pair(index, itemView)
+        }
+        val typedInventory = mapOf(
+            "Equipment" to equipment,
+            "Boots" to inventory.filter { it.second.type == ItemType.BOOTS },
+            "Weapon" to inventory.filter { it.second.type == ItemType.WEAPON },
+            "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
+        )
+        for (type in typedInventory) {
+            val inventoryList = ActionListBox()
+            inventoryList.preferredSize = TerminalSize(INFINITY, type.value.size)
+            inventoryList.isEnabled = false
+            type.value.forEach {
+                inventoryList.addItem(it.second.name) {}
+            }
+            infoPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
+        }
+        infoPanel.preferredSize = TerminalSize(SIDE_PANEL_WIDTH, INFINITY)
+
         val panel = Panel()
-        panel.layoutManager = LinearLayout(Direction.VERTICAL)
-        panel.addComponent(hpPanel)
+        panel.layoutManager = LinearLayout(Direction.HORIZONTAL)
+        panel.addComponent(infoPanel.withBorder(Borders.singleLine()))
         panel.addComponent(mapView)
         mapWindow.component = panel
     }
@@ -153,6 +183,9 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         private const val APP_TITLE = "Roguelike-2"
         private const val CHOOSE_FILE_TITLE = "Choose file"
         private const val ERROR_TITLE = "Error"
+
+        private const val SIDE_PANEL_WIDTH = 30
+        private const val INFINITY = 1000 // lol
     }
 }
 

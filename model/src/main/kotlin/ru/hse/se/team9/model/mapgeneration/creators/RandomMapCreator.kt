@@ -71,6 +71,7 @@ class RandomMapCreator private constructor(
 
         val hero = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
         val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map, heroPosition)
+        val items = mutableMapOf<Position, Item>() // fix
         return Either.right(
             GameMap(
                 HeroOnMap(hero, heroPosition),
@@ -80,7 +81,8 @@ class RandomMapCreator private constructor(
                 generator,
                 mobs,
                 distance,
-                fogRadius
+                fogRadius,
+                items
             )
         )
     }
