@@ -8,6 +8,8 @@ interface HeroView {
     val position: Position
     /** Health of hero */
     val hp: Int
+    /** Maximum health of hero */
+    val maxHp: Int
     /** Armor of hero */
     val armor: Int
     /** Damage of hero */

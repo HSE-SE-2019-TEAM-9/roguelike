@@ -103,32 +103,41 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         val infoPanel = Panel()
         infoPanel.preferredSize = TerminalSize(SIDE_PANEL_WIDTH, INFINITY)
 
-        val stats = Label("HP: ${map.hero.hp}\nArmor: ${map.hero.armor}\nDamage: ${map.hero.damage}")
+        val stats = Label(
+            "Health: ${map.hero.hp}/${map.hero.maxHp}\nArmor: ${map.hero.armor}\nDamage: ${map.hero.damage}"
+        )
         stats.preferredSize = TerminalSize(INFINITY, 3)
         infoPanel.addComponent(stats.withBorder(Borders.singleLine("Stats")))
+
+        val equipment = map.hero.equipment
+        val equipmentList = ActionListBox()
+        equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
+        equipmentList.isEnabled = false
+        equipment.forEach {
+            equipmentList.addItem(it.name) {} // FIXME
+        }
+        infoPanel.addComponent(equipmentList.withBorder(Borders.singleLine("Equipment")))
 
         val inventory = map.hero.inventory.mapIndexed { index, itemView ->
             Pair(index, itemView)
         }
-        val equipment = map.hero.equipment.mapIndexed { index, itemView ->
-            Pair(index, itemView)
-        }
         val typedInventory = mapOf(
-            "Equipment" to equipment,
             "Boots" to inventory.filter { it.second.type == ItemType.BOOTS },
             "Weapon" to inventory.filter { it.second.type == ItemType.WEAPON },
             "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
         )
+        val inventoryPanel = Panel()
+        inventoryPanel.preferredSize = TerminalSize(INFINITY, INFINITY)
         for (type in typedInventory) {
             val inventoryList = ActionListBox()
             inventoryList.preferredSize = TerminalSize(INFINITY, type.value.size)
             inventoryList.isEnabled = false
             type.value.forEach {
-                inventoryList.addItem(it.second.name) {}
+                inventoryList.addItem(it.second.name) {} // FIXME
             }
-            infoPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
+            inventoryPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
         }
-        infoPanel.preferredSize = TerminalSize(SIDE_PANEL_WIDTH, INFINITY)
+        infoPanel.addComponent(inventoryPanel.withBorder(Borders.singleLine( "Inventory")))
 
         val panel = Panel()
         panel.layoutManager = LinearLayout(Direction.HORIZONTAL)

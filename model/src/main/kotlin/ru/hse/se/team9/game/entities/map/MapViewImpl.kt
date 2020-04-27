@@ -15,6 +15,7 @@ class MapViewImpl(gameMap: GameMap) : MapView {
     override val hero: HeroView = object : HeroView {
         override val position = gameMap.heroOnMap.position
         override val hp = gameMap.heroOnMap.hero.stats.hp
+        override val maxHp = gameMap.heroOnMap.hero.stats.maxHp
         override val armor = gameMap.heroOnMap.hero.stats.armor
         override val damage = gameMap.heroOnMap.hero.stats.damage
         override val inventory = gameMap.heroOnMap.hero.inventory.stream()
