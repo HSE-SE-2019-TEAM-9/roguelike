@@ -179,7 +179,7 @@ internal class MapComponent(
         private const val MOB_CHARACTER = 'U'
         private const val HIDDEN_CHARACTER = '?'
         private const val CONFUSED_MOB_CHARACTER = '?'
-        private const val ITEM_CHARACTER = '刀'
+        private const val ITEM_CHARACTER = '&'
         private const val CONSUMABLE_CHARACTER = '♥'
         private const val DIM_COLOR_INTENSITY = 0.4
 
