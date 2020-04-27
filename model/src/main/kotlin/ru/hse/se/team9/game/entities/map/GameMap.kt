@@ -145,9 +145,9 @@ class GameMap(
         .forEach { consumables[it.first] = it.second }
 
     private fun getValidPositionSequence() = generateSequence { getRandomNotWallPosition(generator, map) }
+        .take(GENERATION_MAX_RETRIES)
         .distinct()
         .filter { isEmptyCell(it) }
-        .take(GENERATION_MAX_RETRIES)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

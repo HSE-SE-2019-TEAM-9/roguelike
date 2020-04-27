@@ -9,7 +9,11 @@ import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.strategies.AggressiveStrategy
+import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
+import ru.hse.se.team9.model.random.consumables.RandomConsumable
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.random.items.RandomItem
 import ru.hse.se.team9.model.random.mobs.RandomMob
 import ru.hse.se.team9.model.random.positions.RandomPosition
 import ru.hse.se.team9.positions.Position
@@ -38,6 +42,15 @@ internal object SimpleTestMap {
         override fun createDirection(allowedDirections: List<Direction>): Direction = Direction.UP
     }
 
+    val generator = GameGenerator(
+        upDirectionGenerator,
+        RandomPosition,
+        RandomMob(upDirectionGenerator),
+        RandomStrategyModifier(upDirectionGenerator),
+        RandomItem,
+        RandomConsumable
+    )
+
     val gameMap: GameMap
         get() = GameMap(
             HeroOnMap(
@@ -47,7 +60,7 @@ internal object SimpleTestMap {
             map,
             width,
             height,
-            RandomPosition,
+            generator,
             mutableMapOf(
                 startMobPosition to RandomMob(upDirectionGenerator).createMob().copy(
                     strategy = AggressiveStrategy(
@@ -56,7 +69,9 @@ internal object SimpleTestMap {
                 )
             ),
             Manhattan,
-            10
+            10,
+            mutableMapOf(),
+            mutableMapOf()
         )
 
 }
