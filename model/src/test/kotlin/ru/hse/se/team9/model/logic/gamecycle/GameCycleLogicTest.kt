@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
+import ru.hse.se.team9.model.random.items.RandomItem
 import ru.hse.se.team9.model.random.mobs.RandomMob
 import ru.hse.se.team9.model.random.positions.RandomPosition
 import ru.hse.se.team9.positions.Position
@@ -27,7 +28,8 @@ internal class GameCycleLogicTest {
             SimpleTestMap.upDirectionGenerator,
             RandomPosition,
             RandomMob(SimpleTestMap.upDirectionGenerator),
-            RandomStrategyModifier(SimpleTestMap.upDirectionGenerator)
+            RandomStrategyModifier(SimpleTestMap.upDirectionGenerator),
+            RandomItem
         )
 
         map = SimpleTestMap.map
