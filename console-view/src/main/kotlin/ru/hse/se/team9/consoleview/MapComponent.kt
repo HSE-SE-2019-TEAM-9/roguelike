@@ -75,27 +75,6 @@ internal class MapComponent(
             drawHero(xLeft, yHigh, heroPosition, graphics)
         }
 
-        private fun drawFog(
-            xLeft: Int,
-            xRight: Int,
-            yHigh: Int,
-            yLow: Int,
-            fog: List<List<FogType>>,
-            graphics: TextGUIGraphics
-        ) {
-            for (x in xLeft until xRight) {
-                for (y in yHigh until yLow) {
-                    if (fog.getOrNull(y)?.getOrNull(x) != FogType.VISIBLE) {
-                        graphics.setCharacter(
-                            x - xLeft,
-                            y - yHigh,
-                            TextCharacter(HIDDEN_CHARACTER, HIDDEN_COLOR, HIDDEN_BACKGROUND_COLOR)
-                        )
-                    }
-                }
-            }
-        }
-
         private fun drawMobs(
             xLeft: Int,
             yHigh: Int,
