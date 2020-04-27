@@ -71,23 +71,21 @@ class RandomMapCreator private constructor(
         }
 
         val hero = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
-        val mobs = createRandomMobs(DEFAULT_MOB_AMOUNT, map, heroPosition)
-        val items = mutableMapOf<Position, Item>() // fix
-        val consumables = mutableMapOf<Position, Consumable>()
-        return Either.right(
-            GameMap(
-                HeroOnMap(hero, heroPosition),
-                map,
-                mapWidthAdjusted,
-                mapHeightAdjusted,
-                generator,
-                mobs,
-                distance,
-                fogRadius,
-                items,
-                consumables
-            )
+        val gameMap = GameMap(
+            HeroOnMap(hero, heroPosition),
+            map,
+            mapWidthAdjusted,
+            mapHeightAdjusted,
+            generator,
+            mutableMapOf(),
+            distance,
+            fogRadius,
+            mutableMapOf(),
+            mutableMapOf()
         )
+        gameMap.generateObjects()
+
+        return Either.right(gameMap)
     }
 
     private fun createDefaultEquipment(): Equipment {
@@ -96,20 +94,6 @@ class RandomMapCreator private constructor(
         val weapon = generator.createWeapon()
         return Equipment(boots, underwear, weapon)
     }
-
-    private fun createRandomMobs(
-        mobAmount: Int,
-        map: List<List<MapObject>>,
-        heroPosition: Position
-    ): MutableMap<Position, Mob> =
-        generateSequence { getRandomNotWallPosition(generator, map) }
-            .distinct()
-            .filter { it != heroPosition }
-            .take(mobAmount)
-            .map { Pair(it, generator.createMob()) }
-            .toMap()
-            .toMutableMap()
-
 
     private fun makeEmptyChunk(map: List<MutableList<MapObject>>, chunk: Chunk) {
         for (i in 0 until chunkSize) {
@@ -155,7 +139,6 @@ class RandomMapCreator private constructor(
         private const val MAX_WIDTH = 10_000
         private const val MAX_HEIGHT = 10_000
         private const val MAX_MAP_SIZE = 1_000_000
-        private const val DEFAULT_MOB_AMOUNT = 20
         private const val DEFAULT_CHUNK_SIZE = 6
         private const val BORDER_CHUNK_SIZE = 2
 

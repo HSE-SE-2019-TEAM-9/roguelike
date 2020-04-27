@@ -17,7 +17,7 @@ class CowardStrategy(private val directionGenerator: DirectionGenerator) : MobSt
         if (map.distance(position, map.heroOnMap.position) <= FEAR_DISTANCE) {
             val direction = Direction.values()
                 .toList()
-                .filter { map.canMoveTo(position + it) }
+                .filter { map.mobCanMoveTo(position + it) }
                 .maxBy { map.distance(position + it, map.heroOnMap.position) } ?: Direction.UP
             Pair(position + direction, this)
         } else {

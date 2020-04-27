@@ -7,18 +7,11 @@ import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.entities.views.MobView
 import ru.hse.se.team9.game.entities.hero.consumables.ConsumableViewImpl
 import ru.hse.se.team9.game.entities.hero.inventory.items.ItemViewImpl
+import ru.hse.se.team9.positions.Position
 import java.util.stream.Collectors
 
 /** Adapts GameMap to MapView interface */
 class MapViewImpl(gameMap: GameMap) : MapView {
-    override val mobs: List<MobView> = gameMap.mobs.map {
-        object : MobView {
-            override val position = it.key
-            override val hp: Int = it.value.hp
-            override val maxHp: Int = it.value.maxHp
-            override val properties: List<MobProperty> = it.value.getProperties()
-        }
-    }
     override val hero: HeroView = object : HeroView {
         override val position = gameMap.heroOnMap.position
         override val hp = gameMap.heroOnMap.hero.stats.hp
@@ -33,6 +26,13 @@ class MapViewImpl(gameMap: GameMap) : MapView {
     override val width = gameMap.map[0].size
     override val height = gameMap.map.size
     override val fog = gameMap.fog.fog
+    override val mobs: Map<Position, MobView> = gameMap.mobs.mapValues {
+        object : MobView {
+            override val hp: Int = it.value.hp
+            override val maxHp: Int = it.value.maxHp
+            override val properties: List<MobProperty> = it.value.getProperties()
+        }
+    }
     override val items = gameMap.items.mapValues { ItemViewImpl(it.value) }
     override val consumables = gameMap.consumables.mapValues { ConsumableViewImpl }
 }

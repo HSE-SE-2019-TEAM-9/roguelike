@@ -1,5 +1,6 @@
 package ru.hse.se.team9.model.random
 
+import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
@@ -9,6 +10,7 @@ import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 import ru.hse.se.team9.model.random.confusion.StrategyModifierGenerator
 import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.random.consumables.ConsumableGenerator
 import ru.hse.se.team9.model.random.items.ItemGenerator
 import ru.hse.se.team9.model.random.mobs.MobGenerator
 import ru.hse.se.team9.model.random.positions.PositionGenerator
@@ -20,8 +22,9 @@ class GameGenerator(
     private val positionGenerator: PositionGenerator,
     private val mobGenerator: MobGenerator,
     private val strategyModifierGenerator: StrategyModifierGenerator,
-    private val itemGenerator: ItemGenerator
-) : DirectionGenerator, MobGenerator, PositionGenerator, StrategyModifierGenerator, ItemGenerator {
+    private val itemGenerator: ItemGenerator,
+    private val consumableGenerator: ConsumableGenerator
+) : DirectionGenerator, MobGenerator, PositionGenerator, StrategyModifierGenerator, ItemGenerator, ConsumableGenerator {
     override fun createDirection(allowedDirections: List<Direction>): Direction {
         return directionGenerator.createDirection(allowedDirections)
     }
@@ -56,5 +59,9 @@ class GameGenerator(
 
     override fun createWeapon(): Weapon {
         return itemGenerator.createWeapon()
+    }
+
+    override fun createConsumable(): Consumable {
+        return consumableGenerator.createConsumable()
     }
 }

@@ -15,7 +15,6 @@ import ru.hse.se.team9.entities.FogType
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.entities.MobProperty
 import ru.hse.se.team9.entities.views.MapView
-import ru.hse.se.team9.entities.views.MobView
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.view.KeyPressedType
 import java.lang.Integer.max
@@ -65,34 +64,49 @@ internal class MapComponent(
             val heroPosition = component.map.hero.position
             val gameMap = component.map.map
             val mobs = component.map.mobs
+            val items = component.map.items
+            val consumables = component.map.consumables
             val fog = component.map.fog
 
             val screenSize = component.screen.terminalSize
             val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns - component.sidePanelWidth)
             val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows)
+
             drawMap(xLeft, xRight, yHigh, yLow, gameMap, fog, graphics)
-            drawMobs(xLeft, yHigh, mobs, fog, graphics)
+            drawObjects(xLeft, yHigh, mobs, fog, graphics) { mob ->
+                val color = getMobColor(mob.hp, mob.maxHp)
+                val character = if (mob.properties.contains(MobProperty.CONFUSED)) {
+                    CONFUSED_MOB_CHARACTER
+                } else {
+                    MOB_CHARACTER
+                }
+                TextCharacter(character, color, BACKGROUND_COLOR)
+            }
+            drawObjects(xLeft, yHigh, items, fog, graphics) {
+                TextCharacter(ITEM_CHARACTER, ITEM_COLOR, BACKGROUND_COLOR)
+            }
+            drawObjects(xLeft, yHigh, consumables, fog, graphics) {
+                TextCharacter(CONSUMABLE_CHARACTER, CONSUMABLE_COLOR, BACKGROUND_COLOR)
+            }
             drawHero(xLeft, yHigh, heroPosition, graphics)
         }
 
-        private fun drawMobs(
+        private fun <T> drawObjects(
             xLeft: Int,
             yHigh: Int,
-            mobs: List<MobView>,
+            objects: Map<Position, T>,
             fog: List<List<FogType>>,
-            graphics: TextGUIGraphics
+            graphics: TextGUIGraphics,
+            characterFunction: (T) -> TextCharacter
         ) {
-            for (mob in mobs) {
-                val (mobX, mobY) = mob.position
-                if (fog.getOrNull(mobY)?.getOrNull(mobX) != FogType.VISIBLE) {
+            for ((position, obj) in objects) {
+                val (objectX, objectY) = position
+                if (fog.getOrNull(objectY)?.getOrNull(objectX) != FogType.VISIBLE) {
                     continue
                 }
-                val color = getMobColor(mob.hp, mob.maxHp)
-                val character =
-                    if (mob.properties.contains(MobProperty.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
                 graphics.setCharacter(
-                    mobX - xLeft, mobY - yHigh,
-                    TextCharacter(character, color, BACKGROUND_COLOR)
+                    objectX - xLeft, objectY - yHigh,
+                    characterFunction(obj)
                 )
             }
         }
@@ -155,6 +169,8 @@ internal class MapComponent(
         private val WALL_COLOR = TextColor.Indexed.fromRGB(71, 51, 68)
         private val HIDDEN_BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HIDDEN_COLOR = TextColor.ANSI.BLACK
+        private val CONSUMABLE_COLOR = TextColor.ANSI.RED
+        private val ITEM_COLOR = TextColor.ANSI.CYAN
 
         private const val HERO_CHARACTER = '@'
         private const val EMPTY_SPACE_CHARACTER = '.'
@@ -163,6 +179,8 @@ internal class MapComponent(
         private const val MOB_CHARACTER = 'U'
         private const val HIDDEN_CHARACTER = '?'
         private const val CONFUSED_MOB_CHARACTER = '?'
+        private const val ITEM_CHARACTER = '刀'
+        private const val CONSUMABLE_CHARACTER = '♥'
         private const val DIM_COLOR_INTENSITY = 0.4
 
         private fun getBounds(position: Int, width: Int): Pair<Int, Int> {
