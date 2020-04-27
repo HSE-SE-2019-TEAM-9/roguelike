@@ -1,6 +1,7 @@
 package ru.hse.se.team9.model.random
 
 import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
+import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
 import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 import ru.hse.se.team9.game.entities.map.Direction
@@ -39,6 +40,10 @@ class GameGenerator(
 
     override fun createModifier(): (MobStrategy) -> MobStrategy {
         return strategyModifierGenerator.createModifier()
+    }
+
+    override fun createItem(): Item {
+        return itemGenerator.createItem()
     }
 
     override fun createBoots(): Boots {

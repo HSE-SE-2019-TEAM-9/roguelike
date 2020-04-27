@@ -2,6 +2,7 @@ package ru.hse.se.team9.game.entities.hero.inventory.items
 
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.effects.Effect
+import kotlin.math.min
 
 sealed class Item(
         val armorGain: Int = 0,
@@ -14,6 +15,7 @@ sealed class Item(
             hero.stats.armor += armorGain
             hero.stats.maxHp += hpGain
             hero.stats.damage += dmgGain
+            hero.stats.hp = min(hero.stats.hp, hero.stats.maxHp)
         }
     }
 
@@ -22,6 +24,7 @@ sealed class Item(
             hero.stats.armor -= armorGain
             hero.stats.maxHp -= hpGain
             hero.stats.damage -= dmgGain
+            hero.stats.hp = min(hero.stats.hp, hero.stats.maxHp)
         }
     }
 }
