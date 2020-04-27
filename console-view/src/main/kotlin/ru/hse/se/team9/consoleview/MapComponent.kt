@@ -4,11 +4,16 @@ import com.googlecode.lanterna.TerminalPosition
 import com.googlecode.lanterna.TerminalSize
 import com.googlecode.lanterna.TextCharacter
 import com.googlecode.lanterna.TextColor
-import com.googlecode.lanterna.gui2.*
+import com.googlecode.lanterna.gui2.AbstractInteractableComponent
+import com.googlecode.lanterna.gui2.Interactable
+import com.googlecode.lanterna.gui2.InteractableRenderer
+import com.googlecode.lanterna.gui2.TextGUIGraphics
 import com.googlecode.lanterna.input.KeyStroke
 import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
-import ru.hse.se.team9.entities.*
+import ru.hse.se.team9.entities.FogType
+import ru.hse.se.team9.entities.MapObject
+import ru.hse.se.team9.entities.MobProperty
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.entities.views.MobView
 import ru.hse.se.team9.positions.Position
@@ -64,10 +69,9 @@ internal class MapComponent(
             val screenSize = component.screen.terminalSize
             val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns)
             val (yHigh, yLow) = getBounds(heroPosition.y, screenSize.rows)
-            drawMap(xLeft, xRight, yHigh, yLow, gameMap, graphics)
-            drawMobs(xLeft, yHigh, mobs, graphics)
+            drawMap(xLeft, xRight, yHigh, yLow, gameMap, fog, graphics)
+            drawMobs(xLeft, yHigh, mobs, fog, graphics)
             drawHero(xLeft, yHigh, heroPosition, graphics)
-            drawFog(xLeft, xRight, yHigh, yLow, fog, graphics)
         }
 
         private fun drawFog(
@@ -75,12 +79,12 @@ internal class MapComponent(
             xRight: Int,
             yHigh: Int,
             yLow: Int,
-            fog: List<List<Boolean>>,
+            fog: List<List<FogType>>,
             graphics: TextGUIGraphics
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
-                    if (fog.getOrNull(y)?.getOrNull(x) != false) {
+                    if (fog.getOrNull(y)?.getOrNull(x) != FogType.VISIBLE) {
                         graphics.setCharacter(
                             x - xLeft,
                             y - yHigh,
@@ -91,13 +95,23 @@ internal class MapComponent(
             }
         }
 
-        private fun drawMobs(xLeft: Int, yHigh: Int, mobs: List<MobView>, graphics: TextGUIGraphics) {
+        private fun drawMobs(
+            xLeft: Int,
+            yHigh: Int,
+            mobs: List<MobView>,
+            fog: List<List<FogType>>,
+            graphics: TextGUIGraphics
+        ) {
             for (mob in mobs) {
+                val (mobX, mobY) = mob.position
+                if (fog.getOrNull(mobY)?.getOrNull(mobX) != FogType.VISIBLE) {
+                    continue
+                }
                 val color = getMobColor(mob.hp, mob.maxHp)
                 val character =
                     if (mob.properties.contains(MobProperty.CONFUSED)) CONFUSED_MOB_CHARACTER else MOB_CHARACTER
                 graphics.setCharacter(
-                    mob.position.x - xLeft, mob.position.y - yHigh,
+                    mobX - xLeft, mobY - yHigh,
                     TextCharacter(character, color, BACKGROUND_COLOR)
                 )
             }
@@ -121,15 +135,28 @@ internal class MapComponent(
             yHigh: Int,
             yLow: Int,
             gameMap: List<List<MapObject>>,
+            fog: List<List<FogType>>,
             graphics: TextGUIGraphics
         ) {
             for (x in xLeft until xRight) {
                 for (y in yHigh until yLow) {
                     val character = when (gameMap.getOrNull(y)?.getOrNull(x) ?: MapObject.WALL) {
                         MapObject.WALL -> TextCharacter(WALL_CHARACTER, WALL_COLOR, BACKGROUND_COLOR)
-                        MapObject.EMPTY_SPACE -> TextCharacter(EMPTY_SPACE_CHARACTER, EMPTY_SPACE_COLOR, BACKGROUND_COLOR)
+                        MapObject.EMPTY_SPACE -> TextCharacter(
+                            EMPTY_SPACE_CHARACTER,
+                            EMPTY_SPACE_COLOR,
+                            BACKGROUND_COLOR
+                        )
                     }
-                    graphics.setCharacter(x - xLeft, y - yHigh, character)
+                    val visibleCharacter = when (fog.getOrNull(y)?.getOrNull(x) ?: FogType.INVISIBLE) {
+                        FogType.INVISIBLE -> TextCharacter(HIDDEN_CHARACTER, HIDDEN_COLOR, HIDDEN_BACKGROUND_COLOR)
+                        FogType.VISIBLE -> character
+                        FogType.SHADOWED -> {
+                            val foregroundColor = makeDimColor(character.foregroundColor)
+                            TextCharacter(character.character, foregroundColor, character.backgroundColor)
+                        }
+                    }
+                    graphics.setCharacter(x - xLeft, y - yHigh, visibleCharacter)
                 }
             }
         }
@@ -156,6 +183,7 @@ internal class MapComponent(
         private const val MOB_CHARACTER = 'U'
         private const val HIDDEN_CHARACTER = '?'
         private const val CONFUSED_MOB_CHARACTER = '?'
+        private const val DIM_COLOR_INTENSITY = 0.4
 
         private fun getBounds(position: Int, width: Int): Pair<Int, Int> {
             val minBound = position - (width - 1) / 2
@@ -174,6 +202,13 @@ internal class MapComponent(
             val blue = NO_HP_MOB_COLOR.toColor().blue +
                     (FULL_HP_MOB_COLOR.toColor().blue - NO_HP_MOB_COLOR.toColor().blue) * hpFraction
 
+            return TextColor.Indexed.fromRGB(normalizeRgbColor(red), normalizeRgbColor(green), normalizeRgbColor(blue))
+        }
+
+        private fun makeDimColor(color: TextColor): TextColor {
+            val red = color.toColor().red * DIM_COLOR_INTENSITY
+            val green = color.toColor().green * DIM_COLOR_INTENSITY
+            val blue = color.toColor().blue * DIM_COLOR_INTENSITY
             return TextColor.Indexed.fromRGB(normalizeRgbColor(red), normalizeRgbColor(green), normalizeRgbColor(blue))
         }
     }
