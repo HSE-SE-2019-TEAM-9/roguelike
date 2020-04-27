@@ -1,6 +1,7 @@
 package ru.hse.se.team9.entities.views
 
 import ru.hse.se.team9.entities.MapObject
+import ru.hse.se.team9.positions.Position
 
 /** A part of map which is allowed to be shown by View. */
 interface MapView {
@@ -10,4 +11,5 @@ interface MapView {
     val width: Int
     val height: Int
     val fog: List<List<Boolean>>
+    val items: Map<Position, ItemView>
 }
