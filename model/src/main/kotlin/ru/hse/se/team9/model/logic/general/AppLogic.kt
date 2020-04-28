@@ -2,6 +2,7 @@ package ru.hse.se.team9.model.logic.general
 
 import arrow.core.Either
 import arrow.core.flatMap
+import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.game.entities.map.MapViewImpl
 import ru.hse.se.team9.game.entities.map.distance.Distance
@@ -43,6 +44,7 @@ class AppLogic(
                 KeyPressedType.LEFT -> Left
                 KeyPressedType.RIGHT -> Right
                 KeyPressedType.ESCAPE -> OpenMenu
+                KeyPressedType.TAB -> OpenInventory
             }
             when (action) {
                 is Move -> {
@@ -51,6 +53,10 @@ class AppLogic(
                 is OpenMenu -> {
                     appStatus = AppStatus.IN_MENU
                     openMenu()
+                }
+                is OpenInventory -> {
+                    appStatus = AppStatus.IN_INVENTORY
+                    drawInventory()
                 }
             }
         }
@@ -85,6 +91,26 @@ class AppLogic(
             startGame()
         }
         return appStatus
+    }
+
+    private val putOffItem = { type: ItemType ->
+        val gameMap = gameCycleLogic.map
+        val hero = gameMap.heroOnMap.hero
+        hero.equipment.putOffItem(type)?.let { hero.pickupItem(it) }
+        drawInventory()
+    }
+
+    private val putOnItem = { index: Int ->
+        val gameMap = gameCycleLogic.map
+        val hero = gameMap.heroOnMap.hero
+        hero.equipItem(index)
+        drawInventory()
+    }
+
+    private val closeInventory = {
+        val gameMap = gameCycleLogic.map
+        appStatus = AppStatus.IN_GAME
+        drawMap()
     }
 
     private fun startGame() {
@@ -148,6 +174,12 @@ class AppLogic(
         require(appStatus == AppStatus.IN_MENU)
         val title = if (wasGameOver) GAME_OVER_TITLE else MAIN_MENU_TITLE
         viewController.drawMenu(title, menuOptions)
+    }
+
+    private fun drawInventory() {
+        require(appStatus == AppStatus.IN_INVENTORY)
+        val gameMap = gameCycleLogic.map
+        viewController.drawInventory(MapViewImpl(gameMap), putOffItem, putOnItem, closeInventory)
     }
 
     private fun drawError(error: String) {

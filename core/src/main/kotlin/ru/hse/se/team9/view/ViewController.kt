@@ -1,5 +1,6 @@
 package ru.hse.se.team9.view
 
+import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 import java.io.File
 
@@ -19,6 +20,12 @@ interface ViewController {
 
     /** Shows specified map to user. */
     fun drawMap(map: MapView)
+
+    /** Shows inventory to user. */
+    fun drawInventory(map: MapView,
+                      selectEquipmentAction: (ItemType) -> Unit,
+                      selectInventoryAction: (Int) -> Unit,
+                      finishAction: () -> Unit)
 
     /** Shows menu with provided menu options */
     fun drawMenu(title: String, options: List<MenuOption>)

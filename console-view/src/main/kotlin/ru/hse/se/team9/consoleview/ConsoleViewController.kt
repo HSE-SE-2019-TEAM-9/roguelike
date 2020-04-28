@@ -98,52 +98,15 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
 
     /** Shows game map. */
     override fun drawMap(map: MapView) {
-        mapView = MapComponent(map, gui.screen, SIDE_PANEL_WIDTH, actionQueue, keyPressedHandler)
+        drawMapAndInventory(map, false, {}, {}, {})
+    }
 
-        val infoPanel = Panel()
-        infoPanel.preferredSize = TerminalSize(SIDE_PANEL_WIDTH, INFINITY)
-
-        val stats = Label(
-            "Health: ${map.hero.hp}/${map.hero.maxHp}\nArmor: ${map.hero.armor}\nDamage: ${map.hero.damage}"
-        )
-        stats.preferredSize = TerminalSize(INFINITY, 3)
-        infoPanel.addComponent(stats.withBorder(Borders.singleLine("Stats")))
-
-        val equipment = map.hero.equipment
-        val equipmentList = ActionListBox()
-        equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
-        equipmentList.isEnabled = false
-        equipment.forEach {
-            equipmentList.addItem(it.name) {} // FIXME
-        }
-        infoPanel.addComponent(equipmentList.withBorder(Borders.singleLine("Equipment")))
-
-        val inventory = map.hero.inventory.mapIndexed { index, itemView ->
-            Pair(index, itemView)
-        }
-        val typedInventory = mapOf(
-            "Boots" to inventory.filter { it.second.type == ItemType.BOOTS },
-            "Weapon" to inventory.filter { it.second.type == ItemType.WEAPON },
-            "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
-        )
-        val inventoryPanel = Panel()
-        inventoryPanel.preferredSize = TerminalSize(INFINITY, INFINITY)
-        for (type in typedInventory) {
-            val inventoryList = ActionListBox()
-            inventoryList.preferredSize = TerminalSize(INFINITY, type.value.size)
-            inventoryList.isEnabled = false
-            type.value.forEach {
-                inventoryList.addItem(it.second.name) {} // FIXME
-            }
-            inventoryPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
-        }
-        infoPanel.addComponent(inventoryPanel.withBorder(Borders.singleLine( "Inventory")))
-
-        val panel = Panel()
-        panel.layoutManager = LinearLayout(Direction.HORIZONTAL)
-        panel.addComponent(infoPanel.withBorder(Borders.singleLine()))
-        panel.addComponent(mapView)
-        mapWindow.component = panel
+    /** Shows game map. */
+    override fun drawInventory(map: MapView,
+                               selectEquipmentAction: (ItemType) -> Unit,
+                               selectInventoryAction: (Int) -> Unit,
+                               finishAction: () -> Unit) {
+        drawMapAndInventory(map, true, selectEquipmentAction, selectInventoryAction, finishAction)
     }
 
     /** Shows menu with provided menu options */
@@ -186,6 +149,71 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         )
         dialog.setHints(listOf(Window.Hint.CENTERED))
         return dialog.showDialog(gui)
+    }
+
+    private fun drawMapAndInventory(map: MapView,
+                                    isInventoryActive: Boolean,
+                                    selectEquipmentAction: (ItemType) -> Unit,
+                                    selectInventoryAction: (Int) -> Unit,
+                                    finishAction: () -> Unit) {
+        mapView = MapComponent(map, gui.screen, SIDE_PANEL_WIDTH, actionQueue, keyPressedHandler)
+        mapView!!.isEnabled = !isInventoryActive
+
+        val infoPanel = Panel()
+        infoPanel.preferredSize = TerminalSize(SIDE_PANEL_WIDTH, INFINITY)
+
+        val stats = Label(
+            "Health: ${map.hero.hp}/${map.hero.maxHp}\nArmor: ${map.hero.armor}\nDamage: ${map.hero.damage}"
+        )
+        stats.preferredSize = TerminalSize(INFINITY, 3)
+        infoPanel.addComponent(stats.withBorder(Borders.singleLine("Stats")))
+
+        val equipment = map.hero.equipment
+        val equipmentList = ActionListBox()
+        equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
+        equipmentList.isEnabled = isInventoryActive
+        equipment.forEach { t, u ->
+            equipmentList.addItem("$t: ${u.name}") {
+                actionQueue.add { selectEquipmentAction(t) }
+            }
+        }
+        infoPanel.addComponent(equipmentList.withBorder(Borders.singleLine("Equipment")))
+
+        val inventory = map.hero.inventory.mapIndexed { index, itemView ->
+            Pair(index, itemView)
+        }
+        val typedInventory = mapOf(
+            "Boots" to inventory.filter { it.second.type == ItemType.BOOTS },
+            "Weapon" to inventory.filter { it.second.type == ItemType.WEAPON },
+            "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
+        )
+        val inventoryPanel = Panel()
+        inventoryPanel.preferredSize = TerminalSize(INFINITY, inventory.size + 6) // FIXME
+        for (type in typedInventory) {
+            val inventoryList = ActionListBox()
+            inventoryList.preferredSize = TerminalSize(INFINITY, type.value.size)
+            inventoryList.isEnabled = isInventoryActive
+            type.value.forEach {
+                inventoryList.addItem(it.second.name) {
+                    actionQueue.add { selectInventoryAction(it.first) }
+                }
+            }
+            inventoryPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
+        }
+        infoPanel.addComponent(inventoryPanel.withBorder(Borders.singleLine( "Inventory")))
+
+        if (isInventoryActive) {
+            val okButton = Button("OK") {
+                actionQueue.add(finishAction)
+            }
+            infoPanel.addComponent(okButton)
+        }
+
+        val panel = Panel()
+        panel.layoutManager = LinearLayout(Direction.HORIZONTAL)
+        panel.addComponent(infoPanel.withBorder(Borders.singleLine()))
+        panel.addComponent(mapView)
+        mapWindow.component = panel
     }
 
     companion object {

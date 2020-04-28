@@ -1,5 +1,6 @@
 package ru.hse.se.team9.entities.views
 
+import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.positions.Position
 
 /** A part of hero which is allowed to be shown by View. */
@@ -17,5 +18,5 @@ interface HeroView {
     /** All collected items, excluding equipped */
     val inventory: List<ItemView>
     /** All equipped items */
-    val equipment: List<ItemView>
+    val equipment: Map<ItemType, ItemView>
 }

@@ -43,6 +43,7 @@ internal class MapComponent(
             KeyType.ArrowLeft -> KeyPressedType.LEFT
             KeyType.ArrowRight -> KeyPressedType.RIGHT
             KeyType.Escape -> KeyPressedType.ESCAPE
+            KeyType.Tab -> KeyPressedType.TAB
             else -> null
         }
         if (key != null) {

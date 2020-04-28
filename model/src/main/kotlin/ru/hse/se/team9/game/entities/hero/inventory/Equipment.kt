@@ -1,5 +1,6 @@
 package ru.hse.se.team9.game.entities.hero.inventory
 
+import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
@@ -14,24 +15,49 @@ class Equipment(
         val w = weapon
         val u = underwear
         val b = boots
-        when (item) {
-            is Weapon -> if (weapon == null) {
+
+        return when (item) {
+            is Weapon -> {
                 weapon = item
-                return w
+                w
             }
-            is Underwear -> if (underwear != null) {
+            is Underwear -> {
                 underwear = item
-                return u
+                u
             }
-            is Boots -> if (boots != null) {
+            is Boots -> {
                 boots = item
-                return b
+                b
             }
         }
-        return null
     }
 
-    fun getItems(): List<Item?> {
-        return listOf(boots, underwear, weapon)
+    fun putOffItem(type: ItemType): Item? {
+        return when (type) {
+            ItemType.BOOTS -> {
+                val previous = boots
+                boots = null
+                previous
+            }
+            ItemType.WEAPON -> {
+                val previous = weapon
+                weapon = null
+                previous
+            }
+            ItemType.UNDERWEAR -> {
+                val previous = underwear
+                underwear = null
+                previous
+            }
+            ItemType.NONE -> null
+        }
+    }
+
+    fun getItems(): Map<ItemType, Item?> {
+        return mapOf(
+            ItemType.BOOTS to boots,
+            ItemType.WEAPON to weapon,
+            ItemType.UNDERWEAR to underwear
+        )
     }
 }

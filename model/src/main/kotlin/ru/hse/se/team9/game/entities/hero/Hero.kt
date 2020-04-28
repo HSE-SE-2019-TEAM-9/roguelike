@@ -34,7 +34,7 @@ data class Hero(
     }
 
     fun equipItem(index: Int) {
-        if (index > inventory.size || index < 0) {
+        if (index >= inventory.size || index < 0) {
             throw ArrayIndexOutOfBoundsException("no item with such index")
         }
 

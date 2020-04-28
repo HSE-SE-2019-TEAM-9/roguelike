@@ -27,8 +27,7 @@ class MapViewImpl(gameMap: GameMap) : MapView {
         override val damage = gameMap.heroOnMap.hero.stats.damage
         override val inventory = gameMap.heroOnMap.hero.inventory.stream()
                 .map { ItemViewImpl(it) }.collect(Collectors.toList())
-        override val equipment = gameMap.heroOnMap.hero.equipment.getItems().stream()
-                .map { ItemViewImpl(it) }.collect(Collectors.toList())
+        override val equipment = gameMap.heroOnMap.hero.equipment.getItems().mapValues { ItemViewImpl(it.value) }
     }
     override val map: List<List<MapObject>> = gameMap.map
     override val width = gameMap.map[0].size

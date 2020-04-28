@@ -5,6 +5,8 @@ sealed class PlayerAction
 
 object OpenMenu : PlayerAction()
 
+object OpenInventory : PlayerAction()
+
 sealed class Move : PlayerAction()
 
 object Left : Move()
