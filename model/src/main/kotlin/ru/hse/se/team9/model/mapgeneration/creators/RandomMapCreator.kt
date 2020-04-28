@@ -6,7 +6,10 @@ import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
 import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.hero.inventory.Equipment
+import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
+import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
+import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.GameMap
@@ -88,13 +91,6 @@ class RandomMapCreator private constructor(
         return Either.right(gameMap)
     }
 
-    private fun createDefaultEquipment(): Equipment {
-        val boots = generator.createBoots()
-        val underwear = generator.createUnderwear()
-        val weapon = generator.createWeapon()
-        return Equipment(boots, underwear, weapon)
-    }
-
     private fun makeEmptyChunk(map: List<MutableList<MapObject>>, chunk: Chunk) {
         for (i in 0 until chunkSize) {
             for (j in 0 until chunkSize) {
@@ -144,7 +140,14 @@ class RandomMapCreator private constructor(
 
         internal data class Chunk(val h: Int, val w: Int)
 
-        private fun createDefaultStats(): HeroStats = HeroStats(30, 30, 1, 10, 0, 1)
+        private fun createDefaultStats(): HeroStats = HeroStats(30, 30, 2, 10, 0, 1)
+
+        private fun createDefaultEquipment(): Equipment {
+            val boots = Boots(1, 1, 0, "Dirty old boots")
+            val underwear = Underwear(1, 1, 0, "Wet underpants")
+            val weapon = Weapon(0,0, 1, "Broken stick")
+            return Equipment(boots, underwear, weapon)
+        }
         /**
          * Checks provided arguments and returns Right<RandomMapCreator> if all arguments are valid.
          *

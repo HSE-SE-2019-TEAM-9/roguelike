@@ -1,5 +1,6 @@
 package ru.hse.se.team9.game.entities.hero
 
+import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.game.entities.hero.effects.Effect
 import ru.hse.se.team9.game.entities.hero.inventory.Equipment
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
@@ -31,6 +32,13 @@ data class Hero(
 
     fun pickupItem(item: Item) {
         inventory.add(item)
+    }
+
+    fun unEquipItem(type: ItemType) {
+        equipment.putOffItem(type)?.let {
+            addEffect(it.getRemoveEffect())
+            pickupItem(it)
+        }
     }
 
     fun equipItem(index: Int) {
