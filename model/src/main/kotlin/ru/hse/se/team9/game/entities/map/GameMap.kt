@@ -17,13 +17,15 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.Mob
-import ru.hse.se.team9.model.random.positions.PositionGenerator
+import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.positions.Position
+import ru.hse.se.team9.utils.getRandomNotWallPosition
 import ru.hse.se.team9.utils.plus
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import kotlin.math.max
 
 /**
  * Represents game map
@@ -41,7 +43,7 @@ class GameMap(
     val map: List<MutableList<MapObject>>,
     val width: Int,
     val height: Int,
-    private val positionGenerator: PositionGenerator,
+    private val generator: GameGenerator,
     var mobs: MutableMap<Position, Mob>,
     val distance: Distance,
     val fogRadius: Int,
@@ -59,7 +61,7 @@ class GameMap(
      */
     fun moveHero(direction: Direction) {
         val position = heroOnMap.position + direction
-        if (canMoveTo(position)) {
+        if (heroCanMoveTo(position)) {
             heroOnMap.position = position
             fog.updateVision(position)
         }
@@ -71,7 +73,7 @@ class GameMap(
      * @param newPosition position to move hero to
      */
     fun moveMob(previousPosition: Position, newPosition: Position) {
-        if (canMoveTo(newPosition)) {
+        if (mobCanMoveTo(newPosition)) {
             mobs.remove(previousPosition)?.let {
                 mobs.put(newPosition, it)
             }
@@ -82,6 +84,24 @@ class GameMap(
     fun removeMob(position: Position) {
         mobs.remove(position)
     }
+
+    /** Checks that given position exists and is not occupied. */
+    fun mobCanMoveTo(position: Position): Boolean = isEmptyCell(position) || (heroOnMap.position == position)
+
+    fun heroCanMoveTo(position: Position): Boolean = isOnMap(position) && isNotWall(position)
+
+    fun generateObjects() {
+        generateMobs()
+        generateConsumables()
+        generateItems()
+    }
+
+    private fun isEmptyCell(position: Position): Boolean = isOnMap(position)
+            && isNotWall(position)
+            && isNotMob(position)
+            && isNotConsumable(position)
+            && isNotHero(position)
+            && isNotItem(position)
 
     private fun isOnMap(position: Position): Boolean {
         val (x, y) = position
@@ -97,10 +117,37 @@ class GameMap(
         return !mobs.containsKey(position)
     }
 
-    /** Checks that given position exists and is not occupied. */
-    fun canMoveTo(position: Position): Boolean {
-        return isOnMap(position) && isNotWall(position) && isNotMob(position)
+    private fun isNotConsumable(position: Position): Boolean {
+        return !consumables.containsKey(position)
     }
+
+    private fun isNotItem(position: Position): Boolean {
+        return !items.containsKey(position)
+    }
+
+    private fun isNotHero(position: Position): Boolean {
+        return heroOnMap.position != position
+    }
+
+    private fun generateMobs() = getValidPositionSequence()
+        .take(max(0, MOB_AMOUNT - mobs.size))
+        .map { Pair(it, generator.createMob()) }
+        .forEach { mobs[it.first] = it.second }
+
+    private fun generateItems() = getValidPositionSequence()
+        .take(max(0, ITEM_AMOUNT - items.size))
+        .map { Pair(it, generator.createItem()) }
+        .forEach { items[it.first] = it.second }
+
+    private fun generateConsumables() = getValidPositionSequence()
+        .take(max(0, CONSUMABLE_AMOUNT - consumables.size))
+        .map { Pair(it, generator.createConsumable()) }
+        .forEach { consumables[it.first] = it.second }
+
+    private fun getValidPositionSequence() = generateSequence { getRandomNotWallPosition(generator, map) }
+        .take(GENERATION_MAX_RETRIES)
+        .distinct()
+        .filter { isEmptyCell(it) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -112,7 +159,7 @@ class GameMap(
         if (map != other.map) return false
         if (width != other.width) return false
         if (height != other.height) return false
-        if (positionGenerator != other.positionGenerator) return false
+        if (generator != other.generator) return false
 
         return true
     }
@@ -122,13 +169,20 @@ class GameMap(
         result = 31 * result + map.hashCode()
         result = 31 * result + width
         result = 31 * result + height
-        result = 31 * result + positionGenerator.hashCode()
+        result = 31 * result + generator.hashCode()
         return result
     }
 
     /** Returns GameMap snapshot */
     fun getCurrentState(): State {
         return State(this)
+    }
+
+    companion object {
+        private const val MOB_AMOUNT = 20
+        private const val ITEM_AMOUNT = 10
+        private const val CONSUMABLE_AMOUNT = 10
+        private const val GENERATION_MAX_RETRIES = 300
     }
 
     /**

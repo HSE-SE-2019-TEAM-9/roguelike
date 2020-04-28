@@ -81,6 +81,18 @@ class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator)
         }
     }
 
+    private fun pickupObjects(): Either<Finished, InProgress> {
+        val position = map.heroOnMap.position
+        map.items.remove(position)?.let { map.heroOnMap.hero.inventory.add(it) }
+        map.consumables.remove(position)?.let { map.heroOnMap.hero.addEffect(it.getEffect()) }
+        return Either.right(InProgress)
+    }
+
+    private fun generateMapObjects(): Either<Finished, InProgress> {
+        map.generateObjects()
+        return Either.right(InProgress)
+    }
+
     private fun getDamageReduceMultiplier(armor: Int): Double = (1 - armor / MAX_ARMOR)
 
     /**
@@ -104,10 +116,12 @@ class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator)
         return Either.right(InProgress)
             .flatMap { movePlayer(move) }
             .flatMap { removeDeadMobCorpses() }
+            .flatMap { pickupObjects() }
             .flatMap { runHeroEffects() }
             .flatMap { moveMobs() }
             .flatMap { removeDeadMobCorpses() }
             .flatMap { runHeroEffects() }
+            .flatMap { generateMapObjects() }
             .get()
     }
 

@@ -17,7 +17,7 @@ class AggressiveStrategy(private val directionGenerator: DirectionGenerator) : M
         if (map.distance(position, map.heroOnMap.position) <= AGGRESSION_DISTANCE) {
             val direction = Direction.values()
                 .toList()
-                .filter { map.canMoveTo(position + it) }
+                .filter { map.mobCanMoveTo(position + it) }
                 .minBy { map.distance(position + it, map.heroOnMap.position) } ?: Direction.UP
             Pair(position + direction, this)
         } else {
