@@ -57,7 +57,7 @@ class GameCycleLogic(
 
     private fun battle(hero: Hero, mob: Mob) {
         val damageToHero: Double = mob.damage * getDamageReduceMultiplier(hero.stats.armor)
-        hero.addEffect(DeltaHpEffect(ceil(damageToHero).roundToInt()))
+        hero.addEffect(DeltaHpEffect(-ceil(damageToHero).roundToInt()))
 
         val damageToMob: Double = hero.stats.damage * getDamageReduceMultiplier(mob.armor)
         mob.hp -= ceil(damageToMob).roundToInt()
