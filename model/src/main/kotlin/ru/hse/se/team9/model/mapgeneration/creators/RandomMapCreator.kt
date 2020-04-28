@@ -145,7 +145,7 @@ class RandomMapCreator private constructor(
         private fun createDefaultEquipment(): Equipment {
             val boots = Boots(1, 1, 0, "Dirty old boots")
             val underwear = Underwear(1, 1, 0, "Wet underpants")
-            val weapon = Weapon(0,0, 5, "Broken stick")
+            val weapon = Weapon(0,0, 1, "Broken stick")
             return Equipment(boots, underwear, weapon)
         }
         /**
