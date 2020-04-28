@@ -12,6 +12,7 @@ import ru.hse.se.team9.model.random.directions.RandomDirection
 import ru.hse.se.team9.model.random.items.RandomItem
 import ru.hse.se.team9.model.random.mobs.RandomMob
 import ru.hse.se.team9.model.random.positions.RandomPosition
+import ru.hse.se.team9.utils.GameMapSaver
 import java.io.File
 
 /**
@@ -26,6 +27,7 @@ fun main(args: Array<String>) {
         RandomItem,
         RandomConsumable
     )
+    val saver = GameMapSaver(File(".saved"))
 
     if (args.contains("create-map")) {
         val file = RandomMapCreator.build(
@@ -41,7 +43,7 @@ fun main(args: Array<String>) {
     }
 
     val view = ConsoleViewController()
-    val appLogic = AppLogic(view, generator, ViewFileChooser(view), Manhattan)
+    val appLogic = AppLogic(view, generator, saver, ViewFileChooser(view), Manhattan)
     view.start()
     appLogic.openMenu()
 }

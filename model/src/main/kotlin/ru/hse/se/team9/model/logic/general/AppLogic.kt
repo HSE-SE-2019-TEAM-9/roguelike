@@ -11,7 +11,9 @@ import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
+import ru.hse.se.team9.model.mapgeneration.creators.RestoreSavedMapCreator
 import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.utils.GameMapSaver
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
@@ -28,6 +30,7 @@ import ru.hse.se.team9.view.ViewController
 class AppLogic(
     private val viewController: ViewController,
     private val generator: GameGenerator,
+    private val saver: GameMapSaver,
     private val fileChooser: FileChooser,
     private val distance: Distance
 ) {
@@ -61,10 +64,12 @@ class AppLogic(
             }
         }
         menuOptions = listOf(
-            MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
             MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
+            MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
+            MenuOption(SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(SavedGame) },
             MenuOption(LOAD_GAME_OPTION) { applyMenuAction(LoadGame) },
-            MenuOption(EXIT_OPTION) { applyMenuAction(Exit) }
+            MenuOption(EXIT_OPTION) { applyMenuAction(Exit) },
+            MenuOption(SAVE_OPTION, false) { applyMenuAction(Save) }
         )
     }
 
@@ -78,14 +83,17 @@ class AppLogic(
         when (action) {
             NewGame -> mapCreator =
                 RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance)
+            SavedGame -> mapCreator =
+                RestoreSavedMapCreator.build(saver)
             LoadGame -> mapCreator =
                 FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
-                makeContinueOptionVisible()
+                makeInGameOptionsVisible()
                 drawMap()
             }
-            Exit -> exit()
+            Exit -> exit(false)
+            Save -> exit(true)
         }
         if (action is StartGame) {
             startGame()
@@ -108,7 +116,6 @@ class AppLogic(
     }
 
     private val closeInventory = {
-        val gameMap = gameCycleLogic.map
         appStatus = AppStatus.IN_GAME
         drawMap()
     }
@@ -126,7 +133,9 @@ class AppLogic(
             is Either.Right -> {
                 gameCycleLogic = result.b
                 appStatus = AppStatus.IN_GAME
-                makeContinueOptionVisible()
+                saver.delete()
+                makeInGameOptionsVisible()
+                makeSavedGameOptionInvisible()
                 drawMap()
             }
         }
@@ -136,24 +145,33 @@ class AppLogic(
         when (error) {
             FileNotChosen -> drawError("File not chosen.")
             is ParseError -> drawError("Cannot parse map from a file")
+            is RestoreError -> drawError("Failed to restore game")
             MapTooBig -> drawError("Map is too big")
             ChunkTooBig -> drawError("Chunk size must be smaller then map sizes")
             NegativeSize -> drawError("Map sizes must be positive")
         }
     }
 
-    private fun makeContinueOptionVisible() {
+    private fun makeInGameOptionsVisible() {
         for (option in menuOptions) {
-            if (option.optionName == CONTINUE_OPTION) {
+            if (option.optionName == CONTINUE_OPTION || option.optionName == SAVE_OPTION) {
                 option.visible = true
             }
         }
     }
 
-    private fun makeContinueOptionInvisible() {
+    private fun makeInGameOptionsInvisible() {
         for (option in menuOptions) {
-            if (option.optionName == CONTINUE_OPTION) {
+            if (option.optionName == CONTINUE_OPTION || option.optionName == SAVE_OPTION) {
                 option.visible = false
+            }
+        }
+    }
+
+    private fun makeSavedGameOptionInvisible() {
+        for (option in menuOptions) {
+            if (option.optionName == SAVED_GAME_OPTION) {
+                option.visible = saver.isSaved()
             }
         }
     }
@@ -163,7 +181,7 @@ class AppLogic(
         if (gameCycleLogic.makeMove(move) is Finished) {
             drawMap()
             appStatus = AppStatus.IN_MENU
-            makeContinueOptionInvisible()
+            makeInGameOptionsInvisible()
             drawMenu(true)
         } else {
             drawMap()
@@ -193,7 +211,10 @@ class AppLogic(
         viewController.drawMap(MapViewImpl(gameMap))
     }
 
-    private fun exit() {
+    private fun exit(saveGame: Boolean) {
+        if (saveGame) {
+            saver.save(gameCycleLogic.map)
+        }
         viewController.stop()
     }
 
@@ -205,8 +226,10 @@ class AppLogic(
         private const val GAME_OVER_TITLE = "Game Over"
         private const val MAIN_MENU_TITLE = "Main menu"
         private const val NEW_GAME_OPTION = "New game"
+        private const val SAVED_GAME_OPTION = "Saved game"
         private const val LOAD_GAME_OPTION = "Load game"
         private const val EXIT_OPTION = "Exit"
+        private const val SAVE_OPTION = "Save and exit"
         private const val CONTINUE_OPTION = "Continue"
     }
 }

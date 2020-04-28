@@ -1,8 +1,6 @@
 package ru.hse.se.team9.game.entities.map
 
 import arrow.core.Either
-import arrow.core.Left
-import arrow.core.Right
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.PropertyAccessor
 import com.fasterxml.jackson.core.JsonGenerator
@@ -33,7 +31,7 @@ import kotlin.math.max
  * @property map two-dimensional array of MapObject, stores landscape elements and not active participants of game
  * @property width width of map
  * @property height height of map
- * @property positionGenerator object using for generating random positions on map
+ * @property generator object using for generating random objects on map
  * @property mobs a map from mob position to mob
  * @property distance a metric used for map-related processes
  * @property fogRadius how far hero sees
@@ -222,9 +220,9 @@ class GameMap(
                 val gameMap = mapper.readValue<GameMap>(
                     GZIPInputStream(ByteArrayInputStream(serializedState), bufferSize)
                 )
-                Right(gameMap)
+                Either.right(gameMap)
             } catch (e: Throwable) {
-                Left(e)
+                Either.left(e)
             }
         }
 
