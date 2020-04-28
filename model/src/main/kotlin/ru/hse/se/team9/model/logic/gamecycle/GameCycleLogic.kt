@@ -83,7 +83,7 @@ class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator)
 
     private fun pickupObjects(): Either<Finished, InProgress> {
         val position = map.heroOnMap.position
-        map.items.remove(position)?.let { map.heroOnMap.hero.inventory.add(it) }
+        map.items.remove(position)?.let { map.heroOnMap.hero.pickupItem(it) }
         map.consumables.remove(position)?.let { map.heroOnMap.hero.addEffect(it.getEffect()) }
         return Either.right(InProgress)
     }

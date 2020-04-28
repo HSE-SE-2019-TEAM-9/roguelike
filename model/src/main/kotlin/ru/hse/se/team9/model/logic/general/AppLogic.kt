@@ -96,7 +96,8 @@ class AppLogic(
     private val putOffItem = { type: ItemType ->
         val gameMap = gameCycleLogic.map
         val hero = gameMap.heroOnMap.hero
-        hero.equipment.putOffItem(type)?.let { hero.pickupItem(it) }
+        hero.unEquipItem(type)
+        hero.runEffects()
         drawInventory()
     }
 
@@ -104,6 +105,7 @@ class AppLogic(
         val gameMap = gameCycleLogic.map
         val hero = gameMap.heroOnMap.hero
         hero.equipItem(index)
+        hero.runEffects()
         drawInventory()
     }
 

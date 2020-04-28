@@ -53,5 +53,17 @@ object RandomItem : ItemGenerator {
     private const val MAX_HP_GAIN_BOOTS = MAX_HP_GAIN_UNDIES / 2
     private const val MAX_DMG_GAIN = 20
     private const val MAX_ARMOR_GAIN = 5
-    private val TITLES = listOf("Depression", "Sadness", "Sorrow", "Despair", "Regret", "Grief", "Misery", "Suffering")
+    private val TITLES = listOf(
+        "Depression",
+        "Sadness",
+        "Sorrow",
+        "Despair",
+        "Regret",
+        "Grief",
+        "Misery",
+        "Suffering",
+        "Flex",
+        "Stupidity",
+        "Hollowness"
+    )
 }
