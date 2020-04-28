@@ -3,7 +3,7 @@ package ru.hse.se.team9.model.logic.gamecycle
 import arrow.core.Either
 import arrow.core.flatMap
 import ru.hse.se.team9.game.entities.hero.Hero
-import ru.hse.se.team9.game.entities.hero.effects.DecreaseHpEffect
+import ru.hse.se.team9.game.entities.hero.effects.DeltaHpEffect
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.mobs.Mob
@@ -57,7 +57,7 @@ class GameCycleLogic(
 
     private fun battle(hero: Hero, mob: Mob) {
         val damageToHero: Double = mob.damage * getDamageReduceMultiplier(hero.stats.armor)
-        hero.addEffect(DecreaseHpEffect(ceil(damageToHero).roundToInt()))
+        hero.addEffect(DeltaHpEffect(ceil(damageToHero).roundToInt()))
 
         val damageToMob: Double = hero.stats.damage * getDamageReduceMultiplier(mob.armor)
         mob.hp -= ceil(damageToMob).roundToInt()

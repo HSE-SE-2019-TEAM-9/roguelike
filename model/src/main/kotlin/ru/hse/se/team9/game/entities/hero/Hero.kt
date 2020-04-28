@@ -22,6 +22,10 @@ data class Hero(
         effects.add(effect)
     }
 
+    private fun addEffects(effects: List<Effect>) {
+        this.effects.addAll(effects)
+    }
+
     /** Runs all accumulated effects. Clears effects list after. */
     fun runEffects() {
         for (effect in effects) {
@@ -36,7 +40,7 @@ data class Hero(
 
     fun unEquipItem(type: ItemType) {
         equipment.putOffItem(type)?.let {
-            addEffect(it.getRemoveEffect())
+            addEffects(it.getRemoveEffect())
             pickupItem(it)
         }
     }
@@ -47,12 +51,12 @@ data class Hero(
         }
 
         val previous = equipment.tryEquip(inventory[index])
-        addEffect(inventory[index].getEquipEffect())
+        addEffects(inventory[index].getEquipEffect())
         if (previous == null) {
             inventory.removeAt(index)
         } else {
             inventory[index] = previous
-            addEffect(previous.getRemoveEffect())
+            addEffects(previous.getRemoveEffect())
         }
     }
 
