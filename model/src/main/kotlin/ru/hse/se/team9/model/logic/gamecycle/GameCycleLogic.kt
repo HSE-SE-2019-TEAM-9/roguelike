@@ -16,7 +16,11 @@ import kotlin.math.roundToInt
 /** Represents all logic within one game -- moves hero, tells if game is finished etc.
  * @property map game map used in this game
  */
-class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator) {
+class GameCycleLogic(
+        val map: GameMap,
+        private val gameGenerator: GameGenerator,
+        private val generateNewObjects: Boolean = true
+) {
     // VisibleForTesting
     internal fun movePlayer(move: Move): Either<Finished, InProgress> {
         val direction = when (move) {
@@ -89,7 +93,9 @@ class GameCycleLogic(val map: GameMap, private val gameGenerator: GameGenerator)
     }
 
     private fun generateMapObjects(): Either<Finished, InProgress> {
-        map.generateObjects()
+        if (generateNewObjects) {
+            map.generateObjects()
+        }
         return Either.right(InProgress)
     }
 
