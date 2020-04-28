@@ -221,7 +221,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         private const val CHOOSE_FILE_TITLE = "Choose file"
         private const val ERROR_TITLE = "Error"
 
-        private const val SIDE_PANEL_WIDTH = 30
+        private const val SIDE_PANEL_WIDTH = 40
         private const val INFINITY = 1000 // lol
     }
 }
