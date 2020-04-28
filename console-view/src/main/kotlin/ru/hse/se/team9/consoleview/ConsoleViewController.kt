@@ -226,7 +226,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
     }
 
     companion object {
-        private const val APP_TITLE = "Roguelike-2"
+        private const val APP_TITLE = "Roguelike-3"
         private const val CHOOSE_FILE_TITLE = "Choose file"
         private const val ERROR_TITLE = "Error"
 
