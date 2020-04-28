@@ -44,7 +44,7 @@ class GameMap(
     private val generator: GameGenerator,
     var mobs: MutableMap<Position, Mob>,
     val distance: Distance,
-    val fogRadius: Int,
+    private val fogRadius: Int,
     val items: MutableMap<Position, Item>,
     val consumables: MutableMap<Position, Consumable>
 ) {
