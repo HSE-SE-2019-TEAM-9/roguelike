@@ -172,8 +172,8 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         val equipmentList = ActionListBox()
         equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
         equipmentList.isEnabled = isInventoryActive
-        equipment.forEach { t, u ->
-            equipmentList.addItem("$t: ${u.name}") {
+        equipment.forEach { (t, u) ->
+            equipmentList.addItem("${getItemTypeName(t)}: ${u.name}") {
                 actionQueue.add { selectEquipmentAction(t) }
             }
         }
@@ -184,7 +184,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         }
         val typedInventory = mapOf(
             "Boots" to inventory.filter { it.second.type == ItemType.BOOTS },
-            "Weapon" to inventory.filter { it.second.type == ItemType.WEAPON },
+            "Weapons" to inventory.filter { it.second.type == ItemType.WEAPON },
             "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
         )
         val inventoryPanel = Panel()
@@ -214,6 +214,15 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         panel.addComponent(infoPanel.withBorder(Borders.singleLine()))
         panel.addComponent(mapView)
         mapWindow.component = panel
+    }
+
+    private fun getItemTypeName(type: ItemType): String {
+        return when (type) {
+            ItemType.BOOTS -> "Boots"
+            ItemType.WEAPON -> "Weapon"
+            ItemType.UNDERWEAR -> "Underwear"
+            ItemType.NONE -> "None"
+        }
     }
 
     companion object {
