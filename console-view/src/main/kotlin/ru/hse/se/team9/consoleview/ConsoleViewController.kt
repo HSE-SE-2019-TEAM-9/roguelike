@@ -11,6 +11,7 @@ import com.googlecode.lanterna.screen.TerminalScreen
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger
 import ru.hse.se.team9.entities.ItemType
+import ru.hse.se.team9.entities.views.ItemView
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
@@ -22,9 +23,10 @@ import java.lang.Thread.sleep
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
+import kotlin.math.min
 
 /** A ViewController implementation with terminal-like gui which uses https://github.com/mabe02/lanterna framework. */
-class ConsoleViewController(private val width: Int = 150, private val height: Int = 50) : ViewController {
+class ConsoleViewController(private val width: Int = 200, private val height: Int = 50) : ViewController {
     private val gui: WindowBasedTextGUI
     private val mapWindow: BasicWindow
     private var mapView: MapComponent? = null
@@ -172,9 +174,11 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         val equipmentList = ActionListBox()
         equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
         equipmentList.isEnabled = isInventoryActive
-        equipment.forEach { (t, u) ->
-            equipmentList.addItem("${getItemTypeName(t)}: ${u.name}") {
-                actionQueue.add { selectEquipmentAction(t) }
+        equipment.forEach { (type, item) ->
+            if (item.type != ItemType.NONE) {
+                equipmentList.addItem(itemString(item, true)) {
+                    actionQueue.add { selectEquipmentAction(type) }
+                }
             }
         }
         infoPanel.addComponent(equipmentList.withBorder(Borders.singleLine("Equipment")))
@@ -187,20 +191,30 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
             "Weapons" to inventory.filter { it.second.type == ItemType.WEAPON },
             "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
         )
+        val inventoryTypeBoxHeight = calcBoxPreferredHeight(
+            gui.screen.terminalSize.rows,
+            typedInventory.size,
+            5,
+            listOf(3, 3)
+        )
         val inventoryPanel = Panel()
-        inventoryPanel.preferredSize = TerminalSize(INFINITY, inventory.size + 6) // FIXME
+        var inventoryPanelHeight = 0
         for (type in typedInventory) {
             val inventoryList = ActionListBox()
-            inventoryList.preferredSize = TerminalSize(INFINITY, type.value.size)
+            val height = min(inventoryTypeBoxHeight, type.value.size)
+            inventoryPanelHeight += height + 2
+            inventoryList.preferredSize = TerminalSize(INFINITY, height)
             inventoryList.isEnabled = isInventoryActive
             type.value.forEach {
-                inventoryList.addItem(it.second.name) {
-                    actionQueue.add { selectInventoryAction(it.first) }
+                val (index, item) = it
+                inventoryList.addItem(itemString(item, false)) {
+                    actionQueue.add { selectInventoryAction(index) }
                 }
             }
             inventoryPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
         }
-        infoPanel.addComponent(inventoryPanel.withBorder(Borders.singleLine( "Inventory")))
+        inventoryPanel.preferredSize = TerminalSize(INFINITY, inventoryPanelHeight)
+        infoPanel.addComponent(inventoryPanel.withBorder(Borders.singleLine("Inventory")))
 
         if (isInventoryActive) {
             val okButton = Button("OK") {
@@ -216,13 +230,46 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         mapWindow.component = panel
     }
 
-    private fun getItemTypeName(type: ItemType): String {
-        return when (type) {
-            ItemType.BOOTS -> "Boots"
-            ItemType.WEAPON -> "Weapon"
-            ItemType.UNDERWEAR -> "Underwear"
-            ItemType.NONE -> "None"
+    private fun itemString(item: ItemView, withType: Boolean): String {
+        val type = if (!withType) {
+            ""
+        }  else {
+            when (item.type) {
+                ItemType.BOOTS -> "Boots"
+                ItemType.WEAPON -> "Weapon"
+                ItemType.UNDERWEAR -> "Underwear"
+                ItemType.NONE -> ""
+            } + ": "
         }
+        val name = item.name
+        val hp = when {
+            item.hp > 0 -> "HP: +${item.hp}"
+            item.hp < 0 -> "HP: ${item.hp}"
+            else -> ""
+        }
+        val armor = when {
+            item.armor > 0 -> "ARM: +${item.armor}"
+            item.armor < 0 -> "ARM: ${item.armor}"
+            else -> ""
+        }
+        val damage = when {
+            item.damage > 0 -> "DMG: +${item.damage}"
+            item.damage < 0 -> "DMG: ${item.damage}"
+            else -> ""
+        }
+        val effect = listOf(hp, armor, damage).filter { it.isNotEmpty() }.joinToString(" | ")
+        return "$type$name // $effect"
+    }
+
+    private fun calcBoxPreferredHeight(
+        windowHeight: Int,
+        numberOfBoxes: Int,
+        numberOfSingleLineElements: Int,
+        otherBoxElements: List<Int>): Int {
+
+        val availableHeight =
+            windowHeight - numberOfSingleLineElements - (otherBoxElements.sum() + otherBoxElements.size * 2)
+        return (availableHeight - numberOfBoxes * 2) / numberOfBoxes
     }
 
     companion object {
@@ -230,7 +277,7 @@ class ConsoleViewController(private val width: Int = 150, private val height: In
         private const val CHOOSE_FILE_TITLE = "Choose file"
         private const val ERROR_TITLE = "Error"
 
-        private const val SIDE_PANEL_WIDTH = 40
+        private const val SIDE_PANEL_WIDTH = 55
         private const val INFINITY = 1000 // lol
     }
 }
