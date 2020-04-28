@@ -66,8 +66,8 @@ class AppLogic(
         menuOptions = listOf(
             MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
             MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
-            MenuOption(SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(SavedGame) },
-            MenuOption(LOAD_GAME_OPTION) { applyMenuAction(LoadGame) },
+            MenuOption(LOAD_SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(LoadSavedGame) },
+            MenuOption(NEW_GAME_FROM_FILE_OPTION) { applyMenuAction(OpenGameFromFile) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) },
             MenuOption(SAVE_OPTION, false) { applyMenuAction(Save) }
         )
@@ -83,9 +83,9 @@ class AppLogic(
         when (action) {
             NewGame -> mapCreator =
                 RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance)
-            SavedGame -> mapCreator =
+            LoadSavedGame -> mapCreator =
                 RestoreSavedMapCreator.build(saver)
-            LoadGame -> mapCreator =
+            OpenGameFromFile -> mapCreator =
                 FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
@@ -172,7 +172,7 @@ class AppLogic(
 
     private fun makeSavedGameOptionInvisible() {
         for (option in menuOptions) {
-            if (option.optionName == SAVED_GAME_OPTION) {
+            if (option.optionName == LOAD_SAVED_GAME_OPTION) {
                 option.visible = saver.isSaved()
             }
         }
@@ -228,8 +228,8 @@ class AppLogic(
         private const val GAME_OVER_TITLE = "Game Over"
         private const val MAIN_MENU_TITLE = "Main menu"
         private const val NEW_GAME_OPTION = "New game"
-        private const val SAVED_GAME_OPTION = "Saved game"
-        private const val LOAD_GAME_OPTION = "Load game"
+        private const val LOAD_SAVED_GAME_OPTION = "Load last game"
+        private const val NEW_GAME_FROM_FILE_OPTION = "New game from file"
         private const val EXIT_OPTION = "Exit"
         private const val SAVE_OPTION = "Save and exit"
         private const val CONTINUE_OPTION = "Continue"
