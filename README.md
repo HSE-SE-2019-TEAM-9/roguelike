@@ -11,7 +11,7 @@ Simple turn-based console rogue-like game.
 4. Enjoy the game!
 
 ## Game controls
-Use arrows while in game/menu to move
+Use arrows while in game/menu/inventory to move, ESC то open menu, TAB to open inventory, ENTER while in inventory to equip/unequip item
 
 ## Branches info
 If the `master` branch is empty then the current working version of a game is in the `roguelike-1` branch. 
