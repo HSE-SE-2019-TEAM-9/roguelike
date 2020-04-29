@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import ru.hse.se.team9.model.random.positions.RandomPosition
 import ru.hse.se.team9.util.DummyFileChooser
 import ru.hse.se.team9.util.SimpleTestMap
-import ru.hse.se.team9.util.SimpleTestMap.gameMap
 import ru.hse.se.team9.util.getResourceFile
 
 internal class FromFileMapCreatorTest {
@@ -18,6 +17,7 @@ internal class FromFileMapCreatorTest {
             RandomPosition,
             DummyFileChooser(getResourceFile(this::class.java, "/serialized_map"))
         ).getOrHandle { throw it }.createMap().getOrHandle { throw it }
+        val gameMap = SimpleTestMap.gameMap()
         assertEquals(gameMap.heroOnMap, deserializedMap.heroOnMap)
         assertEquals(gameMap.mobs.keys, deserializedMap.mobs.keys)
         assertEquals(gameMap.map, deserializedMap.map)
@@ -30,6 +30,7 @@ internal class FromFileMapCreatorTest {
         assertTrue(FromFileMapCreator.build(
             RandomPosition,
             DummyFileChooser(getResourceFile(this::class.java, "/empty"))
-        ).getOrHandle { throw it }.createMap().isLeft())
+        ).getOrHandle { throw it }.createMap().isLeft()
+        )
     }
 }

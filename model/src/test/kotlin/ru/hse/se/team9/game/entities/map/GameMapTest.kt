@@ -24,7 +24,7 @@ internal class GameMapTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameMap = SimpleTestMap.gameMap
+        gameMap = SimpleTestMap.gameMap()
     }
 
     @Test

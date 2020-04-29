@@ -51,8 +51,7 @@ internal object SimpleTestMap {
         RandomConsumable
     )
 
-    val gameMap: GameMap
-        get() = GameMap(
+    fun gameMap(): GameMap = GameMap(
             HeroOnMap(
                 Hero(HeroStats(10, 10, 0, 10, 10, 10)),
                 startPosition

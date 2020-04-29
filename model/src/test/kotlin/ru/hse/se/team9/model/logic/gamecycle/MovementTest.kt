@@ -39,7 +39,7 @@ internal class MovementTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogic = GameCycleLogic(SimpleTestMap.gameMap, generator)
+        gameCycleLogic = GameCycleLogic(SimpleTestMap.gameMap(), generator)
     }
 
     @Test

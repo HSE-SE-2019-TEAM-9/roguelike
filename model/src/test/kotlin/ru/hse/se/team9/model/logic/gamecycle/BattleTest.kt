@@ -38,13 +38,13 @@ internal class BattleTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogic = GameCycleLogic(SimpleTestMap.gameMap, generator)
+        gameCycleLogic = GameCycleLogic(SimpleTestMap.gameMap(), generator, false)
     }
 
     @Test
     fun testHeroAndMobDieOnHeroesMove() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
@@ -63,7 +63,7 @@ internal class BattleTest {
     @Test
     fun testHeroDiesOnHeroesMove() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
@@ -82,7 +82,7 @@ internal class BattleTest {
     @Test
     fun testMobDiesOnHeroesMove() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
@@ -101,7 +101,7 @@ internal class BattleTest {
     @Test
     fun testHeroAndMobDieOnMobsMove() {
         /*
-         * .x...#
+         * .#...#
          * .#.#@.
          * ...#.#
          * ####U#
@@ -120,7 +120,7 @@ internal class BattleTest {
     @Test
     fun testHeroDiesOnMobsMove() {
         /*
-         * .x...#
+         * .#...#
          * .#.#@.
          * ...#.#
          * ####U#
@@ -139,7 +139,7 @@ internal class BattleTest {
     @Test
     fun testMobDiesOnMobsMove() {
         /*
-         * .x...#
+         * .#...#
          * .#.#@.
          * ...#.#
          * ####U#
@@ -158,7 +158,7 @@ internal class BattleTest {
     @Test
     fun testHeroAndMobDieAfterLongBattle() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
@@ -178,7 +178,7 @@ internal class BattleTest {
     @Test
     fun testHeroDiesAfterLongBattle() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
@@ -201,7 +201,7 @@ internal class BattleTest {
     @Test
     fun testMobDiesAfterLongBattle() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
@@ -221,7 +221,7 @@ internal class BattleTest {
     @Test
     fun testNoOneDiesAfterLongBattle() {
         /*
-         * .x...#
+         * .#...#
          * .#.#..
          * ...#@#
          * ####U#
