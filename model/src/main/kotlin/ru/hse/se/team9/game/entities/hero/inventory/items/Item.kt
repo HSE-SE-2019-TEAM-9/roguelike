@@ -1,6 +1,6 @@
 package ru.hse.se.team9.game.entities.hero.inventory.items
 
-import ru.hse.se.team9.game.entities.hero.effects.DeltaArmorEffect
+import ru.hse.se.team9.game.entities.hero.effects.ArmorEffect
 import ru.hse.se.team9.game.entities.hero.effects.DeltaDamageEffect
 import ru.hse.se.team9.game.entities.hero.effects.DeltaHpEffect
 import ru.hse.se.team9.game.entities.hero.effects.Effect
@@ -12,11 +12,11 @@ sealed class Item(
         val name: String
 ) {
     fun getEquipEffect(): List<Effect> =
-            listOf(DeltaArmorEffect(armorGain), DeltaHpEffect(hpGain), DeltaDamageEffect(dmgGain))
+            listOf(ArmorEffect(armorGain, hpGain), DeltaDamageEffect(dmgGain))
 
 
     fun getRemoveEffect(): List<Effect> =
-            listOf(DeltaArmorEffect(-armorGain), DeltaHpEffect(-hpGain), DeltaDamageEffect(-dmgGain))
+            listOf(ArmorEffect(-armorGain, -hpGain), DeltaDamageEffect(-dmgGain))
 }
 
 class Weapon(armorGain: Int = 0, hpGain: Int = 0, dmgGain: Int = 0, name: String) :
