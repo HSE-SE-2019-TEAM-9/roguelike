@@ -19,7 +19,7 @@ class FogOfWar(
     private val directions = listOf(Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT)
     private val visibleCells: MutableSet<Position> = mutableSetOf()
 
-    /** Opens new map cells for hero base on current hero position */
+    /** Opens new map cells for hero based on current hero position */
     fun updateVision(position: Position) {
         makeVisibleCellsShadowed()
         val queue: Queue<Position> = ArrayDeque<Position>()

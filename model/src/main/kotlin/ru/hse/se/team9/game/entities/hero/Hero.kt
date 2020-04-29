@@ -34,10 +34,12 @@ data class Hero(
         effects.clear()
     }
 
+    /** Adds item to inventory */
     fun pickupItem(item: Item) {
         inventory.add(item)
     }
 
+    /** Places equipped item of the specified type to invetory */
     fun unEquipItem(type: ItemType) {
         equipment.putOffItem(type)?.let {
             addEffects(it.getRemoveEffect())
@@ -45,6 +47,10 @@ data class Hero(
         }
     }
 
+    /**
+     * Removes item from inventory and places to the equipment.
+     * Previously equiped item of that time is returned to the inventory.
+     */
     fun equipItem(index: Int) {
         if (index >= inventory.size || index < 0) {
             throw ArrayIndexOutOfBoundsException("no item with such index")

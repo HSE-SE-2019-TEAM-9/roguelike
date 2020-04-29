@@ -6,9 +6,11 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
 import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 import kotlin.random.Random
 
+/** An implementation of ItemGenerator which uses kotlin.random.Random and generates random items. */
 object RandomItem : ItemGenerator {
     override fun createItem(): Item = listOf(createWeapon(), createUnderwear(), createBoots()).random()
 
+    /** Creates Weapon, Boots, or Underwear with uniform distribution */
     override fun createBoots(): Boots {
         val hpGain = Random.nextInt(MAX_HP_GAIN_BOOTS + 1)
         val armorGain = Random.nextInt(MAX_ARMOR_GAIN + 1)
@@ -16,6 +18,7 @@ object RandomItem : ItemGenerator {
         return Boots(armorGain = armorGain, hpGain = hpGain, name = greatness + " boots of " + getTitle())
     }
 
+    /** Creates random Underwear */
     override fun createUnderwear(): Underwear {
         val hpGain = Random.nextInt(MAX_HP_GAIN_UNDIES + 1)
         val armorGain = Random.nextInt(MAX_ARMOR_GAIN + 1)
@@ -23,6 +26,7 @@ object RandomItem : ItemGenerator {
         return Underwear(armorGain = armorGain, hpGain = hpGain, name = greatness + " panties of " + getTitle())
     }
 
+    /** Creates random Weapon */
     override fun createWeapon(): Weapon {
         val dmgGain = Random.nextInt(MAX_DMG_GAIN + 1)
         val greatness = getGreatness(dmgGain, MAX_DMG_GAIN)

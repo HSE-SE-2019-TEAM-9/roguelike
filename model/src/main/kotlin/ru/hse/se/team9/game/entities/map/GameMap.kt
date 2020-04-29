@@ -35,6 +35,8 @@ import kotlin.math.max
  * @property mobs a map from mob position to mob
  * @property distance a metric used for map-related processes
  * @property fogRadius how far hero sees
+ * @property items wearable items initially located on the map
+ * @property consumables consumable items initially located on the map
  */
 class GameMap(
     val heroOnMap: HeroOnMap,
@@ -83,11 +85,13 @@ class GameMap(
         mobs.remove(position)
     }
 
-    /** Checks that given position exists and is not occupied. */
+    /** Checks that given position is an empty cell OR a hero (so that mobs can attack hero) */
     fun mobCanMoveTo(position: Position): Boolean = isEmptyCell(position) || (heroOnMap.position == position)
 
+    /** Checks that given position is not a wall and located on the map*/
     fun heroCanMoveTo(position: Position): Boolean = isOnMap(position) && isNotWall(position)
 
+    /** Generates new mobs, items and consumables according to inner map logic */
     fun generateObjects() {
         generateMobs()
         generateConsumables()

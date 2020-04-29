@@ -6,11 +6,19 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
 import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 
+/**
+ * Currently equipped items which affect stats of the hero.
+ * Contains only one item per type.
+ */
 class Equipment(
         private var boots: Boots? = null,
         private var underwear: Underwear? = null,
         private var weapon: Weapon? = null
 ) {
+    /**
+     * Places specified item to the equipment
+     * and returns previously equipped item of that type or null if there is none.
+     */
     fun tryEquip(item: Item): Item? {
         val w = weapon
         val u = underwear
@@ -32,6 +40,10 @@ class Equipment(
         }
     }
 
+    /**
+     * Tries to remove item of the specified type from the equipment.
+     * @return removed item or null if no item is removed.
+     **/
     fun putOffItem(type: ItemType): Item? {
         return when (type) {
             ItemType.BOOTS -> {
@@ -53,6 +65,7 @@ class Equipment(
         }
     }
 
+    /** Returns all currently equipped items. */
     fun getItems(): Map<ItemType, Item?> {
         return mapOf(
             ItemType.BOOTS to boots,
