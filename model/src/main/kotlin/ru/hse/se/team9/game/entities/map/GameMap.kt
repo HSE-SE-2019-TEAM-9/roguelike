@@ -151,30 +151,6 @@ class GameMap(
         .distinct()
         .filter { isEmptyCell(it) }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as GameMap
-
-        if (heroOnMap != other.heroOnMap) return false
-        if (map != other.map) return false
-        if (width != other.width) return false
-        if (height != other.height) return false
-        if (generator != other.generator) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = heroOnMap.hashCode()
-        result = 31 * result + map.hashCode()
-        result = 31 * result + width
-        result = 31 * result + height
-        result = 31 * result + generator.hashCode()
-        return result
-    }
-
     /** Returns GameMap snapshot */
     fun getCurrentState(): State {
         return State(this)

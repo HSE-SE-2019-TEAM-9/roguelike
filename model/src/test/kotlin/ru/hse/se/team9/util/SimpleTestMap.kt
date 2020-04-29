@@ -73,5 +73,4 @@ internal object SimpleTestMap {
             mutableMapOf(),
             mutableMapOf()
         )
-
 }

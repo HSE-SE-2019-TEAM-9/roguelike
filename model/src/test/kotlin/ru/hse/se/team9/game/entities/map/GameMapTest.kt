@@ -88,6 +88,14 @@ internal class GameMapTest {
 
     @Test
     fun testSerialize() {
-        assertEquals(gameMap, GameMap.State(gameMap.getCurrentState().serialize()).restore().getOrHandle { throw it })
+        val deserializedMap = GameMap.State(gameMap.getCurrentState().serialize()).restore().getOrHandle {
+            throw it
+        }
+
+        assertEquals(gameMap.heroOnMap, deserializedMap.heroOnMap)
+        assertEquals(gameMap.mobs.keys, deserializedMap.mobs.keys)
+        assertEquals(gameMap.map, deserializedMap.map)
+        assertEquals(gameMap.items, deserializedMap.items)
+        assertEquals(gameMap.consumables, deserializedMap.consumables)
     }
 }

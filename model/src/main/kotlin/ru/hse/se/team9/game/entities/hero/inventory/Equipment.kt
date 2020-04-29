@@ -10,7 +10,7 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
  * Currently equipped items which affect stats of the hero.
  * Contains only one item per type.
  */
-class Equipment(
+data class Equipment(
         private var boots: Boots? = null,
         private var underwear: Underwear? = null,
         private var weapon: Weapon? = null
