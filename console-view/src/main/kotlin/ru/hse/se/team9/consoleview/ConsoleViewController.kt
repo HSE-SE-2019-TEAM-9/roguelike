@@ -176,7 +176,7 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
         equipmentList.isEnabled = isInventoryActive
         equipment.forEach { (type, item) ->
             if (item.type != ItemType.NONE) {
-                equipmentList.addItem(itemString(item, true)) {
+                equipmentList.addItem(itemString(item, true, 1)) {
                     actionQueue.add { selectEquipmentAction(type) }
                 }
             }
@@ -187,9 +187,9 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
             Pair(index, itemView)
         }
         val typedInventory = mapOf(
-            "Boots" to inventory.filter { it.second.type == ItemType.BOOTS },
-            "Weapons" to inventory.filter { it.second.type == ItemType.WEAPON },
-            "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }
+            "Boots" to inventory.filter { it.second.type == ItemType.BOOTS }.reversed(),
+            "Weapons" to inventory.filter { it.second.type == ItemType.WEAPON }.reversed(),
+            "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }.reversed()
         )
         val inventoryTypeBoxHeight = calcBoxPreferredHeight(
             gui.screen.terminalSize.rows,
@@ -207,7 +207,7 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
             inventoryList.isEnabled = isInventoryActive
             type.value.forEach {
                 val (index, item) = it
-                inventoryList.addItem(itemString(item, false)) {
+                inventoryList.addItem(itemString(item, false, 2)) {
                     actionQueue.add { selectInventoryAction(index) }
                 }
             }
@@ -230,7 +230,7 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
         mapWindow.component = panel
     }
 
-    private fun itemString(item: ItemView, withType: Boolean): String {
+    private fun itemString(item: ItemView, withType: Boolean, borderThickness: Int): String {
         val type = if (!withType) {
             ""
         }  else {
@@ -258,7 +258,15 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
             else -> ""
         }
         val effect = listOf(hp, armor, damage).filter { it.isNotEmpty() }.joinToString(" | ")
-        return "$type$name // $effect"
+
+        var firstPart = "$type$name"
+        val secondPart = " // $effect"
+
+        val firstPartMaxLength = SIDE_PANEL_WIDTH - borderThickness * 2 - secondPart.length - 1
+        if (firstPart.length > firstPartMaxLength) {
+            firstPart = firstPart.take(firstPartMaxLength - 3) + "..."
+        }
+        return firstPart + secondPart
     }
 
     private fun calcBoxPreferredHeight(
