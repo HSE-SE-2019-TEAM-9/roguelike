@@ -28,23 +28,18 @@ message PlayerMessage {
       RIGHT = 2;
       DOWN = 3;
     }
-
-    int32 hero_id = 1;
-    Move move = 2;
+    Move move = 1;
   }
 
   message GetCurrentMap {
-    int32 hero_id = 1;
   }
 
   message PutOnItem {
-    int32 hero_id = 1;
-    int32 index = 2;
+    int32 index = 1;
   }
 
   message PutOffItem {
-    int32 hero_id = 1;
-    views.ItemView.ItemType type = 2;
+    views.ItemView.ItemType type = 1;
   }
 
   oneof request {
@@ -70,12 +65,9 @@ message ServerMessage {
   }
 
   message JoinGameResponse {
-    int32 hero_id = 1;
   }
 
   message StartGameResponse {
-    int32 hero_id = 1;
-    int32 game_id = 2;
   }
 
   message MapUpdate {
@@ -84,6 +76,14 @@ message ServerMessage {
 
   message HeroUpdate {
     views.HeroView hero = 1;
+  }
+
+  oneof response {
+    GetGamesResponse get_games_response = 1;
+    JoinGameResponse join_game_response = 2;
+    StartGameResponse start_game_response = 3;
+    MapUpdate map_update = 4;
+    HeroUpdate hero_update = 5;
   }
 }
 
