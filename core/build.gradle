@@ -20,14 +20,19 @@ protobuf {
     }
 
     generateProtoTasks {
-        def krotoConfig = file("krotoPlusConfig.asciipb")
+        def krotoConfig = file("./krotoPlusConfig.asciipb")
 
         all().each{ task ->
             task.inputs.files krotoConfig
             task.plugins {
                 kroto {
                     outputSubDir = "java"
-                    option "ConfigPath=$krotoConfig"
+                    if (osdetector.os == "windows") {
+                        // https://github.com/marcoferrer/kroto-plus/issues/6
+                        option "ConfigPath=${krotoConfig.absolutePath.replace(System.getProperty("user.dir"), "").drop(1)}"
+                    } else {
+                        option "ConfigPath=$krotoConfig"
+                    }
                 }
                 grpc { outputSubDir = "java" }
             }
