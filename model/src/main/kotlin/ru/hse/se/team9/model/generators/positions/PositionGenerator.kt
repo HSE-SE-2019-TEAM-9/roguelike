@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random.positions
+package ru.hse.se.team9.model.generators.positions
 
 import ru.hse.se.team9.positions.Position
 

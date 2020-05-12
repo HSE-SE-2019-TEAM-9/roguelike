@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random.mobs
+package ru.hse.se.team9.model.generators.mobs
 
 import ru.hse.se.team9.game.entities.mobs.Mob
 

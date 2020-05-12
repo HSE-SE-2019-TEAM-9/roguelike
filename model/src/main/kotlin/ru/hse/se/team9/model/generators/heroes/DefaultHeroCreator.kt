@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.mapgeneration.creators
+package ru.hse.se.team9.model.generators.heroes
 
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
@@ -7,10 +7,8 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
 import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
 import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 
-//TODO: FIXME!!!
-object DefaultHeroCreator {
-
-    fun createHero() = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
+object DefaultHeroCreator: HeroGenerator {
+    override fun createHero() = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
 
     private fun createDefaultStats(): HeroStats = HeroStats(30, 30, 2, 10, 0, 1)
 

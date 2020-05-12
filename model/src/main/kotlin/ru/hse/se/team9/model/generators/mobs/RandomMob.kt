@@ -1,18 +1,18 @@
-package ru.hse.se.team9.model.random.mobs
+package ru.hse.se.team9.model.generators.mobs
 
 import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.game.entities.mobs.strategies.AggressiveStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.PassiveStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.CowardStrategy
-import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.generators.directions.DirectionGenerator
 import kotlin.random.Random
 
 /**
  * An implementation of MobGenerator which uses specified directionGenerator (used for strategies) and
  * kotlin.random.Random (used for mob stats) and generates random mobs.
  */
-class RandomMob(private val directionGenerator: DirectionGenerator) : MobGenerator {
+class RandomMob(directionGenerator: DirectionGenerator) : MobGenerator {
     private val strategies = listOf(
         AggressiveStrategy(directionGenerator),
         AggressiveStrategy(directionGenerator),

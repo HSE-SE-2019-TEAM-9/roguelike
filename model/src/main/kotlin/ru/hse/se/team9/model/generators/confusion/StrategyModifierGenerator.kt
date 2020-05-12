@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random.confusion
+package ru.hse.se.team9.model.generators.confusion
 
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
 

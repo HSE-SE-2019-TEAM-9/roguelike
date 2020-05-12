@@ -1,5 +1,6 @@
-package ru.hse.se.team9.model.random
+package ru.hse.se.team9.model.generators
 
+import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
@@ -8,12 +9,13 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
-import ru.hse.se.team9.model.random.confusion.StrategyModifierGenerator
-import ru.hse.se.team9.model.random.directions.DirectionGenerator
-import ru.hse.se.team9.model.random.consumables.ConsumableGenerator
-import ru.hse.se.team9.model.random.items.ItemGenerator
-import ru.hse.se.team9.model.random.mobs.MobGenerator
-import ru.hse.se.team9.model.random.positions.PositionGenerator
+import ru.hse.se.team9.model.generators.confusion.StrategyModifierGenerator
+import ru.hse.se.team9.model.generators.directions.DirectionGenerator
+import ru.hse.se.team9.model.generators.consumables.ConsumableGenerator
+import ru.hse.se.team9.model.generators.heroes.HeroGenerator
+import ru.hse.se.team9.model.generators.items.ItemGenerator
+import ru.hse.se.team9.model.generators.mobs.MobGenerator
+import ru.hse.se.team9.model.generators.positions.PositionGenerator
 import ru.hse.se.team9.positions.Position
 
 /** An implementation of all generators which redirects all calls to underlying "small" generators.  */
@@ -23,8 +25,16 @@ class GameGenerator(
     private val mobGenerator: MobGenerator,
     private val strategyModifierGenerator: StrategyModifierGenerator,
     private val itemGenerator: ItemGenerator,
-    private val consumableGenerator: ConsumableGenerator
-) : DirectionGenerator, MobGenerator, PositionGenerator, StrategyModifierGenerator, ItemGenerator, ConsumableGenerator {
+    private val consumableGenerator: ConsumableGenerator,
+    private val heroGenerator: HeroGenerator
+) : DirectionGenerator,
+        MobGenerator,
+        PositionGenerator,
+        StrategyModifierGenerator,
+        ItemGenerator,
+        ConsumableGenerator,
+        HeroGenerator
+{
     override fun createDirection(allowedDirections: List<Direction>): Direction {
         return directionGenerator.createDirection(allowedDirections)
     }
@@ -63,5 +73,9 @@ class GameGenerator(
 
     override fun createConsumable(): Consumable {
         return consumableGenerator.createConsumable()
+    }
+
+    override fun createHero(): Hero {
+        return heroGenerator.createHero()
     }
 }

@@ -10,7 +10,7 @@ import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.MapViewImpl
 import ru.hse.se.team9.game.entities.mobs.Mob
-import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.generators.GameGenerator
 import ru.hse.se.team9.utils.get
 import ru.hse.se.team9.utils.plus
 import kotlin.math.ceil
@@ -33,7 +33,7 @@ class GameCycleLogicImpl(
             is Down -> Direction.DOWN
         }
 
-        val hero = map.heroes[heroId]!!.hero //TODO: FIXME
+        val hero = map.heroes[heroId]?.hero ?: throw IllegalArgumentException("no such hero exists")
         val newHeroPosition = map.heroes[heroId]!!.position + direction
         val mob = map.mobs[newHeroPosition]
 
@@ -106,24 +106,6 @@ class GameCycleLogicImpl(
 
     private fun getDamageReduceMultiplier(armor: Int): Double = (1 - armor / MAX_ARMOR)
 
-    // TODO remove that doc
-    /**
-     * Makes one game move. One game move consists of 6 stages:
-     *
-     * 1. Player tries to make a move. If that cell is empty, then player successfully makes the move.
-     * if the cell is occupied by mob, then a battle occurs. Mobs get instant damage. Damage for hero is
-     * added to effects
-     *
-     * 2. Dead mobs are deleted from maps. If all mobs are dead then player wins.
-     *
-     * 3. Accumulated hero effects are applied (e.g. HP decreases)
-     *
-     * 4. Mobs try to make a move according to their strategy. The logic is equivalent to step 1.
-     *
-     * 5. Dead mobs are deleted from maps. If all mobs are dead then player wins.
-     *
-     * 6. Accumulated hero effects are applied (e.g. HP decreases)
-     */
     override fun makeMove(heroId: Int, move: Move): GameStatus {
         return Either.right(InProgress)
             .flatMap { movePlayer(heroId, move) }
@@ -140,13 +122,13 @@ class GameCycleLogicImpl(
     override fun getCurrentMap(heroId: Int): MapView = MapViewImpl(heroId, map)
 
     override fun putOnItem(heroId: Int, index: Int) {
-        val hero = map.heroes[heroId]!!.hero //TODO: fixme
+        val hero = map.heroes[heroId]?.hero ?: throw IllegalArgumentException("no such hero exists")
         hero.equipItem(index)
         hero.runEffects()
     }
 
     override fun putOffItem(heroId: Int, type: ItemType) {
-        val hero = map.heroes[heroId]!!.hero //TODO: fixme
+        val hero = map.heroes[heroId]?.hero ?: throw IllegalArgumentException("no such hero exists")
         hero.unEquipItem(type)
         hero.runEffects()
     }

@@ -7,7 +7,7 @@ import ru.hse.se.team9.model.mapgeneration.FileNotChosen
 import ru.hse.se.team9.model.mapgeneration.MapCreationError
 import ru.hse.se.team9.model.mapgeneration.MapCreator
 import ru.hse.se.team9.model.mapgeneration.ParseError
-import ru.hse.se.team9.model.random.positions.PositionGenerator
+import ru.hse.se.team9.model.generators.positions.PositionGenerator
 import java.io.File
 import java.io.IOException
 
