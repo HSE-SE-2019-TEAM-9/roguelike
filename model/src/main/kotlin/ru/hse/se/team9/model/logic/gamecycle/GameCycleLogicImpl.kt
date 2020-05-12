@@ -25,7 +25,7 @@ class GameCycleLogicImpl(
         private val generateNewObjects: Boolean = true
 ): GameCycleLogic {
     // VisibleForTesting
-    internal fun movePlayer(move: Move): Either<Finished, InProgress> {
+    internal fun movePlayer(heroId: Int, move: Move): Either<Finished, InProgress> {
         val direction = when (move) {
             is Left -> Direction.LEFT
             is Up -> Direction.UP
@@ -33,14 +33,14 @@ class GameCycleLogicImpl(
             is Down -> Direction.DOWN
         }
 
-        val hero = map.heroOnMap.hero
-        val newHeroPosition = map.heroOnMap.position + direction
+        val hero = map.heroes[heroId]!!.hero //TODO: FIXME
+        val newHeroPosition = map.heroes[heroId]!!.position + direction
         val mob = map.mobs[newHeroPosition]
 
         if (mob != null) {
             battle(hero, mob)
         } else {
-            map.moveHero(direction)
+            map.moveHero(heroId, direction)
         }
         return Either.Right(InProgress)
     }
@@ -48,9 +48,9 @@ class GameCycleLogicImpl(
     private fun moveMobs(): Either<Finished, InProgress> {
         for ((position, mob) in map.mobs.toList()) {
             val newPosition = mob.makeMove(position, map)
-            val hero = map.heroOnMap.hero
-            if (map.heroOnMap.position == newPosition) {
-                battle(hero, mob)
+            val hero = map.heroes.values.firstOrNull { it.position == newPosition }
+            if (hero != null) {
+                battle(hero.hero, mob)
             } else {
                 map.moveMob(position, newPosition)
             }
@@ -80,8 +80,8 @@ class GameCycleLogicImpl(
     }
 
     private fun runHeroEffects(): Either<Finished, InProgress> {
-        map.heroOnMap.hero.runEffects()
-        return if (map.heroOnMap.hero.isDead()) {
+        map.heroes.values.map { it.hero }.forEach { it.runEffects() }
+        return if (map.heroes.values.all {it.hero.isDead()} ) {
             Either.left(Loss)
         } else {
             Either.right(InProgress)
@@ -89,9 +89,11 @@ class GameCycleLogicImpl(
     }
 
     private fun pickupObjects(): Either<Finished, InProgress> {
-        val position = map.heroOnMap.position
-        map.items.remove(position)?.let { map.heroOnMap.hero.pickupItem(it) }
-        map.consumables.remove(position)?.let { map.heroOnMap.hero.addEffect(it.getEffect()) }
+        for (heroOnMap in map.heroes.values) {
+            val position = heroOnMap.position
+            map.items.remove(position)?.let { heroOnMap.hero.pickupItem(it) }
+            map.consumables.remove(position)?.let { heroOnMap.hero.addEffect(it.getEffect()) }
+        }
         return Either.right(InProgress)
     }
 
@@ -122,9 +124,9 @@ class GameCycleLogicImpl(
      *
      * 6. Accumulated hero effects are applied (e.g. HP decreases)
      */
-    override fun makeMove(move: Move): GameStatus {
+    override fun makeMove(heroId: Int, move: Move): GameStatus {
         return Either.right(InProgress)
-            .flatMap { movePlayer(move) }
+            .flatMap { movePlayer(heroId, move) }
             .flatMap { removeDeadMobCorpses() }
             .flatMap { pickupObjects() }
             .flatMap { runHeroEffects() }
@@ -135,16 +137,16 @@ class GameCycleLogicImpl(
             .get()
     }
 
-    override fun getCurrentMap(): MapView = MapViewImpl(map)
+    override fun getCurrentMap(heroId: Int): MapView = MapViewImpl(heroId, map)
 
-    override fun putOnItem(index: Int) {
-        val hero = map.heroOnMap.hero
+    override fun putOnItem(heroId: Int, index: Int) {
+        val hero = map.heroes[heroId]!!.hero //TODO: fixme
         hero.equipItem(index)
         hero.runEffects()
     }
 
-    override fun putOffItem(type: ItemType) {
-        val hero = map.heroOnMap.hero
+    override fun putOffItem(heroId: Int, type: ItemType) {
+        val hero = map.heroes[heroId]!!.hero //TODO: fixme
         hero.unEquipItem(type)
         hero.runEffects()
     }

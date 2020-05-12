@@ -5,6 +5,7 @@ import ru.hse.se.team9.entities.MapObject.*
 import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.HeroStats
 import ru.hse.se.team9.game.entities.map.Direction
+import ru.hse.se.team9.game.entities.map.FogOfWar
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
@@ -51,10 +52,13 @@ internal object SimpleTestMap {
         RandomConsumable
     )
 
-    fun gameMap(): GameMap = GameMap(
-            HeroOnMap(
-                Hero(HeroStats(10, 10, 0, 10, 10, 10)),
-                startPosition
+    fun gameMap(): GameMap {
+        val map = GameMap(
+            mutableMapOf(
+                0 to HeroOnMap(
+                    Hero(HeroStats(10, 10, 0, 10, 10, 10)),
+                    startPosition
+                )
             ),
             map,
             width,
@@ -72,4 +76,7 @@ internal object SimpleTestMap {
             mutableMapOf(),
             mutableMapOf()
         )
+        map.fog[0] = FogOfWar(Manhattan, map.map, width, height, 10)
+        return map
+    }
 }

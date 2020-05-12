@@ -8,6 +8,7 @@ import ru.hse.se.team9.model.random.positions.RandomPosition
 import ru.hse.se.team9.util.DummyFileChooser
 import ru.hse.se.team9.util.SimpleTestMap
 import ru.hse.se.team9.util.getResourceFile
+import java.io.File
 
 internal class FromFileMapCreatorTest {
 
@@ -18,7 +19,7 @@ internal class FromFileMapCreatorTest {
             DummyFileChooser(getResourceFile(this::class.java, "/serialized_map"))
         ).getOrHandle { throw it }.createMap().getOrHandle { throw it }
         val gameMap = SimpleTestMap.gameMap()
-        assertEquals(gameMap.heroOnMap, deserializedMap.heroOnMap)
+        assertEquals(gameMap.heroes, deserializedMap.heroes)
         assertEquals(gameMap.mobs.keys, deserializedMap.mobs.keys)
         assertEquals(gameMap.map, deserializedMap.map)
         assertEquals(gameMap.items, deserializedMap.items)

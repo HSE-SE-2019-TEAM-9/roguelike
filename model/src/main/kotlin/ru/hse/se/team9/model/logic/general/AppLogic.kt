@@ -4,11 +4,12 @@ import arrow.core.Either
 import arrow.core.flatMap
 import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.files.FileChooser
-import ru.hse.se.team9.game.entities.map.MapViewImpl
+import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
+import ru.hse.se.team9.model.mapgeneration.creators.DefaultHeroCreator
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RestoreSavedMapCreator
@@ -82,7 +83,16 @@ class AppLogic(
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
             NewGame -> mapCreator =
-                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance)
+                //TODO: FIXME AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance).map {
+                    object : MapCreator {
+                        override fun createMap(): Either<MapCreationError, GameMap> = it.createMap().map { map ->
+                            map.addHeroToRandomPosition(0, DefaultHeroCreator.createHero())
+                            map
+                        }
+                    }
+                }
+
             LoadSavedGame -> mapCreator =
                 RestoreSavedMapCreator.build(saver)
             OpenGameFromFile -> mapCreator =
@@ -102,12 +112,12 @@ class AppLogic(
     }
 
     private val putOffItem = { type: ItemType ->
-        gameCycleLogic.putOffItem(type)
+        gameCycleLogic.putOffItem(0, type)
         drawInventory()
     }
 
     private val putOnItem = { index: Int ->
-        gameCycleLogic.putOnItem(index)
+        gameCycleLogic.putOnItem(0, index)
         drawInventory()
     }
 
@@ -174,7 +184,7 @@ class AppLogic(
 
     private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
-        if (gameCycleLogic.makeMove(move) is Finished) {
+        if (gameCycleLogic.makeMove(0, move) is Finished) {
             drawMap()
             appStatus = AppStatus.IN_MENU
             makeInGameOptionsInvisible()
@@ -192,7 +202,7 @@ class AppLogic(
 
     private fun drawInventory() {
         require(appStatus == AppStatus.IN_INVENTORY)
-        viewController.drawInventory(gameCycleLogic.getCurrentMap(), putOffItem, putOnItem, closeInventory)
+        viewController.drawInventory(gameCycleLogic.getCurrentMap(0), putOffItem, putOnItem, closeInventory)
     }
 
     private fun drawError(error: String) {
@@ -202,7 +212,7 @@ class AppLogic(
 
     private fun drawMap() {
         require(appStatus == AppStatus.IN_GAME)
-        viewController.drawMap(gameCycleLogic.getCurrentMap())
+        viewController.drawMap(gameCycleLogic.getCurrentMap(0))
     }
 
     //TODO: FIXME ME PLS!!!!!!!!

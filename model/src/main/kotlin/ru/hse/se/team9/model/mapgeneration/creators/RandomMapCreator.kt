@@ -51,7 +51,6 @@ class RandomMapCreator private constructor(
         val borderSize = BORDER_CHUNK_SIZE * chunkSize
         val mapHeightAdjusted = mapHeight + BORDER_CHUNK_SIZE * chunkSize
         val mapWidthAdjusted = mapWidth + BORDER_CHUNK_SIZE * chunkSize
-        val heroPosition = Position(borderSize, borderSize)
 
         val map = List(mapHeightAdjusted) { MutableList(mapWidthAdjusted) { MapObject.WALL } }
 
@@ -73,9 +72,8 @@ class RandomMapCreator private constructor(
             dfsStack.add(finalChunk)
         }
 
-        val hero = Hero(stats = createDefaultStats(), equipment = createDefaultEquipment())
         val gameMap = GameMap(
-            HeroOnMap(hero, heroPosition),
+            mutableMapOf(),
             map,
             mapWidthAdjusted,
             mapHeightAdjusted,
@@ -140,14 +138,6 @@ class RandomMapCreator private constructor(
 
         internal data class Chunk(val h: Int, val w: Int)
 
-        private fun createDefaultStats(): HeroStats = HeroStats(30, 30, 2, 10, 0, 1)
-
-        private fun createDefaultEquipment(): Equipment {
-            val boots = Boots(1, 1, 0, "Dirty old boots")
-            val underwear = Underwear(1, 1, 0, "Wet underpants")
-            val weapon = Weapon(0,0, 1, "Broken stick")
-            return Equipment(boots, underwear, weapon)
-        }
         /**
          * Checks provided arguments and returns Right<RandomMapCreator> if all arguments are valid.
          *

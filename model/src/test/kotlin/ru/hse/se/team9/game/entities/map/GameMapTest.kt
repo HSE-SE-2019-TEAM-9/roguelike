@@ -39,22 +39,22 @@ internal class GameMapTest {
          * ? = can't go there because of empty space
          * + = can go there
          */
-        gameMap.moveHero(Direction.DOWN)
-        assertEquals(startPositionHero, gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.RIGHT)
-        assertEquals(startPositionHero, gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPositionHero.x, startPositionHero.y - 1), gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPositionHero.x, startPositionHero.y - 2), gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.LEFT)
-        assertEquals(Position(startPositionHero.x, startPositionHero.y - 2), gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPositionHero.x, startPositionHero.y - 2), gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.RIGHT)
-        assertEquals(Position(startPositionHero.x + 1, startPositionHero.y - 2), gameMap.heroOnMap.position)
-        gameMap.moveHero(Direction.UP)
-        assertEquals(Position(startPositionHero.x + 1, startPositionHero.y - 2), gameMap.heroOnMap.position)
+        gameMap.moveHero(0, Direction.DOWN)
+        assertEquals(startPositionHero, gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.RIGHT)
+        assertEquals(startPositionHero, gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.UP)
+        assertEquals(Position(startPositionHero.x, startPositionHero.y - 1), gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.UP)
+        assertEquals(Position(startPositionHero.x, startPositionHero.y - 2), gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.LEFT)
+        assertEquals(Position(startPositionHero.x, startPositionHero.y - 2), gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.UP)
+        assertEquals(Position(startPositionHero.x, startPositionHero.y - 2), gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.RIGHT)
+        assertEquals(Position(startPositionHero.x + 1, startPositionHero.y - 2), gameMap.heroes[0]!!.position)
+        gameMap.moveHero(0, Direction.UP)
+        assertEquals(Position(startPositionHero.x + 1, startPositionHero.y - 2), gameMap.heroes[0]!!.position)
     }
 
     @Test
@@ -92,7 +92,7 @@ internal class GameMapTest {
             throw it
         }
 
-        assertEquals(gameMap.heroOnMap, deserializedMap.heroOnMap)
+        assertEquals(gameMap.heroes[0], deserializedMap.heroes[0])
         assertEquals(gameMap.mobs.keys, deserializedMap.mobs.keys)
         assertEquals(gameMap.map, deserializedMap.map)
         assertEquals(gameMap.items, deserializedMap.items)

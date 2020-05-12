@@ -4,6 +4,7 @@ import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 
 interface GameCycleLogic {
+    //TODO: fix doc
     /**
      * Makes one game move. One game move consists of 6 stages:
      *
@@ -21,14 +22,14 @@ interface GameCycleLogic {
      *
      * 6. Accumulated hero effects are applied (e.g. HP decreases)
      */
-    fun makeMove(move: Move): GameStatus
+    fun makeMove(heroId: Int, move: Move): GameStatus
 
     //TODO: doc
-    fun getCurrentMap(): MapView
+    fun getCurrentMap(heroId: Int): MapView
 
     //TODO: doc
-    fun putOnItem(index: Int)
+    fun putOnItem(heroId: Int, index: Int)
 
     //TODO: doc
-    fun putOffItem(type: ItemType)
+    fun putOffItem(heroId: Int, type: ItemType)
 }

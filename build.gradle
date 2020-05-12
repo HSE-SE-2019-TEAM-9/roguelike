@@ -61,7 +61,7 @@ dependencies {
 task createMap(type: JavaExec) {
     description = "Create a map which can be loaded and place it in working directory"
     classpath = sourceSets.main.runtimeClasspath
-    main = "ru.hse.se.team9.MainKt"
+    main = "ru.hse.se.team9.MainClientKt"
     args 'create-map'
 }
 

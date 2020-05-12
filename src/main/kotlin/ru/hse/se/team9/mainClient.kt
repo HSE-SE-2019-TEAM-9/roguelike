@@ -4,6 +4,7 @@ import ru.hse.se.team9.consoleview.ConsoleViewController
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.model.logic.general.AppLogic
 import ru.hse.se.team9.model.mapgeneration.ViewFileChooser
+import ru.hse.se.team9.model.mapgeneration.creators.DefaultHeroCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.random.GameGenerator
 import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
@@ -30,15 +31,18 @@ fun main(args: Array<String>) {
     val saver = GameMapSaver(File(".saved"))
 
     if (args.contains("create-map")) {
-        val file = RandomMapCreator.build(
+        val map = RandomMapCreator.build(
             generator,
             36,
             36,
             4,
             Manhattan,
             6
-        ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!.getCurrentState().serialize()
-        File("map_example").writeBytes(file)
+        ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!
+        //FIXME!!!!!!!!!!!!!!!!!!!!!!!!!
+        map.addHeroToRandomPosition(0, DefaultHeroCreator.createHero())
+        val bytes = map.getCurrentState().serialize()
+        File("map_example").writeBytes(bytes)
         return
     }
 

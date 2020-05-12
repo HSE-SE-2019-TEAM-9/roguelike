@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.hse.se.team9.entities.MapObject
+import ru.hse.se.team9.game.entities.hero.Hero
 import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.map.distance.Distance
@@ -27,7 +28,7 @@ import kotlin.math.max
 
 /**
  * Represents game map
- * @property heroOnMap hero and its position on map
+ * @property heroes map from heroId to hero and its position
  * @property map two-dimensional array of MapObject, stores landscape elements and not active participants of game
  * @property width width of map
  * @property height height of map
@@ -39,7 +40,7 @@ import kotlin.math.max
  * @property consumables consumable items initially located on the map
  */
 class GameMap(
-    val heroOnMap: HeroOnMap,
+    val heroes: MutableMap<Int, HeroOnMap>,
     val map: List<MutableList<MapObject>>,
     val width: Int,
     val height: Int,
@@ -50,20 +51,25 @@ class GameMap(
     val items: MutableMap<Position, Item>,
     val consumables: MutableMap<Position, Consumable>
 ) {
-    val fog = FogOfWar(distance, map, width, height, fogRadius)
+    val fog: MutableMap<Int, FogOfWar> = mutableMapOf()
 
-    init {
-        fog.updateVision(heroOnMap.position)
+    //TODO: doc
+    fun addHeroToRandomPosition(heroId: Int, hero: Hero) {
+        val position = generateRandomHeroPosition()!! //TODO: throw better exception
+        heroes[heroId] = HeroOnMap(hero, position)
+        val fogOfWar = FogOfWar(distance, map, width, height, fogRadius)
+        fogOfWar.updateVision(position)
+        fog[heroId] = fogOfWar
     }
 
     /** Moves hero to the neighbor cell according to the direction. If this position is occupied, does nothing.
      * @param direction direction to move towards
      */
-    fun moveHero(direction: Direction) {
-        val position = heroOnMap.position + direction
+    fun moveHero(heroId: Int, direction: Direction) {
+        val position = heroes[heroId]!!.position + direction //TODO: throw better exception??
         if (heroCanMoveTo(position)) {
-            heroOnMap.position = position
-            fog.updateVision(position)
+            heroes[heroId]!!.position = position
+            fog[heroId]!!.updateVision(position)
         }
     }
 
@@ -86,7 +92,9 @@ class GameMap(
     }
 
     /** Checks that given position is an empty cell OR a hero (so that mobs can attack hero) */
-    fun mobCanMoveTo(position: Position): Boolean = isEmptyCell(position) || (heroOnMap.position == position)
+    fun mobCanMoveTo(position: Position): Boolean = isEmptyCell(position) || heroes.values.any {
+        it.position == position
+    }
 
     /** Checks that given position is not a wall and located on the map*/
     fun heroCanMoveTo(position: Position): Boolean = isOnMap(position) && isNotWall(position)
@@ -128,8 +136,10 @@ class GameMap(
     }
 
     private fun isNotHero(position: Position): Boolean {
-        return heroOnMap.position != position
+        return heroes.values.none { it.position == position }
     }
+
+    private fun generateRandomHeroPosition(): Position? = getValidPositionSequence().firstOrNull()
 
     private fun generateMobs() = getValidPositionSequence()
         .take(max(0, MOB_AMOUNT - mobs.size))

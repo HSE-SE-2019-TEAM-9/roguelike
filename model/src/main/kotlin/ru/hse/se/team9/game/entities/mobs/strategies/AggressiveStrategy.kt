@@ -13,16 +13,24 @@ class AggressiveStrategy(private val directionGenerator: DirectionGenerator) : M
      * Goes towards hero if it is closer than AGGRESSION_DISTANCE.
      * Otherwise makes move with directionGenerator.
      */
-    override fun makeMove(position: Position, map: GameMap): Pair<Position, MobStrategy> =
-        if (map.distance(position, map.heroOnMap.position) <= AGGRESSION_DISTANCE) {
-            val direction = Direction.values()
+    override fun makeMove(position: Position, map: GameMap): Pair<Position, MobStrategy> {
+        val heroes = map.heroes.values
+
+        fun getDistanceToNearestHero(position: Position): Int? =
+            heroes.map { map.distance(position, it.position) }.min()
+
+        return if (heroes.any { map.distance(position, it.position) <= AGGRESSION_DISTANCE }) {
+            val newPosition = Direction.values()
                 .toList()
-                .filter { map.mobCanMoveTo(position + it) }
-                .minBy { map.distance(position + it, map.heroOnMap.position) } ?: Direction.UP
-            Pair(position + direction, this)
+                .map { position + it }
+                .filter { map.mobCanMoveTo(it) }
+                .minBy { newPosition -> getDistanceToNearestHero(newPosition) ?: 0 }
+                ?: position + Direction.UP
+            Pair(newPosition, this)
         } else {
             Pair(position + directionGenerator.createDirection(), this)
         }
+    }
 
     override fun getProperties(): List<MobProperty> = emptyList()
 
