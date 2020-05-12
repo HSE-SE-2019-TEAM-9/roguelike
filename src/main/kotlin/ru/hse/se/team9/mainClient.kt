@@ -31,19 +31,22 @@ fun main(args: Array<String>) {
     val saver = GameMapSaver(File(".saved"))
 
     if (args.contains("create-map")) {
-        val map = RandomMapCreator.build(
-            generator,
-            36,
-            36,
-            4,
-            Manhattan,
-            6
-        ).fold({ null }, { it })!!.createMap().fold({ null }, { it })!!
-        //FIXME!!!!!!!!!!!!!!!!!!!!!!!!!
-        map.addHeroToRandomPosition(0, DefaultHeroCreator.createHero())
-        val bytes = map.getCurrentState().serialize()
-        File("map_example").writeBytes(bytes)
-        return
+            val map = RandomMapCreator.build(
+                    generator,
+                    36,
+                    36,
+                    4,
+                    Manhattan,
+                    6
+            ).fold({ null }, { it })?.createMap()?.fold({ null }, { it })
+            map?.addHeroToRandomPosition(0, DefaultHeroCreator.createHero())
+            val bytes = map?.getCurrentState()?.serialize()
+            if (bytes != null) {
+                File("map_example").writeBytes(bytes)
+            } else {
+                System.err.println("error while creating default map")
+            }
+            return
     }
 
     val view = ConsoleViewController()
