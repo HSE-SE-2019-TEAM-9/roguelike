@@ -5,13 +5,14 @@ option java_package = "ru.hse.se.team9.network.views";
 
 message MapView {
     HeroView hero = 1;
-    repeated MapColumn map = 2;
-    int32 width = 3;
-    int32 height = 4;
-    repeated FogColumn fog = 5;
-    repeated MobPair mobs = 6;
-    repeated ItemPair items = 7;
-    repeated ConsumablePair consumables = 8;
+    repeated HeroView otherHeroes = 2;
+    repeated MapColumn map = 3;
+    int32 width = 4;
+    int32 height = 5;
+    repeated FogColumn fog = 6;
+    repeated MobPair mobs = 7;
+    repeated ItemPair items = 8;
+    repeated ConsumablePair consumables = 9;
 }
 
 message HeroView {

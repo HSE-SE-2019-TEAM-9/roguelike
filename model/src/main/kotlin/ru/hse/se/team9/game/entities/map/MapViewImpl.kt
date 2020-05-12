@@ -13,6 +13,7 @@ import ru.hse.se.team9.positions.Position
 /** Adapts GameMap to MapView interface */
 class MapViewImpl(gameMap: GameMap) : MapView {
     override val hero: HeroView = HeroViewImpl(gameMap.heroOnMap)
+    override val otherHeroes: List<HeroView> = emptyList()
     override val map: List<List<MapObject>> = gameMap.map
     override val width = gameMap.map[0].size
     override val height = gameMap.map.size

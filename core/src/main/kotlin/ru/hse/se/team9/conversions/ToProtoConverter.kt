@@ -20,6 +20,7 @@ object ToProtoConverter {
         val mapView = this
         return ProtoMapView {
             hero = mapView.hero.toProto()
+            addAllOtherHeroes(mapView.otherHeroes.map { it.toProto() })
             addAllMap(mapView.map.map { it.toProto() })
             width = mapView.width
             height = mapView.height

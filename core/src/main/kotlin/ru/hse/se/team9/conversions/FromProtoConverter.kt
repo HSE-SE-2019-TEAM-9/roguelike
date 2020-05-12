@@ -14,6 +14,7 @@ object FromProtoConverter {
     fun Views.MapView.toView(): MapView {
         return MapViewConverted(
             hero.toView(),
+            otherHeroesList.map { it.toView() },
             mapList.toViewMap(),
             width,
             height,
@@ -40,7 +41,7 @@ object FromProtoConverter {
         return MobViewConverted(
             hp,
             maxHp,
-            propertiesList.toView()
+            propertiesList.map { it.toView()}
         )
     }
 
@@ -123,10 +124,6 @@ object FromProtoConverter {
         }
     }
 
-    private fun List<Views.MobView.MobProperty>.toView(): List<MobProperty> {
-        return this.map { it.toView() }
-    }
-
     private fun Views.ItemView.ItemType.toView(): ItemType {
         return when (this) {
             Views.ItemView.ItemType.NONE -> ItemType.NONE
@@ -150,6 +147,7 @@ object FromProtoConverter {
 
     private data class MapViewConverted(
         override val hero: HeroView,
+        override val otherHeroes: List<HeroView>,
         override val map: List<List<MapObject>>,
         override val width: Int,
         override val height: Int,

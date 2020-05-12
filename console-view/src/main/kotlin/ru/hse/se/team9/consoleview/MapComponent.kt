@@ -68,6 +68,7 @@ internal class MapComponent(
             val items = component.map.items
             val consumables = component.map.consumables
             val fog = component.map.fog
+            val otherHeroes = component.map.otherHeroes
 
             val screenSize = component.screen.terminalSize
             val (xLeft, xRight) = getBounds(heroPosition.x, screenSize.columns - component.sidePanelWidth)
@@ -88,6 +89,10 @@ internal class MapComponent(
             }
             drawObjects(xLeft, yHigh, consumables, fog, graphics) {
                 TextCharacter(CONSUMABLE_CHARACTER, CONSUMABLE_COLOR, BACKGROUND_COLOR)
+            }
+            val otherHeroesMap = otherHeroes.map { it.position to it }.toMap()
+            drawObjects(xLeft, yHigh, otherHeroesMap, fog, graphics) {
+                TextCharacter(HERO_CHARACTER, OTHER_HERO_COLOR, BACKGROUND_COLOR)
             }
             drawHero(xLeft, yHigh, heroPosition, graphics)
         }
@@ -164,6 +169,7 @@ internal class MapComponent(
     companion object {
         private val BACKGROUND_COLOR = TextColor.ANSI.BLACK
         private val HERO_COLOR = TextColor.Indexed.fromRGB(255, 255, 0)
+        private val OTHER_HERO_COLOR = TextColor.Indexed.fromRGB(0, 200, 150)
         private val EMPTY_SPACE_COLOR = TextColor.ANSI.YELLOW
         private val FULL_HP_MOB_COLOR = TextColor.Indexed.fromRGB(190, 255, 0)
         private val NO_HP_MOB_COLOR = TextColor.Indexed.fromRGB(255, 0, 0)
