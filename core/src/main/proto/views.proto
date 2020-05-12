@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package views;
+option java_package = "ru.hse.se.team9.network.views";
+
+message MapView {
+    int64 kek = 1;
+}

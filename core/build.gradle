@@ -1,2 +1,36 @@
+apply plugin: 'com.google.protobuf'
+apply plugin: 'com.github.marcoferrer.kroto-plus'
+
+def grpcVersion = '1.23.0'
+def protobufVersion = '3.9.0'
+
 dependencies {
+    implementation "com.google.protobuf:protobuf-java:$protobufVersion"
+    implementation "io.grpc:grpc-protobuf:$grpcVersion",
+            "io.grpc:grpc-stub:$grpcVersion",
+            "io.grpc:grpc-netty:$grpcVersion"
+    compile 'javax.annotation:javax.annotation-api:1.3.1'
+}
+
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:$protobufVersion"}
+    plugins {
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"}
+        kroto { artifact = "com.github.marcoferrer.krotoplus:protoc-gen-kroto-plus:0.6.1" }
+    }
+
+    generateProtoTasks {
+        def krotoConfig = file("krotoPlusConfig.asciipb")
+
+        all().each{ task ->
+            task.inputs.files krotoConfig
+            task.plugins {
+                kroto {
+                    outputSubDir = "java"
+                    option "ConfigPath=$krotoConfig"
+                }
+                grpc { outputSubDir = "java" }
+            }
+        }
+    }
 }

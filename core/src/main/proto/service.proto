@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package network;
+option java_package = "ru.hse.se.team9.network";
+
+import "google/protobuf/empty.proto";
+import "views.proto";
+
+service RoguelikeApi {
+  rpc GetMap(google.protobuf.Empty) returns (views.MapView);
+}
