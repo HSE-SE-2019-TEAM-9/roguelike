@@ -10,7 +10,7 @@ import ru.hse.se.team9.positions.Position
 
 object FromProtoConverter {
 
-    // TODO: kotlindoc
+    /** Converts proto MapView instance to a kotlin one */
     fun Views.MapView.toView(): MapView {
         return MapViewConverted(
             hero.toView(),
