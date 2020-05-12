@@ -22,7 +22,7 @@ internal class ConsumableTest {
     private lateinit var startMobPosition: Position
     private var width: Int = 0
     private var height: Int = 0
-    private lateinit var gameCycleLogic: GameCycleLogic
+    private lateinit var gameCycleLogicImpl: GameCycleLogicImpl
 
     @BeforeEach
     fun init() {
@@ -40,7 +40,7 @@ internal class ConsumableTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogic = GameCycleLogic(gameMap, generator, false)
+        gameCycleLogicImpl = GameCycleLogicImpl(gameMap, generator, false)
     }
 
     @Test
@@ -57,7 +57,7 @@ internal class ConsumableTest {
         gameMap.consumables[Position(2, 2)] = Consumable(13)
         assertEquals(
             InProgress,
-            gameCycleLogic.makeMove(Right)
+            gameCycleLogicImpl.makeMove(Right)
         )
         assertEquals(10, gameMap.heroOnMap.hero.stats.hp)
         assertEquals(0, gameMap.consumables.size)
@@ -77,7 +77,7 @@ internal class ConsumableTest {
         gameMap.consumables[Position(2, 2)] = Consumable(-50)
         assertEquals(
             Loss,
-            gameCycleLogic.makeMove(Right)
+            gameCycleLogicImpl.makeMove(Right)
         )
         assertEquals(0, gameMap.heroOnMap.hero.stats.hp)
         assertEquals(0, gameMap.consumables.size)
@@ -92,15 +92,15 @@ internal class ConsumableTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 1)
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 1)
         gameMap.consumables[Position(4, 2)] = Consumable(13)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 300, armor = 0, damage = 300, maxHp = 300)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
         for (i in 0..15) {
-            assertEquals(InProgress, gameCycleLogic.makeMove(Up))
-            assertEquals(InProgress, gameCycleLogic.makeMove(Down))
+            assertEquals(InProgress, gameCycleLogicImpl.makeMove(Up))
+            assertEquals(InProgress, gameCycleLogicImpl.makeMove(Down))
         }
         assertEquals(1, gameMap.mobs.size)
         assertNotNull(gameMap.mobs[startMobPosition])

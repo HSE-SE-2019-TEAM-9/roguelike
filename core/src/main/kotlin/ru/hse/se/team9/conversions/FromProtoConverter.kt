@@ -9,6 +9,8 @@ import ru.hse.se.team9.network.views.Views
 import ru.hse.se.team9.positions.Position
 
 object FromProtoConverter {
+
+    // TODO: kotlindoc
     fun Views.MapView.toView(): MapView {
         return MapViewConverted(
             hero.toView(),

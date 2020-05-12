@@ -102,18 +102,12 @@ class AppLogic(
     }
 
     private val putOffItem = { type: ItemType ->
-        val gameMap = gameCycleLogic.map
-        val hero = gameMap.heroOnMap.hero
-        hero.unEquipItem(type)
-        hero.runEffects()
+        gameCycleLogic.putOffItem(type)
         drawInventory()
     }
 
     private val putOnItem = { index: Int ->
-        val gameMap = gameCycleLogic.map
-        val hero = gameMap.heroOnMap.hero
-        hero.equipItem(index)
-        hero.runEffects()
+        gameCycleLogic.putOnItem(index)
         drawInventory()
     }
 
@@ -125,7 +119,7 @@ class AppLogic(
     private fun startGame() {
         val result = mapCreator
             .flatMap { it.createMap() }
-            .map { GameCycleLogic(it, generator) }
+            .map { GameCycleLogicImpl(it, generator) }
 
         when (result) {
             is Either.Left -> {
@@ -198,8 +192,7 @@ class AppLogic(
 
     private fun drawInventory() {
         require(appStatus == AppStatus.IN_INVENTORY)
-        val gameMap = gameCycleLogic.map
-        viewController.drawInventory(MapViewImpl(gameMap), putOffItem, putOnItem, closeInventory)
+        viewController.drawInventory(gameCycleLogic.getCurrentMap(), putOffItem, putOnItem, closeInventory)
     }
 
     private fun drawError(error: String) {
@@ -209,13 +202,16 @@ class AppLogic(
 
     private fun drawMap() {
         require(appStatus == AppStatus.IN_GAME)
-        val gameMap = gameCycleLogic.map
-        viewController.drawMap(MapViewImpl(gameMap))
+        viewController.drawMap(gameCycleLogic.getCurrentMap())
     }
 
+    //TODO: FIXME ME PLS!!!!!!!!
+    //TODO: FIXME ME PLS!!!!!!!!
+    //TODO: FIXME ME PLS!!!!!!!!
+    //TODO: FIXME ME PLS!!!!!!!!
     private fun exit(saveGame: Boolean) {
         if (saveGame) {
-            saver.save(gameCycleLogic.map)
+            saver.save((gameCycleLogic as GameCycleLogicImpl).map) //TODO: FIXME ME PLS!!!!!!!!
         }
         viewController.stop()
     }

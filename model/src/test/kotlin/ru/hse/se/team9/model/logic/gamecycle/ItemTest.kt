@@ -23,7 +23,7 @@ internal class ItemTest {
     private lateinit var startMobPosition: Position
     private var width: Int = 0
     private var height: Int = 0
-    private lateinit var gameCycleLogic: GameCycleLogic
+    private lateinit var gameCycleLogicImpl: GameCycleLogicImpl
 
     @BeforeEach
     fun init() {
@@ -41,7 +41,7 @@ internal class ItemTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogic = GameCycleLogic(gameMap, generator, false)
+        gameCycleLogicImpl = GameCycleLogicImpl(gameMap, generator, false)
     }
 
     @Test
@@ -59,7 +59,7 @@ internal class ItemTest {
         gameMap.items[Position(2, 2)] = underwear
         assertEquals(
             InProgress,
-            gameCycleLogic.makeMove(Right)
+            gameCycleLogicImpl.makeMove(Right)
         )
         assertEquals(0, gameMap.items.size)
         assertEquals(1, gameMap.heroOnMap.hero.inventory.size)
@@ -75,15 +75,15 @@ internal class ItemTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 1)
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 1)
         gameMap.items[Position(4, 2)] = Weapon(name = "HELLO")
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 300, armor = 0, damage = 300, maxHp = 300)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
         for (i in 0..15) {
-            assertEquals(InProgress, gameCycleLogic.makeMove(Up))
-            assertEquals(InProgress, gameCycleLogic.makeMove(Down))
+            assertEquals(InProgress, gameCycleLogicImpl.makeMove(Up))
+            assertEquals(InProgress, gameCycleLogicImpl.makeMove(Down))
         }
         assertEquals(1, gameMap.mobs.size)
         assertNotNull(gameMap.mobs[startMobPosition])

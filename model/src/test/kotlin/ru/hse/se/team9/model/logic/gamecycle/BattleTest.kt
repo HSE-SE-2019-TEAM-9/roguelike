@@ -20,7 +20,7 @@ internal class BattleTest {
     private lateinit var startMobPosition: Position
     private var width: Int = 0
     private var height: Int = 0
-    private lateinit var gameCycleLogic: GameCycleLogic
+    private lateinit var gameCycleLogicImpl: GameCycleLogicImpl
 
     @BeforeEach
     fun init() {
@@ -38,7 +38,7 @@ internal class BattleTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogic = GameCycleLogic(SimpleTestMap.gameMap(), generator, false)
+        gameCycleLogicImpl = GameCycleLogicImpl(SimpleTestMap.gameMap(), generator, false)
     }
 
     @Test
@@ -50,14 +50,14 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 1, armor = 0, damage = 10, maxHp = 1)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
-        assertEquals(Win, gameCycleLogic.makeMove(Down))
-        assertEquals(10, gameCycleLogic.map.heroOnMap.hero.stats.hp)
-        assertTrue(gameCycleLogic.map.mobs.isEmpty())
+        assertEquals(Win, gameCycleLogicImpl.makeMove(Down))
+        assertEquals(10, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp)
+        assertTrue(gameCycleLogicImpl.map.mobs.isEmpty())
     }
 
     @Test
@@ -69,14 +69,14 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 11, armor = 0, damage = 10, maxHp = 11)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
-        assertEquals(Loss, gameCycleLogic.makeMove(Down))
-        assertEquals(0, gameCycleLogic.map.heroOnMap.hero.stats.hp)
-        assertEquals(1, gameCycleLogic.map.mobs[startMobPosition]!!.hp)
+        assertEquals(Loss, gameCycleLogicImpl.makeMove(Down))
+        assertEquals(0, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp)
+        assertEquals(1, gameCycleLogicImpl.map.mobs[startMobPosition]!!.hp)
     }
 
     @Test
@@ -88,14 +88,14 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 1, armor = 0, damage = 9, maxHp = 1)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
-        assertEquals(Win, gameCycleLogic.makeMove(Down))
-        assertEquals(10, gameCycleLogic.map.heroOnMap.hero.stats.hp)
-        assertTrue(gameCycleLogic.map.mobs.isEmpty())
+        assertEquals(Win, gameCycleLogicImpl.makeMove(Down))
+        assertEquals(10, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp)
+        assertTrue(gameCycleLogicImpl.map.mobs.isEmpty())
     }
 
     @Test
@@ -107,14 +107,14 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 1)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 1)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 1, armor = 0, damage = 10, maxHp = 1)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
-        assertEquals(Win, gameCycleLogic.makeMove(Down))
-        assertEquals(10, gameCycleLogic.map.heroOnMap.hero.stats.hp)
-        assertTrue(gameCycleLogic.map.mobs.isEmpty())
+        assertEquals(Win, gameCycleLogicImpl.makeMove(Down))
+        assertEquals(10, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp)
+        assertTrue(gameCycleLogicImpl.map.mobs.isEmpty())
     }
 
     @Test
@@ -126,14 +126,14 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 1)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 1)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 11, armor = 0, damage = 10, maxHp = 11)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
-        assertEquals(Loss, gameCycleLogic.makeMove(Down))
-        assertEquals(0, gameCycleLogic.map.heroOnMap.hero.stats.hp)
-        assertEquals(1, gameCycleLogic.map.mobs[startMobPosition]!!.hp)
+        assertEquals(Loss, gameCycleLogicImpl.makeMove(Down))
+        assertEquals(0, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp)
+        assertEquals(1, gameCycleLogicImpl.map.mobs[startMobPosition]!!.hp)
     }
 
     @Test
@@ -145,14 +145,14 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 1, armor = 0, damage = 9, maxHp = 1)
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
 
-        assertEquals(Win, gameCycleLogic.makeMove(Down))
-        assertEquals(10, gameCycleLogic.map.heroOnMap.hero.stats.hp)
-        assertTrue(gameCycleLogic.map.mobs.isEmpty())
+        assertEquals(Win, gameCycleLogicImpl.makeMove(Down))
+        assertEquals(10, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp)
+        assertTrue(gameCycleLogicImpl.map.mobs.isEmpty())
     }
 
     @Test
@@ -164,15 +164,15 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 15, armor = 0, damage = 5, maxHp = 15) // will die after two rounds
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
-        gameCycleLogic
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl
 
-        assertEquals(Win, gameCycleLogic.makeMove(Down)) // DirectionGenerator is mocked and confused mob always goes up
-        assertEquals(5, gameCycleLogic.map.heroOnMap.hero.stats.hp) // hp after first round
-        assertTrue(gameCycleLogic.map.mobs.isEmpty())
+        assertEquals(Win, gameCycleLogicImpl.makeMove(Down)) // DirectionGenerator is mocked and confused mob always goes up
+        assertEquals(5, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp) // hp after first round
+        assertTrue(gameCycleLogicImpl.map.mobs.isEmpty())
     }
 
     @Test
@@ -184,18 +184,18 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 21, armor = 0, damage = 5, maxHp = 21) // will not die
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
-        gameCycleLogic
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl
 
         assertEquals(
             Loss,
-            gameCycleLogic.makeMove(Down)
+            gameCycleLogicImpl.makeMove(Down)
         ) // DirectionGenerator is mocked and confused mob always goes up
-        assertEquals(0, gameCycleLogic.map.heroOnMap.hero.stats.hp) // hp after second round
-        assertEquals(1, gameCycleLogic.map.mobs[startMobPosition]!!.hp)
+        assertEquals(0, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp) // hp after second round
+        assertEquals(1, gameCycleLogicImpl.map.mobs[startMobPosition]!!.hp)
     }
 
     @Test
@@ -207,15 +207,15 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 15, armor = 0, damage = 3, maxHp = 21) // will die after second round
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
-        gameCycleLogic
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl
 
-        assertEquals(Win, gameCycleLogic.makeMove(Down)) // DirectionGenerator is mocked and confused mob always goes up
-        assertEquals(7, gameCycleLogic.map.heroOnMap.hero.stats.hp) // hp after first round
-        assertTrue(gameCycleLogic.map.mobs.isEmpty())
+        assertEquals(Win, gameCycleLogicImpl.makeMove(Down)) // DirectionGenerator is mocked and confused mob always goes up
+        assertEquals(7, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp) // hp after first round
+        assertTrue(gameCycleLogicImpl.map.mobs.isEmpty())
     }
 
     @Test
@@ -227,17 +227,17 @@ internal class BattleTest {
          * ####U#
          */
 
-        gameCycleLogic.map.heroOnMap.position = Position(4, 2)
-        val mob = gameCycleLogic.map.mobs[startMobPosition]!!
+        gameCycleLogicImpl.map.heroOnMap.position = Position(4, 2)
+        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 23, armor = 0, damage = 3, maxHp = 21) // will not die
-        gameCycleLogic.map.mobs[startMobPosition] = newMob
-        gameCycleLogic
+        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
+        gameCycleLogicImpl
 
         assertEquals(
             InProgress,
-            gameCycleLogic.makeMove(Down)
+            gameCycleLogicImpl.makeMove(Down)
         ) // DirectionGenerator is mocked and confused mob always goes up
-        assertEquals(4, gameCycleLogic.map.heroOnMap.hero.stats.hp) // hp after second round
-        assertEquals(3, gameCycleLogic.map.mobs[startMobPosition]!!.hp)
+        assertEquals(4, gameCycleLogicImpl.map.heroOnMap.hero.stats.hp) // hp after second round
+        assertEquals(3, gameCycleLogicImpl.map.mobs[startMobPosition]!!.hp)
     }
 }
