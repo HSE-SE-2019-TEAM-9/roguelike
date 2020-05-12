@@ -6,10 +6,10 @@ option java_package = "ru.hse.se.team9.network.views";
 message MapView {
     HeroView hero = 1;
     repeated HeroView otherHeroes = 2;
-    repeated MapColumn map = 3;
+    repeated MapRow map = 3;
     int32 width = 4;
     int32 height = 5;
-    repeated FogColumn fog = 6;
+    repeated FogRow fog = 6;
     repeated MobPair mobs = 7;
     repeated ItemPair items = 8;
     repeated ConsumablePair consumables = 9;
@@ -25,7 +25,7 @@ message HeroView {
     repeated EquipmentPair equipment = 7;
 }
 
-message MapColumn {
+message MapRow {
     enum MapObject {
         WALL = 0;
         EMPTY_SPACE = 1;
@@ -33,7 +33,7 @@ message MapColumn {
     repeated MapObject objects = 1;
 }
 
-message FogColumn {
+message FogRow {
     enum FogType {
         VISIBLE = 0;
         SHADOWED = 1;

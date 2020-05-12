@@ -72,16 +72,16 @@ object ToProtoConverter {
         }
     }
 
-    private fun List<MapObject>.toProto(): Views.MapColumn {
+    private fun List<MapObject>.toProto(): Views.MapRow {
         val list = this
-        return MapColumn {
+        return MapRow {
             addAllObjects(list.map { it.toProto() })
         }
     }
 
-    private fun List<FogType>.toProto(): Views.FogColumn {
+    private fun List<FogType>.toProto(): Views.FogRow {
         val list = this
-        return FogColumn {
+        return FogRow {
             addAllType(list.map { it.toProto() })
         }
     }
@@ -127,18 +127,18 @@ object ToProtoConverter {
         }
     }
 
-    private fun MapObject.toProto(): Views.MapColumn.MapObject {
+    private fun MapObject.toProto(): Views.MapRow.MapObject {
         return when (this) {
-            MapObject.WALL -> Views.MapColumn.MapObject.WALL
-            MapObject.EMPTY_SPACE -> Views.MapColumn.MapObject.EMPTY_SPACE
+            MapObject.WALL -> Views.MapRow.MapObject.WALL
+            MapObject.EMPTY_SPACE -> Views.MapRow.MapObject.EMPTY_SPACE
         }
     }
 
-    private fun FogType.toProto(): Views.FogColumn.FogType {
+    private fun FogType.toProto(): Views.FogRow.FogType {
         return when (this) {
-            FogType.VISIBLE -> Views.FogColumn.FogType.VISIBLE
-            FogType.SHADOWED -> Views.FogColumn.FogType.SHADOWED
-            FogType.INVISIBLE -> Views.FogColumn.FogType.INVISIBLE
+            FogType.VISIBLE -> Views.FogRow.FogType.VISIBLE
+            FogType.SHADOWED -> Views.FogRow.FogType.SHADOWED
+            FogType.INVISIBLE -> Views.FogRow.FogType.INVISIBLE
         }
     }
 
