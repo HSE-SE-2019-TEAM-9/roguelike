@@ -7,13 +7,21 @@ import "google/protobuf/empty.proto";
 import "views.proto";
 
 service RoguelikeApi {
+  rpc GetGames(google.protobuf.Empty) returns (GetGamesResponse) {};
   rpc Join(stream PlayerMessage) returns (stream ServerMessage) {};
 }
 
-message PlayerMessage {
-  message GetGames {
-  }
+message GetGamesResponse {
+  repeated GameInfo games = 1;
+}
 
+message GameInfo {
+  int32 game_id = 1;
+  string name = 2;
+  int32 players = 3;
+}
+
+message PlayerMessage {
   message JoinGame {
     int32 game_id = 1;
   }
@@ -43,7 +51,6 @@ message PlayerMessage {
   }
 
   oneof request {
-    GetGames get_games = 1;
     JoinGame join_game = 2;
     StartGame start_game = 3;
     MakeMove make_move = 4;
@@ -54,16 +61,6 @@ message PlayerMessage {
 }
 
 message ServerMessage {
-  message GetGamesResponse {
-    message GameInfo {
-      int32 game_id = 1;
-      string name = 2;
-      int32 players = 3;
-    }
-
-    repeated GameInfo games = 1;
-  }
-
   message JoinGameResponse {
   }
 
@@ -79,7 +76,6 @@ message ServerMessage {
   }
 
   oneof update {
-    GetGamesResponse get_games_response = 1;
     JoinGameResponse join_game_response = 2;
     StartGameResponse start_game_response = 3;
     MapUpdate map_update = 4;
