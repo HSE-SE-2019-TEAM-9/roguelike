@@ -4,5 +4,92 @@ package views;
 option java_package = "ru.hse.se.team9.network.views";
 
 message MapView {
-    int64 kek = 1;
+    HeroView hero = 1;
+    repeated MapColumn map = 2;
+    int32 width = 3;
+    int32 height = 4;
+    repeated FogColumn fog = 5;
+    repeated MobPair mobs = 6;
+    repeated ItemPair items = 7;
+    repeated ConsumablePair consumables = 8;
+}
+
+message HeroView {
+    Position position = 1;
+    int32 hp = 2;
+    int32 max_hp = 3;
+    int32 armor = 4;
+    int32 damage = 5;
+    repeated ItemView inventory = 6;
+    repeated EquipmentPair equipment = 7;
+}
+
+message MapColumn {
+    enum MapObject {
+        WALL = 0;
+        EMPTY_SPACE = 1;
+    }
+    repeated MapObject objects = 1;
+}
+
+
+
+message FogColumn {
+    enum FogType {
+        VISIBLE = 0;
+        SHADOWED = 1;
+        INVISIBLE = 2;
+    }
+    repeated FogType type = 1;
+}
+
+message Position {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message MobView {
+    int32 hp = 1;
+    int32 max_hp = 2;
+    enum MobProperty {
+        CONFUSED = 0;
+    }
+    repeated MobProperty properties = 3;
+}
+
+message ItemView {
+    int32 armor = 1;
+    int32 damage = 2;
+    int32 hp = 3;
+    string name = 4;
+    enum ItemType {
+        NONE = 0;
+        BOOTS = 1;
+        WEAPON = 2;
+        UNDERWEAR = 3;
+    }
+    ItemType type = 5;
+}
+
+message ConsumableView {
+}
+
+message MobPair {
+    Position position = 1;
+    MobView mob = 2;
+}
+
+message ItemPair {
+    Position position = 1;
+    ItemView item = 2;
+}
+
+message ConsumablePair {
+    Position position = 1;
+    ConsumableView consumable = 2;
+}
+
+message EquipmentPair {
+    ItemView.ItemType type = 1;
+    ItemView item = 2;
 }
