@@ -7,5 +7,23 @@ import "google/protobuf/empty.proto";
 import "views.proto";
 
 service RoguelikeApi {
-  rpc GetMap(google.protobuf.Empty) returns (views.MapView);
+  rpc GetGames(google.protobuf.Empty) returns (GetGamesResponse) {};
+  rpc JoinGame(stream PlayerMessage) returns (stream ServerMessage) {};
 }
+
+message GetGamesResponse {
+  repeated GameInfo games = 1;
+}
+
+message GameInfo {
+  int32 game_id = 1;
+  string name = 2;
+  int32 players = 3;
+}
+
+message PlayerMessage {
+}
+
+message ServerMessage {
+}
+

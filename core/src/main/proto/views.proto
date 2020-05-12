@@ -32,8 +32,6 @@ message MapColumn {
     repeated MapObject objects = 1;
 }
 
-
-
 message FogColumn {
     enum FogType {
         VISIBLE = 0;
