@@ -3,7 +3,7 @@ package ru.hse.se.team9.game.entities.mobs.strategies
 import ru.hse.se.team9.entities.MobProperty
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.GameMap
-import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.generators.directions.DirectionGenerator
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.utils.plus
 

@@ -10,13 +10,14 @@ import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.strategies.AggressiveStrategy
-import ru.hse.se.team9.model.random.GameGenerator
-import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
-import ru.hse.se.team9.model.random.consumables.RandomConsumable
-import ru.hse.se.team9.model.random.directions.DirectionGenerator
-import ru.hse.se.team9.model.random.items.RandomItem
-import ru.hse.se.team9.model.random.mobs.RandomMob
-import ru.hse.se.team9.model.random.positions.RandomPosition
+import ru.hse.se.team9.model.generators.GameGenerator
+import ru.hse.se.team9.model.generators.confusion.RandomStrategyModifier
+import ru.hse.se.team9.model.generators.consumables.RandomConsumable
+import ru.hse.se.team9.model.generators.directions.DirectionGenerator
+import ru.hse.se.team9.model.generators.heroes.DefaultHeroCreator
+import ru.hse.se.team9.model.generators.items.RandomItem
+import ru.hse.se.team9.model.generators.mobs.RandomMob
+import ru.hse.se.team9.model.generators.positions.RandomPosition
 import ru.hse.se.team9.positions.Position
 
 /**
@@ -49,7 +50,8 @@ internal object SimpleTestMap {
         RandomMob(upDirectionGenerator),
         RandomStrategyModifier(upDirectionGenerator),
         RandomItem,
-        RandomConsumable
+        RandomConsumable,
+        DefaultHeroCreator
     )
 
     fun gameMap(): GameMap {

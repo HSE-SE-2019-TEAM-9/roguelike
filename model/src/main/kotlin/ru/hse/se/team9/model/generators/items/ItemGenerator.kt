@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random.items
+package ru.hse.se.team9.model.generators.items
 
 import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
 import ru.hse.se.team9.game.entities.hero.inventory.items.Item

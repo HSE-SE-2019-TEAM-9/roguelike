@@ -6,12 +6,13 @@ import org.junit.jupiter.api.Test
 import ru.hse.se.team9.entities.MapObject
 import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import ru.hse.se.team9.game.entities.map.GameMap
-import ru.hse.se.team9.model.random.GameGenerator
-import ru.hse.se.team9.model.random.confusion.RandomStrategyModifier
-import ru.hse.se.team9.model.random.consumables.RandomConsumable
-import ru.hse.se.team9.model.random.items.RandomItem
-import ru.hse.se.team9.model.random.mobs.RandomMob
-import ru.hse.se.team9.model.random.positions.RandomPosition
+import ru.hse.se.team9.model.generators.GameGenerator
+import ru.hse.se.team9.model.generators.confusion.RandomStrategyModifier
+import ru.hse.se.team9.model.generators.consumables.RandomConsumable
+import ru.hse.se.team9.model.generators.heroes.DefaultHeroCreator
+import ru.hse.se.team9.model.generators.items.RandomItem
+import ru.hse.se.team9.model.generators.mobs.RandomMob
+import ru.hse.se.team9.model.generators.positions.RandomPosition
 import ru.hse.se.team9.positions.Position
 import ru.hse.se.team9.util.SimpleTestMap
 
@@ -32,7 +33,8 @@ internal class ConsumableTest {
             RandomMob(SimpleTestMap.upDirectionGenerator),
             RandomStrategyModifier(SimpleTestMap.upDirectionGenerator),
             RandomItem,
-            RandomConsumable
+            RandomConsumable,
+            DefaultHeroCreator
         )
         gameMap = SimpleTestMap.gameMap()
         map = SimpleTestMap.map

@@ -16,9 +16,9 @@ import ru.hse.se.team9.game.entities.hero.inventory.items.Item
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
 import ru.hse.se.team9.game.entities.mobs.Mob
-import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.generators.GameGenerator
 import ru.hse.se.team9.positions.Position
-import ru.hse.se.team9.utils.getRandomNotWallPosition
+import ru.hse.se.team9.utils.getNotWallPosition
 import ru.hse.se.team9.utils.plus
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -53,9 +53,11 @@ class GameMap(
 ) {
     val fog: MutableMap<Int, FogOfWar> = mutableMapOf()
 
-    //TODO: doc
+    /** Adds hero to the
+     *
+     */
     fun addHeroToRandomPosition(heroId: Int, hero: Hero) {
-        val position = generateRandomHeroPosition()!! //TODO: throw better exception
+        val position = generatePositionForHero() ?: throw IllegalStateException("no valid field found on map")
         heroes[heroId] = HeroOnMap(hero, position)
         val fogOfWar = FogOfWar(distance, map, width, height, fogRadius)
         fogOfWar.updateVision(position)
@@ -66,7 +68,8 @@ class GameMap(
      * @param direction direction to move towards
      */
     fun moveHero(heroId: Int, direction: Direction) {
-        val position = heroes[heroId]!!.position + direction //TODO: throw better exception??
+        val hero = heroes[heroId] ?: throw IllegalArgumentException("no such hero exists")
+        val position = hero.position + direction
         if (heroCanMoveTo(position)) {
             heroes[heroId]!!.position = position
             fog[heroId]!!.updateVision(position)
@@ -139,7 +142,7 @@ class GameMap(
         return heroes.values.none { it.position == position }
     }
 
-    private fun generateRandomHeroPosition(): Position? = getValidPositionSequence().firstOrNull()
+    private fun generatePositionForHero(): Position? = getValidPositionSequence().firstOrNull()
 
     private fun generateMobs() = getValidPositionSequence()
         .take(max(0, MOB_AMOUNT - mobs.size))
@@ -156,7 +159,7 @@ class GameMap(
         .map { Pair(it, generator.createConsumable()) }
         .forEach { consumables[it.first] = it.second }
 
-    private fun getValidPositionSequence() = generateSequence { getRandomNotWallPosition(generator, map) }
+    private fun getValidPositionSequence() = generateSequence { getNotWallPosition(generator, map) }
         .take(GENERATION_MAX_RETRIES)
         .distinct()
         .filter { isEmptyCell(it) }

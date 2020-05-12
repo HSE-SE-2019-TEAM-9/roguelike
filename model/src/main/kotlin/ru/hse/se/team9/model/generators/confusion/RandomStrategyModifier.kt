@@ -1,8 +1,8 @@
-package ru.hse.se.team9.model.random.confusion
+package ru.hse.se.team9.model.generators.confusion
 
 import ru.hse.se.team9.game.entities.mobs.strategies.ConfusedStrategy
 import ru.hse.se.team9.game.entities.mobs.strategies.MobStrategy
-import ru.hse.se.team9.model.random.directions.DirectionGenerator
+import ru.hse.se.team9.model.generators.directions.DirectionGenerator
 import kotlin.random.Random
 
 /**

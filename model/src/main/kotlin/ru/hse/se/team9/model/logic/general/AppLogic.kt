@@ -9,11 +9,11 @@ import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.mapgeneration.creators.DefaultHeroCreator
+import ru.hse.se.team9.model.generators.heroes.DefaultHeroCreator
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RestoreSavedMapCreator
-import ru.hse.se.team9.model.random.GameGenerator
+import ru.hse.se.team9.model.generators.GameGenerator
 import ru.hse.se.team9.utils.GameMapSaver
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
@@ -87,7 +87,7 @@ class AppLogic(
                 RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance).map {
                     object : MapCreator {
                         override fun createMap(): Either<MapCreationError, GameMap> = it.createMap().map { map ->
-                            map.addHeroToRandomPosition(0, DefaultHeroCreator.createHero())
+                            map.addHeroToRandomPosition(0, generator.createHero())
                             map
                         }
                     }

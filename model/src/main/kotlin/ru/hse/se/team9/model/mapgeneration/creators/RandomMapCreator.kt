@@ -2,25 +2,13 @@ package ru.hse.se.team9.model.mapgeneration.creators
 
 import arrow.core.Either
 import ru.hse.se.team9.entities.MapObject
-import ru.hse.se.team9.game.entities.hero.Hero
-import ru.hse.se.team9.game.entities.hero.HeroStats
-import ru.hse.se.team9.game.entities.hero.consumables.Consumable
-import ru.hse.se.team9.game.entities.hero.inventory.Equipment
-import ru.hse.se.team9.game.entities.hero.inventory.items.Boots
-import ru.hse.se.team9.game.entities.hero.inventory.items.Item
-import ru.hse.se.team9.game.entities.hero.inventory.items.Underwear
-import ru.hse.se.team9.game.entities.hero.inventory.items.Weapon
 import ru.hse.se.team9.game.entities.map.Direction
 import ru.hse.se.team9.game.entities.map.Direction.*
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.game.entities.map.distance.Manhattan
-import ru.hse.se.team9.game.entities.map.objects.HeroOnMap
-import ru.hse.se.team9.game.entities.mobs.Mob
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.random.GameGenerator
-import ru.hse.se.team9.positions.Position
-import ru.hse.se.team9.utils.getRandomNotWallPosition
+import ru.hse.se.team9.model.generators.GameGenerator
 
 /**
  * This class is used for creating pseudo-random or predetermined maps.

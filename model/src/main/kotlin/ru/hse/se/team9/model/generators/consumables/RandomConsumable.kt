@@ -1,4 +1,4 @@
-package ru.hse.se.team9.model.random.consumables
+package ru.hse.se.team9.model.generators.consumables
 
 import ru.hse.se.team9.game.entities.hero.consumables.Consumable
 import kotlin.random.Random
