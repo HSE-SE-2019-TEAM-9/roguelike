@@ -56,16 +56,16 @@ object FromProtoConverter {
     }
 
     // Other name because of type erasure
-    private fun List<Views.MapColumn>.toViewMap(): List<List<MapObject>> {
-        return this.map { column ->
-            column.objectsList.map { it.toView() }
+    private fun List<Views.MapRow>.toViewMap(): List<List<MapObject>> {
+        return this.map { row ->
+            row.objectsList.map { it.toView() }
         }
     }
 
     // Other name because of type erasure
-    private fun List<Views.FogColumn>.toViewFog(): List<List<FogType>> {
-        return this.map { column ->
-            column.typeList.map { it.toView() }
+    private fun List<Views.FogRow>.toViewFog(): List<List<FogType>> {
+        return this.map { row ->
+            row.typeList.map { it.toView() }
         }
     }
 
@@ -107,20 +107,20 @@ object FromProtoConverter {
         }.toMap()
     }
 
-    private fun Views.MapColumn.MapObject.toView(): MapObject {
+    private fun Views.MapRow.MapObject.toView(): MapObject {
         return when (this) {
-            Views.MapColumn.MapObject.WALL -> MapObject.WALL
-            Views.MapColumn.MapObject.EMPTY_SPACE -> MapObject.EMPTY_SPACE
-            Views.MapColumn.MapObject.UNRECOGNIZED -> error(ERROR_MESSAGE)
+            Views.MapRow.MapObject.WALL -> MapObject.WALL
+            Views.MapRow.MapObject.EMPTY_SPACE -> MapObject.EMPTY_SPACE
+            Views.MapRow.MapObject.UNRECOGNIZED -> error(ERROR_MESSAGE)
         }
     }
 
-    private fun Views.FogColumn.FogType.toView(): FogType {
+    private fun Views.FogRow.FogType.toView(): FogType {
         return when (this) {
-            Views.FogColumn.FogType.VISIBLE -> FogType.VISIBLE
-            Views.FogColumn.FogType.SHADOWED -> FogType.SHADOWED
-            Views.FogColumn.FogType.INVISIBLE -> FogType.INVISIBLE
-            Views.FogColumn.FogType.UNRECOGNIZED -> error(ERROR_MESSAGE)
+            Views.FogRow.FogType.VISIBLE -> FogType.VISIBLE
+            Views.FogRow.FogType.SHADOWED -> FogType.SHADOWED
+            Views.FogRow.FogType.INVISIBLE -> FogType.INVISIBLE
+            Views.FogRow.FogType.UNRECOGNIZED -> error(ERROR_MESSAGE)
         }
     }
 

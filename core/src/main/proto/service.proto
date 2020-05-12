@@ -7,23 +7,84 @@ import "google/protobuf/empty.proto";
 import "views.proto";
 
 service RoguelikeApi {
-  rpc GetGames(google.protobuf.Empty) returns (GetGamesResponse) {};
-  rpc JoinGame(stream PlayerMessage) returns (stream ServerMessage) {};
-}
-
-message GetGamesResponse {
-  repeated GameInfo games = 1;
-}
-
-message GameInfo {
-  int32 game_id = 1;
-  string name = 2;
-  int32 players = 3;
+  rpc Join(stream PlayerMessage) returns (stream ServerMessage) {};
 }
 
 message PlayerMessage {
+  message GetGames {
+  }
+
+  message JoinGame {
+    int32 game_id = 1;
+  }
+
+  message StartGame {
+  }
+
+  message MakeMove {
+    enum Move {
+      LEFT = 0;
+      UP = 1;
+      RIGHT = 2;
+      DOWN = 3;
+    }
+    Move move = 1;
+  }
+
+  message GetCurrentMap {
+  }
+
+  message PutOnItem {
+    int32 index = 1;
+  }
+
+  message PutOffItem {
+    views.ItemView.ItemType type = 1;
+  }
+
+  oneof request {
+    GetGames get_games = 1;
+    JoinGame join_game = 2;
+    StartGame start_game = 3;
+    MakeMove make_move = 4;
+    GetCurrentMap get_current_map = 5;
+    PutOnItem put_on_item = 6;
+    PutOffItem put_off_item = 7;
+  }
 }
 
 message ServerMessage {
+  message GetGamesResponse {
+    message GameInfo {
+      int32 game_id = 1;
+      string name = 2;
+      int32 players = 3;
+    }
+
+    repeated GameInfo games = 1;
+  }
+
+  message JoinGameResponse {
+  }
+
+  message StartGameResponse {
+  }
+
+  message MapUpdate {
+    views.MapView map = 1;
+  }
+
+  message HeroUpdate {
+    views.HeroView hero = 1;
+  }
+
+  oneof update {
+    GetGamesResponse get_games_response = 1;
+    JoinGameResponse join_game_response = 2;
+    StartGameResponse start_game_response = 3;
+    MapUpdate map_update = 4;
+    HeroUpdate hero_update = 5;
+    bool can_move = 6;
+  }
 }
 
