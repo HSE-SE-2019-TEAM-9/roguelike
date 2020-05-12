@@ -48,7 +48,7 @@ allprojects {
 }
 
 application {
-    mainClassName = "ru.hse.se.team9.MainKt"
+    mainClassName = "ru.hse.se.team9.MainClientKt"
 }
 
 dependencies {
@@ -63,4 +63,10 @@ task createMap(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "ru.hse.se.team9.MainKt"
     args 'create-map'
+}
+
+task startServer(type: JavaExec) {
+    description = "Starts roguelike server"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "ru.hse.se.team9.MainServerKt"
 }
