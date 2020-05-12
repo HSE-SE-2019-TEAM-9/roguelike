@@ -78,12 +78,13 @@ message ServerMessage {
     views.HeroView hero = 1;
   }
 
-  oneof response {
+  oneof update {
     GetGamesResponse get_games_response = 1;
     JoinGameResponse join_game_response = 2;
     StartGameResponse start_game_response = 3;
     MapUpdate map_update = 4;
     HeroUpdate hero_update = 5;
+    bool can_move = 6;
   }
 }
 
