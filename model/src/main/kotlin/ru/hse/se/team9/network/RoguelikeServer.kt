@@ -96,31 +96,37 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
             return playerId
         }
 
+        fun sendMap(player: PlayerActionHandler) {
+            player.out.onNext(packMap(game.getCurrentMap(player.heroId)))
+        }
+
+        fun sendMap(playerId: Int) {
+            sendMap(players[playerId]!!)
+        }
+
         @Synchronized
         fun processPlayerAction() {
             val playerAction = playerActions.poll(30, TimeUnit.HOURS)!! // FIXME
             val action = playerAction.action
-            val id = playerAction.id
+            val playerId = playerAction.id
+            val currentPlayer = players[playerId]!!
             when (action.requestCase) {
                 Service.PlayerMessage.RequestCase.MAKE_MOVE -> {
-                    game.makeMove(id, unpackMove(action.makeMove.move))
+                    game.makeMove(playerId, unpackMove(action.makeMove.move))
                     for (player in players.values) {
-                        player.out.onNext(packMap(game.getCurrentMap(player.heroId)))
+                        sendMap(currentPlayer)
                     }
                 }
                 Service.PlayerMessage.RequestCase.GET_CURRENT_MAP -> {
-                    val player = players[id]!!
-                    player.out.onNext(packMap(game.getCurrentMap(player.heroId)))
+                    sendMap(currentPlayer)
                 }
                 Service.PlayerMessage.RequestCase.PUT_ON_ITEM -> {
-                    game.putOnItem(id, action.putOnItem.index)
-                    val player = players[id]!!
-                    player.out.onNext(packMap(game.getCurrentMap(player.heroId)))
+                    game.putOnItem(playerId, action.putOnItem.index)
+                    sendMap(currentPlayer)
                 }
                 Service.PlayerMessage.RequestCase.PUT_OFF_ITEM -> {
-                    game.putOffItem(id, action.putOffItem.type.toView())
-                    val player = players[id]!!
-                    player.out.onNext(packMap(game.getCurrentMap(player.heroId)))
+                    game.putOffItem(playerId, action.putOffItem.type.toView())
+                    sendMap(currentPlayer)
                 }
                 else -> throw IllegalStateException()
             }
@@ -146,11 +152,13 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
                         gameId = value.joinGame.gameId
                         gameSession = games[gameId]
                         heroId = gameSession!!.addPlayer(this)
+                        gameSession!!.sendMap(heroId)
                     }
                     Service.PlayerMessage.RequestCase.START_GAME -> {
                         gameId = addGameSession()
                         gameSession = games[gameId]
                         heroId = gameSession!!.addPlayer(this)
+                        gameSession!!.sendMap(heroId)
                     }
                     else -> throw IllegalStateException()
                 }
