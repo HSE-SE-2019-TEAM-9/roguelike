@@ -113,7 +113,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
                 Service.PlayerMessage.RequestCase.MAKE_MOVE -> {
                     game.makeMove(playerId, unpackMove(action.makeMove.move))
                     for (player in players.values) {
-                        sendMap(currentPlayer)
+                        sendMap(player)
                     }
                 }
                 Service.PlayerMessage.RequestCase.GET_CURRENT_MAP -> {
