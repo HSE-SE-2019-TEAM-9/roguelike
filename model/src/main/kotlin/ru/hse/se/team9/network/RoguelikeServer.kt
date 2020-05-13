@@ -105,8 +105,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         }
 
         @Synchronized
-        fun processPlayerAction() {
-            val playerAction = playerActions.poll(30, TimeUnit.HOURS)!! // FIXME
+        fun processPlayerAction(playerAction: PlayerAction) {
             val action = playerAction.action
             val playerId = playerAction.id
             val currentPlayer = players[playerId]!!
@@ -134,7 +133,8 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
 
         override fun run() {
             while (true) {
-                processPlayerAction()
+                val playerAction = playerActions.poll(30, TimeUnit.HOURS)!! // FIXME
+                processPlayerAction(playerAction)
             }
         }
     }
