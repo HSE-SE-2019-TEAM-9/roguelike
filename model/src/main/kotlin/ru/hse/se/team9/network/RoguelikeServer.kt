@@ -36,7 +36,7 @@ class RoguelikeServer(private val port: Int) {
         server.start()
     }
 
-    /** Stopы server and awaits termination */
+    /** Stops server and awaits termination */
     fun stop() {
         serverImpl.stop()
         server.shutdownNow()
