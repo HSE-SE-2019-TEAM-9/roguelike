@@ -161,9 +161,9 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
         val dialog = TextInputDialogBuilder()
         dialog.extraWindowHints = setOf(Window.Hint.CENTERED)
         var server =
-            dialog.setTitle("Enter server address:").build().showDialog(gui)
+            dialog.setTitle("Enter server IP:").build().showDialog(gui)
         while (!validateServer(server)) {
-            drawError("Invalid server address") {}
+            drawError("Invalid server IP") {}
             server = dialog.build().showDialog(gui)
         }
 
