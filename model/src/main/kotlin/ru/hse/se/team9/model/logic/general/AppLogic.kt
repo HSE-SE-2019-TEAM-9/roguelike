@@ -45,7 +45,7 @@ class AppLogic(
     @Volatile
     private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
-//    private val onlineMenuOptions: List<MenuOption>
+    private val onlineMenuOptions: List<MenuOption>
 
     init {
         viewController.setKeyPressedHandler {
@@ -74,13 +74,16 @@ class AppLogic(
         menuOptions = listOf(
             MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
             MenuOption(NEW_LOCAL_GAME_OPTION) { applyMenuAction(NewLocalGame) },
-            MenuOption(JOIN_EXISTING_SESSION) { applyMenuAction(JoinExistingSession) },
-            MenuOption(CREATE_NEW_SESSION) { applyMenuAction(CreateSession) },
+            MenuOption(MULTIPLAYER) {applyMenuAction(StartOnlineGame)},
             MenuOption(LOAD_SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(LoadSavedGame) },
             MenuOption(NEW_GAME_FROM_FILE_OPTION) { applyMenuAction(OpenGameFromFile) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) },
             MenuOption(SAVE_OPTION, false) { applyMenuAction(Save) }
         )
+
+        onlineMenuOptions = listOf(
+            MenuOption(JOIN_EXISTING_SESSION) { applyMenuAction(JoinExistingSession) },
+            MenuOption(CREATE_NEW_SESSION) { applyMenuAction(CreateSession) })
 
         /*onlineMenuOptions = listOf(
             MenuOption("Create session") { applyMenuAction(CreateSession) },
@@ -138,6 +141,7 @@ class AppLogic(
                 makeInGameOptionsVisible()
                 drawMap()
             }
+            StartOnlineGame -> viewController.drawMenu("Multiplayer", onlineMenuOptions)
             CreateSession -> {
                 appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ userName, server ->
@@ -348,5 +352,6 @@ class AppLogic(
         private const val EXIT_OPTION = "Exit"
         private const val SAVE_OPTION = "Save and exit"
         private const val CONTINUE_OPTION = "Continue"
+        private const val MULTIPLAYER = "Multiplayer"
     }
 }
