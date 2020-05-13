@@ -118,7 +118,7 @@ object ToProtoConverter {
         }
     }
 
-    private fun ItemType.toProto(): Views.ItemView.ItemType {
+    fun ItemType.toProto(): Views.ItemView.ItemType {
         return when (this) {
             ItemType.BOOTS -> Views.ItemView.ItemType.BOOTS
             ItemType.WEAPON -> Views.ItemView.ItemType.WEAPON

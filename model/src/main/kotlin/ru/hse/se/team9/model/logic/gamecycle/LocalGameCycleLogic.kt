@@ -7,13 +7,13 @@ import ru.hse.se.team9.model.generators.GameGenerator
 
 class LocalGameCycleLogic(val map: GameMap, // visible for testing
                           private val gameGenerator: GameGenerator,
-                          private val drawMapCallback: (MapView) -> Unit): GameCycleLogic {
+                          private val drawMapCallback: () -> Unit): GameCycleLogic {
 
     private val processor = GameCycleProcessor(map, gameGenerator)
 
     override fun makeMove(move: Move): GameStatus {
         val status = processor.makeMove(0, move)
-        drawMapCallback(processor.getCurrentMap(0))
+        drawMapCallback()
         return status
     }
 
@@ -21,11 +21,11 @@ class LocalGameCycleLogic(val map: GameMap, // visible for testing
 
     override fun putOnItem(index: Int) {
         processor.putOnItem(0, index)
-        drawMapCallback(processor.getCurrentMap(0))
+        drawMapCallback()
     }
 
     override fun putOffItem(type: ItemType) {
         processor.putOffItem(0, type)
-        drawMapCallback(processor.getCurrentMap(0))
+        drawMapCallback()
     }
 }

@@ -37,7 +37,7 @@ class AppLogic(
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
-    private var appStatus: AppStatus = AppStatus.IN_MENU
+    @Volatile private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
 
     init {
@@ -60,7 +60,7 @@ class AppLogic(
                 }
                 is OpenInventory -> {
                     appStatus = AppStatus.IN_INVENTORY
-                    drawInventory()
+                    drawMap()
                 }
             }
         }
@@ -99,7 +99,7 @@ class AppLogic(
             Continue -> {
                 appStatus = AppStatus.IN_GAME
                 makeInGameOptionsVisible()
-                drawMap(gameCycleLogic.getCurrentMap())
+                drawMap()
             }
             Exit -> exit(false)
             Save -> exit(true)
@@ -120,13 +120,13 @@ class AppLogic(
 
     private val closeInventory = {
         appStatus = AppStatus.IN_GAME
-        drawMap(gameCycleLogic.getCurrentMap())
+        drawMap()
     }
 
     private fun startGame() {
         val result = mapCreator
             .flatMap { it.createMap() }
-            .map { map -> LocalGameCycleLogic(map, generator) { drawMap(it) } }
+            .map { map -> LocalGameCycleLogic(map, generator) { drawMap() } }
 
         when (result) {
             is Either.Left -> {
@@ -139,7 +139,7 @@ class AppLogic(
                 saver.delete()
                 makeInGameOptionsVisible()
                 makeSavedGameOptionInvisible()
-                drawMap(gameCycleLogic.getCurrentMap())
+                drawMap()
             }
         }
     }
@@ -194,21 +194,17 @@ class AppLogic(
         viewController.drawMenu(title, menuOptions)
     }
 
-    private fun drawInventory() {
-        require(appStatus == AppStatus.IN_INVENTORY)
-        viewController.drawInventory(gameCycleLogic.getCurrentMap(), putOffItem, putOnItem, closeInventory)
-    }
-
     private fun drawError(error: String) {
         require(appStatus == AppStatus.IN_MENU)
         viewController.drawError(error) { drawMenu() }
     }
 
-    private fun drawMap(mapView: MapView) {
+    @Synchronized
+    private fun drawMap() {
         if (appStatus == AppStatus.IN_GAME) {
-            viewController.drawMap(mapView)
+            viewController.drawMap(gameCycleLogic.getCurrentMap())
         } else if (appStatus == AppStatus.IN_INVENTORY) {
-            viewController.drawInventory(mapView, putOffItem, putOnItem, closeInventory)
+            viewController.drawInventory(gameCycleLogic.getCurrentMap(), putOffItem, putOnItem, closeInventory)
         }
     }
 
