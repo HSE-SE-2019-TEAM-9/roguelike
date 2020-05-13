@@ -19,11 +19,11 @@ import kotlin.math.roundToInt
 /** Represents all logic within one game -- moves hero, tells if game is finished etc.
  * @property map game map used in this game
  */
-class GameCycleLogicImpl(
+class GameCycleProcessor(
         val map: GameMap, // visible for testing
         private val gameGenerator: GameGenerator,
         private val generateNewObjects: Boolean = true
-): GameCycleLogic {
+) {
     // VisibleForTesting
     internal fun movePlayer(heroId: Int, move: Move): Either<Finished, InProgress> {
         val direction = when (move) {
@@ -106,7 +106,7 @@ class GameCycleLogicImpl(
 
     private fun getDamageReduceMultiplier(armor: Int): Double = (1 - armor / MAX_ARMOR)
 
-    override fun makeMove(heroId: Int, move: Move): GameStatus {
+    fun makeMove(heroId: Int, move: Move): GameStatus {
         return Either.right(InProgress)
             .flatMap { movePlayer(heroId, move) }
             .flatMap { removeDeadMobCorpses() }
@@ -119,15 +119,15 @@ class GameCycleLogicImpl(
             .get()
     }
 
-    override fun getCurrentMap(heroId: Int): MapView = MapViewImpl(heroId, map)
+    fun getCurrentMap(heroId: Int): MapView = MapViewImpl(heroId, map)
 
-    override fun putOnItem(heroId: Int, index: Int) {
+    fun putOnItem(heroId: Int, index: Int) {
         val hero = map.heroes[heroId]?.hero ?: throw IllegalArgumentException("no such hero exists")
         hero.equipItem(index)
         hero.runEffects()
     }
 
-    override fun putOffItem(heroId: Int, type: ItemType) {
+    fun putOffItem(heroId: Int, type: ItemType) {
         val hero = map.heroes[heroId]?.hero ?: throw IllegalArgumentException("no such hero exists")
         hero.unEquipItem(type)
         hero.runEffects()

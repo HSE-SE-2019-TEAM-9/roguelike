@@ -24,7 +24,7 @@ internal class ItemTest {
     private lateinit var startMobPosition: Position
     private var width: Int = 0
     private var height: Int = 0
-    private lateinit var gameCycleLogicImpl: GameCycleLogicImpl
+    private lateinit var gameCycleProcessor: GameCycleProcessor
 
     @BeforeEach
     fun init() {
@@ -43,7 +43,7 @@ internal class ItemTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogicImpl = GameCycleLogicImpl(gameMap, generator, false)
+        gameCycleProcessor = GameCycleProcessor(gameMap, generator, false)
     }
 
     @Test
@@ -61,7 +61,7 @@ internal class ItemTest {
         gameMap.items[Position(2, 2)] = underwear
         assertEquals(
             InProgress,
-            gameCycleLogicImpl.makeMove(0, Right)
+            gameCycleProcessor.makeMove(0, Right)
         )
         assertEquals(0, gameMap.items.size)
         assertEquals(1, gameMap.heroes[0]!!.hero.inventory.size)
@@ -77,15 +77,15 @@ internal class ItemTest {
          * ####U#
          */
 
-        gameCycleLogicImpl.map.heroes[0]!!.position = Position(4, 1)
+        gameCycleProcessor.map.heroes[0]!!.position = Position(4, 1)
         gameMap.items[Position(4, 2)] = Weapon(name = "HELLO")
-        val mob = gameCycleLogicImpl.map.mobs[startMobPosition]!!
+        val mob = gameCycleProcessor.map.mobs[startMobPosition]!!
         val newMob = mob.copy(hp = 300, armor = 0, damage = 300, maxHp = 300)
-        gameCycleLogicImpl.map.mobs[startMobPosition] = newMob
+        gameCycleProcessor.map.mobs[startMobPosition] = newMob
 
         for (i in 0..15) {
-            assertEquals(InProgress, gameCycleLogicImpl.makeMove(0, Up))
-            assertEquals(InProgress, gameCycleLogicImpl.makeMove(0, Down))
+            assertEquals(InProgress, gameCycleProcessor.makeMove(0, Up))
+            assertEquals(InProgress, gameCycleProcessor.makeMove(0, Down))
         }
         assertEquals(1, gameMap.mobs.size)
         assertNotNull(gameMap.mobs[startMobPosition])

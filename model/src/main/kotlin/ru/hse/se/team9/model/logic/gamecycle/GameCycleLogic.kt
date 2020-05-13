@@ -22,7 +22,7 @@ interface GameCycleLogic {
      *
      * 6. Accumulated hero effects are applied (e.g. HP decreases)
      */
-    fun makeMove(heroId: Int, move: Move): GameStatus
+    fun makeMove(move: Move): GameStatus
 
     /**
      * Returns map as it is seen from the point view of the specified hero.
@@ -31,7 +31,7 @@ interface GameCycleLogic {
      * @param heroId id of a hero
      * @return mapView view on the map from the perspective of a hero
      */
-    fun getCurrentMap(heroId: Int): MapView
+    fun getCurrentMap(): MapView
 
     /**
      * Puts on an item in the inventory of a hero
@@ -39,7 +39,7 @@ interface GameCycleLogic {
      * @param heroId id of a hero who puts an item on
      * @param index index of an item in the inventory of a hero
      */
-    fun putOnItem(heroId: Int, index: Int)
+    fun putOnItem(index: Int)
 
     /**
      * Puts off an item in the equipment of a hero
@@ -47,5 +47,5 @@ interface GameCycleLogic {
      * @param heroId id of a hero who puts an item off
      * @param type type of an item to put off (one of Boots, Underwear or Weapon)
      */
-    fun putOffItem(heroId: Int, type: ItemType)
+    fun putOffItem(type: ItemType)
 }

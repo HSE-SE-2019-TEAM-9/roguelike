@@ -12,7 +12,7 @@ import kotlin.random.Random
  * An implementation of MobGenerator which uses specified directionGenerator (used for strategies) and
  * kotlin.random.Random (used for mob stats) and generates random mobs.
  */
-class RandomMob(directionGenerator: DirectionGenerator) : MobGenerator {
+class RandomMob(private val directionGenerator: DirectionGenerator) : MobGenerator {
     private val strategies = listOf(
         AggressiveStrategy(directionGenerator),
         AggressiveStrategy(directionGenerator),

@@ -21,7 +21,7 @@ internal class MovementTest {
     private lateinit var startMobPosition: Position
     private var width: Int = 0
     private var height: Int = 0
-    private lateinit var gameCycleLogicImpl: GameCycleLogicImpl
+    private lateinit var gameCycleProcessor: GameCycleProcessor
 
     @BeforeEach
     fun init() {
@@ -40,7 +40,7 @@ internal class MovementTest {
         startMobPosition = SimpleTestMap.startMobPosition
         width = SimpleTestMap.width
         height = SimpleTestMap.height
-        gameCycleLogicImpl = GameCycleLogicImpl(SimpleTestMap.gameMap(), generator)
+        gameCycleProcessor = GameCycleProcessor(SimpleTestMap.gameMap(), generator)
     }
 
     @Test
@@ -51,21 +51,21 @@ internal class MovementTest {
          * ..@x.#
          * ##x#.#
          */
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Down))
-        assertEquals(startPosition, gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Right))
-        assertEquals(startPosition, gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Up))
-        assertEquals(Position(startPosition.x, startPosition.y - 1), gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Up))
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Left))
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Up))
-        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Right))
-        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogicImpl.map.heroes[0]!!.position)
-        assertEquals(Right(InProgress), gameCycleLogicImpl.movePlayer(0, Up))
-        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleLogicImpl.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Down))
+        assertEquals(startPosition, gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Right))
+        assertEquals(startPosition, gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Up))
+        assertEquals(Position(startPosition.x, startPosition.y - 1), gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Up))
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Left))
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Up))
+        assertEquals(Position(startPosition.x, startPosition.y - 2), gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Right))
+        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleProcessor.map.heroes[0]!!.position)
+        assertEquals(Right(InProgress), gameCycleProcessor.movePlayer(0, Up))
+        assertEquals(Position(startPosition.x + 1, startPosition.y - 2), gameCycleProcessor.map.heroes[0]!!.position)
     }
 }
