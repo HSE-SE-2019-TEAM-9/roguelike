@@ -105,11 +105,8 @@ class AppLogic(
                             }
                         }
                     }
-
-            LoadSavedGame -> mapCreator =
-                RestoreSavedMapCreator.build(saver)
-            OpenGameFromFile -> mapCreator =
-                FromFileMapCreator.build(generator, fileChooser)
+            LoadSavedGame -> mapCreator = RestoreSavedMapCreator.build(saver)
+            OpenGameFromFile -> mapCreator = FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
                 makeInGameOptionsVisible()
@@ -118,25 +115,19 @@ class AppLogic(
             StartOnlineGame -> viewController.drawMenu("Multiplayer", onlineMenuOptions)
             CreateSession -> {
                 appStatus = AppStatus.IN_GAME
-                viewController.drawConnectionDialog({ userName, server ->
+                viewController.drawConnectionDialog({ server, port ->
                     remoteGameCycleLogic?.close()
-                    val split = server.split(":")
-                    val serverIp = split[0]
-                    val port = Integer.parseInt(split[1])
                     val logic = RemoteGameCycleLogic(this::drawMap)
                     remoteGameCycleLogic = logic
                     gameCycleLogic = logic
-                    logic.createNewGame(serverIp, port)
-                }, this::isServerValid, this::isUserNameValid)
+                    logic.createNewGame(server, port)
+                }, this::isServerValid)
             }
             JoinExistingSession -> {
                 appStatus = AppStatus.IN_GAME
-                viewController.drawConnectionDialog({ userName, server ->
-                    val split = server.split(":")
-                    val serverIp = split[0]
-                    val port = Integer.parseInt(split[1])
+                viewController.drawConnectionDialog({ server, port ->
                     val stub = RoguelikeApiGrpc.newBlockingStub(
-                        ManagedChannelBuilder.forAddress(serverIp, port).usePlaintext().build()
+                        ManagedChannelBuilder.forAddress(server, port).usePlaintext().build()
                     )
 
                     val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
@@ -145,12 +136,12 @@ class AppLogic(
                             val logic = RemoteGameCycleLogic(this::drawMap)
                             remoteGameCycleLogic = logic
                             gameCycleLogic = logic
-                            logic.joinGame(serverIp, port, gameInfo.gameId)
+                            logic.joinGame(server, port, gameInfo.gameId)
                         }
                     }
 
                     viewController.drawMenu("Sessions", options)
-                }, this::isServerValid, this::isUserNameValid)
+                }, this::isServerValid)
             }
             Save -> exit().also { save() }
             Exit -> exit()
@@ -161,26 +152,8 @@ class AppLogic(
         return appStatus
     }
 
-    private fun isUserNameValid(userName: String?): Boolean {
-        return userName != null && userName != ""
-    }
-
     private fun isServerValid(serverAddress: String?): Boolean {
-        if (serverAddress == null) {
-            return false
-        }
-
-        val split = serverAddress.split(":")
-        if (split.size != 2) {
-            return false
-        }
-
-        return try {
-            Integer.parseInt(split[1])
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
+        return serverAddress != null && serverAddress != ""
     }
 
     private fun putOffItem(type: ItemType) {

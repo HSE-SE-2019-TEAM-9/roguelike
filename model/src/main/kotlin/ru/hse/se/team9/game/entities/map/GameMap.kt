@@ -66,6 +66,12 @@ class GameMap(
         fog[heroId] = fogOfWar
     }
 
+    /** Removes hero from map */
+    fun removeHero(heroId: Int) {
+        heroes.remove(heroId)
+        fog.remove(heroId)
+    }
+
     /** Moves hero to the neighbor cell according to the direction. If this position is occupied, does nothing.
      * @param direction direction to move towards
      */
@@ -102,7 +108,7 @@ class GameMap(
     }
 
     /** Checks that given position is not a wall and located on the map*/
-    fun heroCanMoveTo(position: Position): Boolean = isOnMap(position) && isNotWall(position)
+    fun heroCanMoveTo(position: Position): Boolean = isOnMap(position) && isNotWall(position) && isNotHero(position)
 
     /** Generates new mobs, items and consumables according to inner map logic */
     fun generateObjects() {

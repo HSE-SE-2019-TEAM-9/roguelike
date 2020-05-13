@@ -41,8 +41,6 @@ interface ViewController {
 
     /** Shows session creation dialog */
     fun drawConnectionDialog(
-        connectAction: (String, String) -> Unit,
-        validateServer: (String?) -> Boolean,
-        validateUserName: (String?) -> Boolean
-    )
+        connectAction: (String, Int) -> Unit,
+        validateServer: (String?) -> Boolean)
 }
