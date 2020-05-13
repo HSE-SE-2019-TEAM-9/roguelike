@@ -61,26 +61,16 @@ message PlayerMessage {
 }
 
 message ServerMessage {
-  message JoinGameResponse {
-  }
-
-  message StartGameResponse {
+  message GameOver {
   }
 
   message MapUpdate {
     views.MapView map = 1;
   }
 
-  message HeroUpdate {
-    views.HeroView hero = 1;
-  }
-
   oneof update {
-    JoinGameResponse join_game_response = 2;
-    StartGameResponse start_game_response = 3;
-    MapUpdate map_update = 4;
-    HeroUpdate hero_update = 5;
-    bool can_move = 6;
+    MapUpdate map_update = 1;
+    GameOver game_over = 2;
   }
 }
 

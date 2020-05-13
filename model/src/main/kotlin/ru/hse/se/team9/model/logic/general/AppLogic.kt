@@ -104,11 +104,8 @@ class AppLogic(
                             }
                         }
                     }
-
-            LoadSavedGame -> mapCreator =
-                RestoreSavedMapCreator.build(saver)
-            OpenGameFromFile -> mapCreator =
-                FromFileMapCreator.build(generator, fileChooser)
+            LoadSavedGame -> mapCreator = RestoreSavedMapCreator.build(saver)
+            OpenGameFromFile -> mapCreator = FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
                 makeInGameOptionsVisible()
