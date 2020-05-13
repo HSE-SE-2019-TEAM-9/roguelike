@@ -3,10 +3,7 @@ package ru.hse.se.team9.consoleview
 import com.googlecode.lanterna.TerminalSize
 import com.googlecode.lanterna.TextColor
 import com.googlecode.lanterna.gui2.*
-import com.googlecode.lanterna.gui2.dialogs.ActionListDialogBuilder
-import com.googlecode.lanterna.gui2.dialogs.FileDialog
-import com.googlecode.lanterna.gui2.dialogs.MessageDialogBuilder
-import com.googlecode.lanterna.gui2.dialogs.MessageDialogButton
+import com.googlecode.lanterna.gui2.dialogs.*
 import com.googlecode.lanterna.screen.TerminalScreen
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger
@@ -104,10 +101,12 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
     }
 
     /** Shows game map. */
-    override fun drawInventory(map: MapView,
-                               selectEquipmentAction: (ItemType) -> Unit,
-                               selectInventoryAction: (Int) -> Unit,
-                               finishAction: () -> Unit) {
+    override fun drawInventory(
+        map: MapView,
+        selectEquipmentAction: (ItemType) -> Unit,
+        selectInventoryAction: (Int) -> Unit,
+        finishAction: () -> Unit
+    ) {
         drawMapAndInventory(map, true, selectEquipmentAction, selectInventoryAction, finishAction)
     }
 
@@ -153,11 +152,43 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
         return dialog.showDialog(gui)
     }
 
-    private fun drawMapAndInventory(map: MapView,
-                                    isInventoryActive: Boolean,
-                                    selectEquipmentAction: (ItemType) -> Unit,
-                                    selectInventoryAction: (Int) -> Unit,
-                                    finishAction: () -> Unit) {
+    override fun drawConnectionDialog(
+        connectAction: (String, String) -> Unit,
+        validateServer: (String) -> Boolean,
+        validateUserName: (String) -> Boolean
+    ) {
+        val dialog = TextInputDialogBuilder()
+        dialog.extraWindowHints = setOf(Window.Hint.CENTERED)
+        var serverAddress = dialog.setTitle("Enter server address:").build().showDialog(gui)
+        while (!validateServer(serverAddress)) {
+            drawError("Invalid server name") { serverAddress = dialog.build().showDialog(gui) }
+        }
+
+        var userName = dialog.setTitle("Enter username:").build().showDialog(gui)
+        while (!validateUserName(userName)) {
+            drawError("Invalid username") { userName = dialog.build().showDialog(gui) }
+        }
+
+        connectAction(userName, serverAddress)
+    }
+
+    override fun drawCreateSessionDialog(validateSessionName: (String) -> Boolean): String {
+        val dialog = TextInputDialogBuilder()
+        dialog.extraWindowHints = setOf(Window.Hint.CENTERED)
+        var sessionName = dialog.setTitle("Enter session name:").build().showDialog(gui)
+        while (!validateSessionName(sessionName)) {
+            sessionName = dialog.build().showDialog(gui)
+        }
+        return sessionName
+    }
+
+    private fun drawMapAndInventory(
+        map: MapView,
+        isInventoryActive: Boolean,
+        selectEquipmentAction: (ItemType) -> Unit,
+        selectInventoryAction: (Int) -> Unit,
+        finishAction: () -> Unit
+    ) {
         mapView = MapComponent(map, gui.screen, SIDE_PANEL_WIDTH, actionQueue, keyPressedHandler)
         mapView!!.isEnabled = !isInventoryActive
 
@@ -233,7 +264,7 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
     private fun itemString(item: ItemView, withType: Boolean, borderThickness: Int): String {
         val type = if (!withType) {
             ""
-        }  else {
+        } else {
             when (item.type) {
                 ItemType.BOOTS -> "Boots"
                 ItemType.WEAPON -> "Weapon"
@@ -273,7 +304,8 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
         windowHeight: Int,
         numberOfBoxes: Int,
         numberOfSingleLineElements: Int,
-        otherBoxElements: List<Int>): Int {
+        otherBoxElements: List<Int>
+    ): Int {
 
         val availableHeight =
             windowHeight - numberOfSingleLineElements - (otherBoxElements.sum() + otherBoxElements.size * 2)
