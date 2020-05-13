@@ -109,7 +109,6 @@ class AppLogic(
             OpenGameFromFile -> mapCreator = FromFileMapCreator.build(generator, fileChooser)
             Continue -> {
                 appStatus = AppStatus.IN_GAME
-                makeInGameOptionsVisible()
                 drawMap()
             }
             StartOnlineGame -> viewController.drawMenu("Multiplayer", onlineMenuOptions)
@@ -145,6 +144,11 @@ class AppLogic(
             Save -> exit().also { save() }
             Exit -> exit()
         }
+        if (action is StartOnlineGame) {
+            makeSaveOptionInvisible()
+            makeContinueOptionVisible()
+        }
+
         if (action is StartLocalGame) {
             startLocalGame()
         }
@@ -212,6 +216,22 @@ class AppLogic(
     private fun makeInGameOptionsInvisible() {
         for (option in menuOptions) {
             if (option.optionName == CONTINUE_OPTION || option.optionName == SAVE_OPTION) {
+                option.visible = false
+            }
+        }
+    }
+
+    private fun makeContinueOptionVisible() {
+        for (option in menuOptions) {
+            if (option.optionName == CONTINUE_OPTION) {
+                option.visible = true
+            }
+        }
+    }
+
+    private fun makeSaveOptionInvisible() {
+        for (option in menuOptions) {
+            if (option.optionName == SAVE_OPTION) {
                 option.visible = false
             }
         }
