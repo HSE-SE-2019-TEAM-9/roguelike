@@ -5,6 +5,7 @@ import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.model.generators.GameGenerator
 
+/** This class adapts GameCycleProcessor to the GameCycleLogic interface. Used for local game. **/
 class LocalGameCycleLogic(val map: GameMap, // visible for testing
                           private val gameGenerator: GameGenerator,
                           private val drawMapCallback: () -> Unit): GameCycleLogic {
