@@ -2,6 +2,9 @@ package ru.hse.se.team9.model.logic.general
 
 import arrow.core.Either
 import arrow.core.flatMap
+import com.google.protobuf.Empty
+import io.grpc.ManagedChannelBuilder
+import ru.hse.se.team9.conversions.FromProtoConverter
 import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.files.FileChooser
@@ -14,6 +17,7 @@ import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RestoreSavedMapCreator
 import ru.hse.se.team9.model.generators.GameGenerator
+import ru.hse.se.team9.network.RoguelikeApiGrpc
 import ru.hse.se.team9.utils.GameMapSaver
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
@@ -38,9 +42,10 @@ class AppLogic(
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
-    @Volatile private var appStatus: AppStatus = AppStatus.IN_MENU
+    @Volatile
+    private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
-    private val onlineMenuOptions: List<MenuOption>
+//    private val onlineMenuOptions: List<MenuOption>
 
     init {
         viewController.setKeyPressedHandler {
@@ -69,18 +74,19 @@ class AppLogic(
         menuOptions = listOf(
             MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
             MenuOption(NEW_LOCAL_GAME_OPTION) { applyMenuAction(NewLocalGame) },
-            MenuOption(START_ONLINE_GAME) { applyMenuAction(StartOnlineGame) },
+            MenuOption(JOIN_EXISTING_SESSION) { applyMenuAction(JoinExistingSession) },
+            MenuOption(CREATE_NEW_SESSION) { applyMenuAction(CreateSession) },
             MenuOption(LOAD_SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(LoadSavedGame) },
             MenuOption(NEW_GAME_FROM_FILE_OPTION) { applyMenuAction(OpenGameFromFile) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) },
             MenuOption(SAVE_OPTION, false) { applyMenuAction(Save) }
         )
 
-        onlineMenuOptions = listOf(
+        /*onlineMenuOptions = listOf(
             MenuOption("Create session") { applyMenuAction(CreateSession) },
             MenuOption("Join to existing session") { applyMenuAction(JoinExistingSession) },
             MenuOption("Back") { applyOnlineMenuAction(BackToLocalMenu)}
-        )
+        )*/
     }
 
     /** starts application and opens main menu */
@@ -88,7 +94,7 @@ class AppLogic(
         drawMenu()
     }
 
-    private fun applyOnlineMenuAction(action: OnlineMenuAction): AppStatus {
+    /*private fun applyOnlineMenuAction(action: OnlineMenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         appStatus = when (action) {
             BackToLocalMenu -> {
@@ -97,30 +103,31 @@ class AppLogic(
                 AppStatus.IN_MENU
             }
             JoinExistingSession -> {
-    //                drawSessionList()
+                drawSessionList()
                 AppStatus.IN_GAME
             }
             CreateSession -> {
                 var sessionName = viewController.drawCreateSessionDialog(this::isSessionValid)
-
+                connect()
                 AppStatus.IN_GAME
             }
         }
         return appStatus
-    }
+    }*/
 
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
             NewLocalGame -> mapCreator =
-                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance).map {
-                    object : MapCreator {
-                        override fun createMap(): Either<MapCreationError, GameMap> = it.createMap().map { map ->
-                            map.addHeroToRandomPosition(0, generator.createHero())
-                            map
+                RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance)
+                    .map {
+                        object : MapCreator {
+                            override fun createMap(): Either<MapCreationError, GameMap> = it.createMap().map { map ->
+                                map.addHeroToRandomPosition(0, generator.createHero())
+                                map
+                            }
                         }
                     }
-                }
 
             LoadSavedGame -> mapCreator =
                 RestoreSavedMapCreator.build(saver)
@@ -131,10 +138,39 @@ class AppLogic(
                 makeInGameOptionsVisible()
                 drawMap()
             }
-            StartOnlineGame -> startOnlineGame()
-            is OnlineMenuAction -> appStatus = applyOnlineMenuAction(action)
-            Exit -> exit()
+            CreateSession -> {
+                viewController.drawConnectionDialog({ userName, server ->
+                    run {
+                        val split = server.split(":")
+                        val serverIp = split[0]
+                        val port = Integer.parseInt(split[1])
+                        gameCycleLogic = RemoteGameCycleLogic.createNewGame(serverIp, port, this::drawMap)
+                    }
+                }, this::isServerValid, this::isUserNameValid)
+            }
+            JoinExistingSession -> {
+                viewController.drawConnectionDialog({ userName, server ->
+                    run {
+                        val split = server.split(":")
+                        val serverIp = split[0]
+                        val port = Integer.parseInt(split[1])
+                        val stub = RoguelikeApiGrpc.newBlockingStub(
+                            ManagedChannelBuilder.forAddress(serverIp, port).usePlaintext().build()
+                        )
+
+                        val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
+                            MenuOption(gameInfo.name) {
+                                gameCycleLogic =
+                                    RemoteGameCycleLogic.joinGame(serverIp, port, gameInfo.gameId, this::drawMap)
+                            }
+                        }
+
+                        viewController.drawMenu("Sessions", options)
+                    }
+                }, this::isServerValid, this::isUserNameValid)
+            }
             Save -> exit().also { save() }
+            Exit -> exit()
         }
         if (action is StartLocalGame) {
             startLocalGame()
@@ -143,7 +179,7 @@ class AppLogic(
     }
 
     private fun startOnlineGame() {
-        viewController.drawConnectionDialog(this::connect, this::isServerValid, this::isUserNameValid)
+        viewController.drawConnectionDialog({ _: String, _: String -> }, this::isServerValid, this::isUserNameValid)
     }
 
     private fun isUserNameValid(userName: String?): Boolean {
@@ -163,7 +199,7 @@ class AppLogic(
         return try {
             Integer.parseInt(split[1])
             true
-        } catch(e: NumberFormatException) {
+        } catch (e: NumberFormatException) {
             false
         }
     }
@@ -172,14 +208,18 @@ class AppLogic(
         return sessionName != null && sessionName != ""
     }
 
-    private fun connect(userName: String, address: String) {
-        viewController.drawMenu("Playing as $userName on server $address", onlineMenuOptions)
+    /*private fun connect(userName: String, address: String) {
+        val split = address.split(":")
+        val serverIp = split[0]
+        val port = Integer.parseInt(split[1])
 
-        // TODO connect to server
-    }
+        viewController.drawMenu("Playing as $userName on server $serverIp:$port", onlineMenuOptions)
+
+        gameCycleLogic = RemoteGameCycleLogic.createNewGame(address, port, this::drawMap)
+    }*/
 
     private fun disconnect() {
-        TODO("Not yet implemented")
+
     }
 
     private val putOffItem = { type: ItemType ->
@@ -298,7 +338,8 @@ class AppLogic(
         private const val NEW_LOCAL_GAME_OPTION = "New game"
         private const val LOAD_SAVED_GAME_OPTION = "Load last game"
         private const val NEW_GAME_FROM_FILE_OPTION = "New game from file"
-        private const val START_ONLINE_GAME = "Online game"
+        private const val JOIN_EXISTING_SESSION = "Join existing online session"
+        private const val CREATE_NEW_SESSION = "Create new online session"
         private const val EXIT_OPTION = "Exit"
         private const val SAVE_OPTION = "Save and exit"
         private const val CONTINUE_OPTION = "Continue"
