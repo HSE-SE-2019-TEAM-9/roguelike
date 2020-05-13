@@ -61,16 +61,9 @@ message PlayerMessage {
 }
 
 message ServerMessage {
-  message GameOver {
-  }
-
   message MapUpdate {
     views.MapView map = 1;
   }
-
-  oneof update {
-    MapUpdate map_update = 1;
-    GameOver game_over = 2;
-  }
+  MapUpdate map_update = 1;
 }
 

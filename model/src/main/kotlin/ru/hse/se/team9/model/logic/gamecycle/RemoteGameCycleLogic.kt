@@ -21,8 +21,8 @@ class RemoteGameCycleLogic(
     private val drawMapCallback: () -> Unit
 ) : GameCycleLogic {
 
-    @Volatile
-    private lateinit var currentMap: MapView
+    @Volatile private lateinit var currentMap: MapView
+    @Volatile private var gameOver = false
     private var started: Boolean = false
     private val mapReceivedLatch = CountDownLatch(1)
     private lateinit var serverObserver: StreamObserver<Service.PlayerMessage>
@@ -33,11 +33,12 @@ class RemoteGameCycleLogic(
         )
         serverObserver = asyncStub.join(object : StreamObserver<ServerMessage> {
             override fun onNext(value: ServerMessage) {
-                if (value.hasMapUpdate()) {
-                    currentMap = value.mapUpdate.map.toView()
-                    drawMapCallback()
-                    mapReceivedLatch.countDown()
+                currentMap = value.mapUpdate.map.toView()
+                if (currentMap.hero.hp <= 0) {
+                    gameOver = true
                 }
+                drawMapCallback()
+                mapReceivedLatch.countDown()
             }
 
             override fun onError(t: Throwable) {
@@ -51,6 +52,9 @@ class RemoteGameCycleLogic(
     }
 
     override fun makeMove(move: Move): GameStatus {
+        if (gameOver) {
+            return Loss
+        }
         serverObserver.onNext(PlayerMessage {
             makeMove = MakeMove {
                 setMove(

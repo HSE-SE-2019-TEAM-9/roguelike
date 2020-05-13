@@ -66,6 +66,12 @@ class GameMap(
         fog[heroId] = fogOfWar
     }
 
+    /** Removes hero from map */
+    fun removeHero(heroId: Int) {
+        heroes.remove(heroId)
+        fog.remove(heroId)
+    }
+
     /** Moves hero to the neighbor cell according to the direction. If this position is occupied, does nothing.
      * @param direction direction to move towards
      */

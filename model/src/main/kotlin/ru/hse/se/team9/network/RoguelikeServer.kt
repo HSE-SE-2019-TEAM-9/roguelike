@@ -135,6 +135,7 @@ private class RoguelikeServerImpl : RoguelikeApiGrpc.RoguelikeApiImplBase() {
 
         @Synchronized
         fun deletePlayer(playerId: Int) {
+            game.map.removeHero(playerId)
             val player = players.remove(playerId)
             player?.gameSession = null
         }
