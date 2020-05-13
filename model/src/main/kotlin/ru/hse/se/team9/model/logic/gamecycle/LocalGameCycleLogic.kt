@@ -29,4 +29,7 @@ class LocalGameCycleLogic(val map: GameMap, // visible for testing
         processor.putOffItem(0, type)
         drawMapCallback()
     }
+
+    override fun close() {
+    }
 }

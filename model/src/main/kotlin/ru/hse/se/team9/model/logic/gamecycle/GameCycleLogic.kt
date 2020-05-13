@@ -3,7 +3,7 @@ package ru.hse.se.team9.model.logic.gamecycle
 import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 
-interface GameCycleLogic {
+interface GameCycleLogic: AutoCloseable {
     /**
      * Makes one game move. One game move consists of 6 stages:
      *

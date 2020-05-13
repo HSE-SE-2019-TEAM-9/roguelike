@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
  */
 class RemoteGameCycleLogic(
     private val drawMapCallback: () -> Unit
-) : GameCycleLogic, AutoCloseable {
+) : GameCycleLogic {
 
     @Volatile private lateinit var currentMap: MapView
     @Volatile private var gameOver = false

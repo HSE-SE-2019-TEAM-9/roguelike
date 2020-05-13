@@ -23,6 +23,7 @@ import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
 import java.lang.NumberFormatException
+import java.util.concurrent.TimeUnit
 
 /**
  * Represents all logic of the application.
@@ -40,13 +41,12 @@ class AppLogic(
     private val fileChooser: FileChooser,
     private val distance: Distance
 ) {
-    private lateinit var gameCycleLogic: GameCycleLogic
+    private var gameCycleLogic: GameCycleLogic? = null
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
     @Volatile
     private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
     private val onlineMenuOptions: List<MenuOption>
-    private var remoteGameCycleLogic: RemoteGameCycleLogic? = null
 
     init {
         viewController.setKeyPressedHandler {
@@ -116,9 +116,8 @@ class AppLogic(
             CreateSession -> {
                 appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ server, port ->
-                    remoteGameCycleLogic?.close()
+                    gameCycleLogic?.close()
                     val logic = RemoteGameCycleLogic(this::drawMap)
-                    remoteGameCycleLogic = logic
                     gameCycleLogic = logic
                     logic.createNewGame(server, port)
                 }, this::isServerValid)
@@ -126,19 +125,19 @@ class AppLogic(
             JoinExistingSession -> {
                 appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ server, port ->
-                    val stub = RoguelikeApiGrpc.newBlockingStub(
-                        ManagedChannelBuilder.forAddress(server, port).usePlaintext().build()
-                    )
+                    val channel = ManagedChannelBuilder.forAddress(server, port).usePlaintext().build()
+                    val stub = RoguelikeApiGrpc.newBlockingStub(channel)
 
                     val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
                         MenuOption(gameInfo.name) {
-                            remoteGameCycleLogic?.close()
+                            gameCycleLogic?.close()
                             val logic = RemoteGameCycleLogic(this::drawMap)
-                            remoteGameCycleLogic = logic
                             gameCycleLogic = logic
                             logic.joinGame(server, port, gameInfo.gameId)
                         }
                     }
+                    channel.shutdownNow()
+                    channel.awaitTermination(5, TimeUnit.SECONDS)
 
                     viewController.drawMenu("Sessions", options)
                 }, this::isServerValid)
@@ -157,11 +156,11 @@ class AppLogic(
     }
 
     private fun putOffItem(type: ItemType) {
-        gameCycleLogic.putOffItem(type)
+        gameCycleLogic!!.putOffItem(type)
     }
 
     private fun putOnItem(index: Int) {
-        gameCycleLogic.putOnItem(index)
+        gameCycleLogic!!.putOnItem(index)
     }
 
     private fun closeInventory() {
@@ -180,6 +179,7 @@ class AppLogic(
                 printError(result.a)
             }
             is Either.Right -> {
+                gameCycleLogic?.close()
                 gameCycleLogic = result.b
                 appStatus = AppStatus.IN_GAME
                 saver.delete()
@@ -227,8 +227,9 @@ class AppLogic(
 
     private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
-        if (gameCycleLogic.makeMove(move) is Finished) {
+        if (gameCycleLogic!!.makeMove(move) is Finished) {
             appStatus = AppStatus.IN_MENU
+            gameCycleLogic?.close()
             makeInGameOptionsInvisible()
             drawMenu(true)
         }
@@ -248,10 +249,10 @@ class AppLogic(
     @Synchronized
     private fun drawMap() {
         if (appStatus == AppStatus.IN_GAME) {
-            viewController.drawMap(gameCycleLogic.getCurrentMap())
+            viewController.drawMap(gameCycleLogic!!.getCurrentMap())
         } else if (appStatus == AppStatus.IN_INVENTORY) {
             viewController.drawInventory(
-                gameCycleLogic.getCurrentMap(),
+                gameCycleLogic!!.getCurrentMap(),
                 this::putOffItem,
                 this::putOnItem,
                 this::closeInventory
@@ -260,6 +261,7 @@ class AppLogic(
     }
 
     private fun exit() {
+        gameCycleLogic?.close()
         viewController.stop()
     }
 
