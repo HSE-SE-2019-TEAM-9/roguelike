@@ -37,12 +37,12 @@ interface ViewController {
     fun drawFileDialog(startFile: File): File?
 
     /** Shows server connection dialog */
-    fun drawCreateSessionDialog(validateSessionName: (String) -> Boolean): String
+    fun drawCreateSessionDialog(validateSessionName: (String?) -> Boolean): String
 
     /** Shows session creation dialog */
     fun drawConnectionDialog(
         connectAction: (String, String) -> Unit,
-        validateServer: (String) -> Boolean,
-        validateUserName: (String) -> Boolean
+        validateServer: (String?) -> Boolean,
+        validateUserName: (String?) -> Boolean
     )
 }

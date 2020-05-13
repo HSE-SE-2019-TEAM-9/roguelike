@@ -154,29 +154,32 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
 
     override fun drawConnectionDialog(
         connectAction: (String, String) -> Unit,
-        validateServer: (String) -> Boolean,
-        validateUserName: (String) -> Boolean
+        validateServer: (String?) -> Boolean,
+        validateUserName: (String?) -> Boolean
     ) {
         val dialog = TextInputDialogBuilder()
         dialog.extraWindowHints = setOf(Window.Hint.CENTERED)
         var serverAddress = dialog.setTitle("Enter server address:").build().showDialog(gui)
         while (!validateServer(serverAddress)) {
-            drawError("Invalid server name") { serverAddress = dialog.build().showDialog(gui) }
+            drawError("Invalid server address") {}
+            serverAddress = dialog.build().showDialog(gui)
         }
 
         var userName = dialog.setTitle("Enter username:").build().showDialog(gui)
         while (!validateUserName(userName)) {
-            drawError("Invalid username") { userName = dialog.build().showDialog(gui) }
+            drawError("Invalid username") {}
+            userName = dialog.build().showDialog(gui)
         }
 
         connectAction(userName, serverAddress)
     }
 
-    override fun drawCreateSessionDialog(validateSessionName: (String) -> Boolean): String {
+    override fun drawCreateSessionDialog(validateSessionName: (String?) -> Boolean): String {
         val dialog = TextInputDialogBuilder()
         dialog.extraWindowHints = setOf(Window.Hint.CENTERED)
         var sessionName = dialog.setTitle("Enter session name:").build().showDialog(gui)
         while (!validateSessionName(sessionName)) {
+            drawError("Invalid session name") {}
             sessionName = dialog.build().showDialog(gui)
         }
         return sessionName
