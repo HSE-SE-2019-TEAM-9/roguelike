@@ -39,6 +39,7 @@ class AppLogic(
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
     @Volatile private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
+    private val onlineMenuOptions: List<MenuOption>
 
     init {
         viewController.setKeyPressedHandler {
@@ -66,11 +67,18 @@ class AppLogic(
         }
         menuOptions = listOf(
             MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
-            MenuOption(NEW_GAME_OPTION) { applyMenuAction(NewGame) },
+            MenuOption(NEW_LOCAL_GAME_OPTION) { applyMenuAction(NewLocalGame) },
+            MenuOption(START_ONLINE_GAME) { applyMenuAction(StartOnlineGame) },
             MenuOption(LOAD_SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(LoadSavedGame) },
             MenuOption(NEW_GAME_FROM_FILE_OPTION) { applyMenuAction(OpenGameFromFile) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) },
             MenuOption(SAVE_OPTION, false) { applyMenuAction(Save) }
+        )
+
+        onlineMenuOptions = listOf(
+            MenuOption("Create session") { applyMenuAction(CreateSession) },
+            MenuOption("Join to existing session") { applyMenuAction(JoinExistingSession) },
+            MenuOption("Back") { applyOnlineMenuAction(BackToLocalMenu)}
         )
     }
 
@@ -79,10 +87,30 @@ class AppLogic(
         drawMenu()
     }
 
+    private fun applyOnlineMenuAction(action: OnlineMenuAction): AppStatus {
+        require(appStatus == AppStatus.IN_MENU)
+        when (action) {
+            BackToLocalMenu -> {
+                drawMenu(wasGameOver = false)
+                disconnect()
+                appStatus = AppStatus.IN_MENU
+            }
+            JoinExistingSession -> {
+//                drawSessionList()
+                appStatus = AppStatus.IN_GAME
+            }
+            CreateSession -> {
+                var sessionName = viewController.drawCreateSessionDialog(this::isSessionValid)
+                appStatus = AppStatus.IN_GAME
+            }
+        }
+        return appStatus
+    }
+
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
-            NewGame -> mapCreator =
+            NewLocalGame -> mapCreator =
                 RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance).map {
                     object : MapCreator {
                         override fun createMap(): Either<MapCreationError, GameMap> = it.createMap().map { map ->
@@ -101,13 +129,41 @@ class AppLogic(
                 makeInGameOptionsVisible()
                 drawMap()
             }
-            Exit -> exit(false)
-            Save -> exit(true)
+            StartOnlineGame -> startOnlineGame()
+            is OnlineMenuAction -> appStatus = applyOnlineMenuAction(action)
+            Exit -> exit()
+            Save -> exit().also { save() }
         }
-        if (action is StartGame) {
-            startGame()
+        if (action is StartLocalGame) {
+            startLocalGame()
         }
         return appStatus
+    }
+
+    private fun startOnlineGame() {
+        viewController.drawConnectionDialog(this::connect, this::isServerValid, this::isUserNameValid)
+    }
+
+    private fun isUserNameValid(userName: String): Boolean {
+        return userName != ""
+    }
+
+    private fun isServerValid(serverAddress: String): Boolean {
+        return serverAddress != ""
+    }
+
+    private fun isSessionValid(sessionName: String): Boolean {
+        return sessionName != ""
+    }
+
+    private fun connect(userName: String, address: String) {
+        viewController.drawMenu("Playing as $userName on server $address", onlineMenuOptions)
+
+        // TODO connect to server
+    }
+
+    private fun disconnect() {
+        TODO("Not yet implemented")
     }
 
     private val putOffItem = { type: ItemType ->
@@ -123,7 +179,7 @@ class AppLogic(
         drawMap()
     }
 
-    private fun startGame() {
+    private fun startLocalGame() {
         val result = mapCreator
             .flatMap { it.createMap() }
             .map { map -> LocalGameCycleLogic(map, generator) { drawMap() } }
@@ -208,11 +264,12 @@ class AppLogic(
         }
     }
 
-    private fun exit(saveGame: Boolean) {
-        if (saveGame) {
-            saver.save((gameCycleLogic as LocalGameCycleLogic).map)
-        }
+    private fun exit() {
         viewController.stop()
+    }
+
+    private fun save() {
+        saver.save((gameCycleLogic as LocalGameCycleLogic).map)
     }
 
     companion object {
@@ -222,9 +279,10 @@ class AppLogic(
 
         private const val GAME_OVER_TITLE = "Game Over"
         private const val MAIN_MENU_TITLE = "Main menu"
-        private const val NEW_GAME_OPTION = "New game"
+        private const val NEW_LOCAL_GAME_OPTION = "New game"
         private const val LOAD_SAVED_GAME_OPTION = "Load last game"
         private const val NEW_GAME_FROM_FILE_OPTION = "New game from file"
+        private const val START_ONLINE_GAME = "Online game"
         private const val EXIT_OPTION = "Exit"
         private const val SAVE_OPTION = "Save and exit"
         private const val CONTINUE_OPTION = "Continue"
