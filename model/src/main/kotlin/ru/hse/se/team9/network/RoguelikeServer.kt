@@ -28,7 +28,7 @@ class RoguelikeServer(private val port: Int) {
     private lateinit var serverImpl: RoguelikeServerImpl
     private lateinit var server: Server
 
-    /** Starts servers */
+    /** Starts server */
     fun start() {
         serverImpl = RoguelikeServerImpl()
         serverImpl.addGameSession()
@@ -36,7 +36,7 @@ class RoguelikeServer(private val port: Int) {
         server.start()
     }
 
-    /** Stop server and awaits termination */
+    /** Stopы server and awaits termination */
     fun stop() {
         serverImpl.stop()
         server.shutdownNow()
