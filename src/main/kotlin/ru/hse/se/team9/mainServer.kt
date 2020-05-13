@@ -4,6 +4,7 @@ import ru.hse.se.team9.network.RoguelikeServer
 import java.lang.Exception
 import java.util.*
 
+/** Starts Roguelike server a the specified port*/
 fun main(args: Array<String>) {
     val port = try {
         args[0].toInt()

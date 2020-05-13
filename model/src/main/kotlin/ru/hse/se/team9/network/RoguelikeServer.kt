@@ -23,10 +23,12 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
+/** Mutliplayer gRPC Roguelike server */
 class RoguelikeServer(private val port: Int) {
     private lateinit var serverImpl: RoguelikeServerImpl
     private lateinit var server: Server
 
+    /** Starts servers */
     fun start() {
         serverImpl = RoguelikeServerImpl()
         serverImpl.addGameSession()
@@ -34,12 +36,14 @@ class RoguelikeServer(private val port: Int) {
         server.start()
     }
 
+    /** Stop server and awaits termination */
     fun stop() {
         serverImpl.stop()
         server.shutdownNow()
         server.awaitTermination()
     }
 
+    /** Awaits server termination */
     fun await() {
         server.awaitTermination()
     }
@@ -60,10 +64,10 @@ private class RoguelikeServerImpl : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     )
     private val mapCreator = RandomMapCreator.build(
         generator,
-        mapWidth = 100,
-        mapHeight = 100,
+        mapWidth = 60,
+        mapHeight = 60,
         distance = Manhattan,
-        fogRadius = 10
+        fogRadius = 12
     ).getOrHandle { throw it } // Never happens
 
     override fun getGames(request: Empty, responseObserver: StreamObserver<Service.GetGamesResponse>) {

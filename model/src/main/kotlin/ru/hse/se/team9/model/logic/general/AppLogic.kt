@@ -268,9 +268,9 @@ class AppLogic(
     }
 
     companion object {
-        private const val MAP_WIDTH = 100
-        private const val MAP_HEIGHT = 100
-        private const val FOG_RADIUS = 10
+        private const val MAP_WIDTH = 60
+        private const val MAP_HEIGHT = 60
+        private const val FOG_RADIUS = 12
 
         private const val GAME_OVER_TITLE = "Game Over"
         private const val MAIN_MENU_TITLE = "Main menu"
