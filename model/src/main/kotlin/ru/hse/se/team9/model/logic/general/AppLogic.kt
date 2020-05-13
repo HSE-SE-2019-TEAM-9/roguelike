@@ -46,6 +46,7 @@ class AppLogic(
     private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
     private val onlineMenuOptions: List<MenuOption>
+    private var remoteGameCycleLogic: RemoteGameCycleLogic? = null
 
     init {
         viewController.setKeyPressedHandler {
@@ -118,10 +119,12 @@ class AppLogic(
             CreateSession -> {
                 appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ userName, server ->
+                    remoteGameCycleLogic?.close()
                     val split = server.split(":")
                     val serverIp = split[0]
                     val port = Integer.parseInt(split[1])
                     val logic = RemoteGameCycleLogic(this::drawMap)
+                    remoteGameCycleLogic = logic
                     gameCycleLogic = logic
                     logic.createNewGame(serverIp, port)
                 }, this::isServerValid, this::isUserNameValid)
@@ -138,7 +141,9 @@ class AppLogic(
 
                     val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
                         MenuOption(gameInfo.name) {
+                            remoteGameCycleLogic?.close()
                             val logic = RemoteGameCycleLogic(this::drawMap)
+                            remoteGameCycleLogic = logic
                             gameCycleLogic = logic
                             logic.joinGame(serverIp, port, gameInfo.gameId)
                         }

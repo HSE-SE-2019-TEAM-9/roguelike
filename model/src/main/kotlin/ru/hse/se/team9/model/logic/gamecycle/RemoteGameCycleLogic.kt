@@ -1,6 +1,8 @@
 package ru.hse.se.team9.model.logic.gamecycle
 
+import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
+import io.grpc.stub.AbstractStub
 import io.grpc.stub.StreamObserver
 import ru.hse.se.team9.conversions.FromProtoConverter.toView
 import ru.hse.se.team9.entities.ItemType
@@ -12,6 +14,7 @@ import ru.hse.se.team9.network.PlayerMessage.StartGame
 import ru.hse.se.team9.network.Service.ServerMessage
 import ru.hse.se.team9.network.views.Views
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Connects to remote GameCycleProcessor (server) via GRPC.
@@ -19,18 +22,18 @@ import java.util.concurrent.CountDownLatch
  */
 class RemoteGameCycleLogic(
     private val drawMapCallback: () -> Unit
-) : GameCycleLogic {
+) : GameCycleLogic, AutoCloseable {
 
     @Volatile
     private lateinit var currentMap: MapView
     private var started: Boolean = false
     private val mapReceivedLatch = CountDownLatch(1)
     private lateinit var serverObserver: StreamObserver<Service.PlayerMessage>
+    private lateinit var channel: ManagedChannel
 
     private fun start(address: String, port: Int) {
-        val asyncStub = RoguelikeApiGrpc.newStub(
-            ManagedChannelBuilder.forAddress(address, port).usePlaintext().build()
-        )
+        channel = ManagedChannelBuilder.forAddress(address, port).usePlaintext().build()
+        val asyncStub = RoguelikeApiGrpc.newStub(channel)
         serverObserver = asyncStub.join(object : StreamObserver<ServerMessage> {
             override fun onNext(value: ServerMessage) {
                 if (value.hasMapUpdate()) {
@@ -133,5 +136,10 @@ class RemoteGameCycleLogic(
             }
         })
         mapReceivedLatch.await()
+    }
+
+    override fun close() {
+        channel.shutdownNow()
+        channel.awaitTermination(5, TimeUnit.SECONDS)
     }
 }
