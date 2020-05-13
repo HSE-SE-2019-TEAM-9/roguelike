@@ -2,6 +2,7 @@ package ru.hse.se.team9.network
 
 import arrow.core.getOrHandle
 import com.google.protobuf.Empty
+import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.stub.StreamObserver
 import ru.hse.se.team9.conversions.ToProtoConverter.toProto
@@ -22,8 +23,31 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
-class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
+class RoguelikeServer(private val port: Int) {
+    private lateinit var serverImpl: RoguelikeServerImpl
+    private lateinit var server: Server
+
+    fun start() {
+        serverImpl = RoguelikeServerImpl()
+        serverImpl.addGameSession()
+        server = ServerBuilder.forPort(port).addService(serverImpl).build()
+        server.start()
+    }
+
+    fun stop() {
+        serverImpl.stop()
+        server.shutdownNow()
+        server.awaitTermination()
+    }
+
+    fun await() {
+        server.awaitTermination()
+    }
+}
+
+private class RoguelikeServerImpl : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     private val games = ConcurrentHashMap<Int, GameSession>()
+    private val threads = mutableListOf<Thread>()
     private var sessionCounter = 0
     private val generator = GameGenerator(
         RandomDirection,
@@ -53,6 +77,17 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     }
 
     @Synchronized
+    fun stop() {
+        for (game in games.values) {
+            game.close()
+        }
+        for (thread in threads) {
+            thread.interrupt()
+            thread.join()
+        }
+    }
+
+    @Synchronized
     private fun getGameSessions(): Service.GetGamesResponse {
         return Service.GetGamesResponse.newBuilder().addAllGames(
             games.values.map { it.getInfo() }
@@ -60,10 +95,12 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     }
 
     @Synchronized
-    private fun addGameSession(): Int {
+    fun addGameSession(): Int {
         val gameId = sessionCounter++
         val gameSession = GameSession(gameId, gameId.toString())
-        Thread(gameSession).start()
+        val thread = Thread(gameSession)
+        thread.start()
+        threads.add(thread)
         games[gameId] = gameSession
         return gameId
     }
@@ -94,6 +131,19 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
             game.map.addHeroToRandomPosition(playerId, DefaultHeroCreator.createHero())
             players[playerId] = player
             return playerId
+        }
+
+        @Synchronized
+        fun deletePlayer(playerId: Int) {
+            val player = players.remove(playerId)
+            player?.gameSession = null
+        }
+
+        @Synchronized
+        fun close() {
+            for (player in players.values) {
+                player.out.onCompleted()
+            }
         }
 
         fun sendMap(player: PlayerActionHandler) {
@@ -132,9 +182,12 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         }
 
         override fun run() {
-            while (true) {
-                val playerAction = playerActions.poll(30, TimeUnit.HOURS)!! // FIXME
-                processPlayerAction(playerAction)
+            try {
+                while (true) {
+                    val playerAction = playerActions.poll(Long.MAX_VALUE, TimeUnit.DAYS)!!
+                    processPlayerAction(playerAction)
+                }
+            } catch (ignored: InterruptedException) {
             }
         }
     }
@@ -142,20 +195,19 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     private inner class PlayerActionHandler(val out: StreamObserver<Service.ServerMessage>)
             : StreamObserver<Service.PlayerMessage> {
         var heroId = -1
-        var gameId = -1
         var gameSession: GameSession? = null
 
         override fun onNext(value: Service.PlayerMessage) {
             gameSession?.addPlayerAction(PlayerAction(value, heroId)) ?: let {
                 when (value.requestCase!!) {
                     Service.PlayerMessage.RequestCase.JOIN_GAME -> {
-                        gameId = value.joinGame.gameId
+                        val gameId = value.joinGame.gameId
                         gameSession = games[gameId]
                         heroId = gameSession!!.addPlayer(this)
                         gameSession!!.sendMap(heroId)
                     }
                     Service.PlayerMessage.RequestCase.START_GAME -> {
-                        gameId = addGameSession()
+                        val gameId = addGameSession()
                         gameSession = games[gameId]
                         heroId = gameSession!!.addPlayer(this)
                         gameSession!!.sendMap(heroId)
@@ -166,9 +218,11 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         }
 
         override fun onError(t: Throwable) {
+            gameSession?.deletePlayer(heroId)
         }
 
         override fun onCompleted() {
+            gameSession?.deletePlayer(heroId)
         }
     }
 
@@ -189,16 +243,6 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
             Service.PlayerMessage.MakeMove.Move.RIGHT -> Right
             Service.PlayerMessage.MakeMove.Move.DOWN -> Down
             Service.PlayerMessage.MakeMove.Move.UNRECOGNIZED -> error("deserialization error")
-        }
-    }
-
-    companion object {
-        fun run(port: Int) {
-            val serverImpl = RoguelikeServer()
-            serverImpl.addGameSession() // FIXME
-            val server = ServerBuilder.forPort(port).addService(serverImpl).build()
-            server.start()
-            server.awaitTermination()
         }
     }
 }
