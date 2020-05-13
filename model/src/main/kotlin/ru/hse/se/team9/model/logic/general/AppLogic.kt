@@ -74,7 +74,7 @@ class AppLogic(
         menuOptions = listOf(
             MenuOption(CONTINUE_OPTION, false) { applyMenuAction(Continue) },
             MenuOption(NEW_LOCAL_GAME_OPTION) { applyMenuAction(NewLocalGame) },
-            MenuOption(MULTIPLAYER) {applyMenuAction(StartOnlineGame)},
+            MenuOption(MULTIPLAYER) { applyMenuAction(StartOnlineGame) },
             MenuOption(LOAD_SAVED_GAME_OPTION, saver.isSaved()) { applyMenuAction(LoadSavedGame) },
             MenuOption(NEW_GAME_FROM_FILE_OPTION) { applyMenuAction(OpenGameFromFile) },
             MenuOption(EXIT_OPTION) { applyMenuAction(Exit) },
@@ -84,39 +84,12 @@ class AppLogic(
         onlineMenuOptions = listOf(
             MenuOption(JOIN_EXISTING_SESSION) { applyMenuAction(JoinExistingSession) },
             MenuOption(CREATE_NEW_SESSION) { applyMenuAction(CreateSession) })
-
-        /*onlineMenuOptions = listOf(
-            MenuOption("Create session") { applyMenuAction(CreateSession) },
-            MenuOption("Join to existing session") { applyMenuAction(JoinExistingSession) },
-            MenuOption("Back") { applyOnlineMenuAction(BackToLocalMenu)}
-        )*/
     }
 
     /** starts application and opens main menu */
     fun openMenu() {
         drawMenu()
     }
-
-    /*private fun applyOnlineMenuAction(action: OnlineMenuAction): AppStatus {
-        require(appStatus == AppStatus.IN_MENU)
-        appStatus = when (action) {
-            BackToLocalMenu -> {
-                drawMenu(wasGameOver = false)
-                disconnect()
-                AppStatus.IN_MENU
-            }
-            JoinExistingSession -> {
-                drawSessionList()
-                AppStatus.IN_GAME
-            }
-            CreateSession -> {
-                var sessionName = viewController.drawCreateSessionDialog(this::isSessionValid)
-                connect()
-                AppStatus.IN_GAME
-            }
-        }
-        return appStatus
-    }*/
 
     private fun applyMenuAction(action: MenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
@@ -145,37 +118,33 @@ class AppLogic(
             CreateSession -> {
                 appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ userName, server ->
-                    run {
-                        val split = server.split(":")
-                        val serverIp = split[0]
-                        val port = Integer.parseInt(split[1])
-                        val logic = RemoteGameCycleLogic(this::drawMap)
-                        gameCycleLogic = logic
-                        logic.createNewGame(serverIp, port)
-                    }
+                    val split = server.split(":")
+                    val serverIp = split[0]
+                    val port = Integer.parseInt(split[1])
+                    val logic = RemoteGameCycleLogic(this::drawMap)
+                    gameCycleLogic = logic
+                    logic.createNewGame(serverIp, port)
                 }, this::isServerValid, this::isUserNameValid)
             }
             JoinExistingSession -> {
                 appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ userName, server ->
-                    run {
-                        val split = server.split(":")
-                        val serverIp = split[0]
-                        val port = Integer.parseInt(split[1])
-                        val stub = RoguelikeApiGrpc.newBlockingStub(
-                            ManagedChannelBuilder.forAddress(serverIp, port).usePlaintext().build()
-                        )
+                    val split = server.split(":")
+                    val serverIp = split[0]
+                    val port = Integer.parseInt(split[1])
+                    val stub = RoguelikeApiGrpc.newBlockingStub(
+                        ManagedChannelBuilder.forAddress(serverIp, port).usePlaintext().build()
+                    )
 
-                        val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
-                            MenuOption(gameInfo.name) {
-                                val logic = RemoteGameCycleLogic(this::drawMap)
-                                gameCycleLogic = logic
-                                logic.joinGame(serverIp, port, gameInfo.gameId)
-                            }
+                    val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
+                        MenuOption(gameInfo.name) {
+                            val logic = RemoteGameCycleLogic(this::drawMap)
+                            gameCycleLogic = logic
+                            logic.joinGame(serverIp, port, gameInfo.gameId)
                         }
-
-                        viewController.drawMenu("Sessions", options)
                     }
+
+                    viewController.drawMenu("Sessions", options)
                 }, this::isServerValid, this::isUserNameValid)
             }
             Save -> exit().also { save() }
@@ -185,10 +154,6 @@ class AppLogic(
             startLocalGame()
         }
         return appStatus
-    }
-
-    private fun startOnlineGame() {
-        viewController.drawConnectionDialog({ _: String, _: String -> }, this::isServerValid, this::isUserNameValid)
     }
 
     private fun isUserNameValid(userName: String?): Boolean {
@@ -213,33 +178,15 @@ class AppLogic(
         }
     }
 
-    private fun isSessionValid(sessionName: String?): Boolean {
-        return sessionName != null && sessionName != ""
-    }
-
-    /*private fun connect(userName: String, address: String) {
-        val split = address.split(":")
-        val serverIp = split[0]
-        val port = Integer.parseInt(split[1])
-
-        viewController.drawMenu("Playing as $userName on server $serverIp:$port", onlineMenuOptions)
-
-        gameCycleLogic = RemoteGameCycleLogic.createNewGame(address, port, this::drawMap)
-    }*/
-
-    private fun disconnect() {
-
-    }
-
-    private val putOffItem = { type: ItemType ->
+    private fun putOffItem(type: ItemType) {
         gameCycleLogic.putOffItem(type)
     }
 
-    private val putOnItem = { index: Int ->
+    private fun putOnItem(index: Int) {
         gameCycleLogic.putOnItem(index)
     }
 
-    private val closeInventory = {
+    private fun closeInventory() {
         appStatus = AppStatus.IN_GAME
         drawMap()
     }
@@ -325,7 +272,12 @@ class AppLogic(
         if (appStatus == AppStatus.IN_GAME) {
             viewController.drawMap(gameCycleLogic.getCurrentMap())
         } else if (appStatus == AppStatus.IN_INVENTORY) {
-            viewController.drawInventory(gameCycleLogic.getCurrentMap(), putOffItem, putOnItem, closeInventory)
+            viewController.drawInventory(
+                gameCycleLogic.getCurrentMap(),
+                this::putOffItem,
+                this::putOnItem,
+                this::closeInventory
+            )
         }
     }
 
