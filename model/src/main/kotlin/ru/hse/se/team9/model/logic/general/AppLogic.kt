@@ -139,6 +139,7 @@ class AppLogic(
                 drawMap()
             }
             CreateSession -> {
+                appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ userName, server ->
                     run {
                         val split = server.split(":")
@@ -149,6 +150,7 @@ class AppLogic(
                 }, this::isServerValid, this::isUserNameValid)
             }
             JoinExistingSession -> {
+                appStatus = AppStatus.IN_GAME
                 viewController.drawConnectionDialog({ userName, server ->
                     run {
                         val split = server.split(":")
