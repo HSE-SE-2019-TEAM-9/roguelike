@@ -16,7 +16,7 @@ import ru.hse.se.team9.utils.plus
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-/** Represents all logic within one game -- moves hero, tells if game is finished etc.
+/** Represents all logic within one game -- moves heroes, tells if game is finished etc.
  * @property map game map used in this game
  */
 class GameCycleProcessor(

@@ -13,6 +13,10 @@ import ru.hse.se.team9.network.views.Views
 import java.util.concurrent.CountDownLatch
 import ru.hse.se.team9.conversions.FromProtoConverter.toView
 
+/**
+ * Connects to remote GameCycleProcessor (server) via GRPC.
+ * Calls drawMapCallback when new map is available in getCurrentMap method
+ */
 class RemoteGameCycleLogic private constructor(
     address: String,
     port: Int,
@@ -91,6 +95,10 @@ class RemoteGameCycleLogic private constructor(
     }
 
     companion object RemoteGameCycleLogic {
+        /**
+         * Tries to create a new game at the remote server which has to be available at the specified address.
+         * Blocks until initial map is received and then returns initialized RemoteGameCycleLogic.
+         */
         fun createNewGame(
             address: String,
             port: Int,
@@ -105,6 +113,10 @@ class RemoteGameCycleLogic private constructor(
             return logic
         }
 
+        /**
+         * Tries to join an existing game at the remote server which has to be available at the specified address.
+         * Blocks until initial map is received and then returns initialized RemoteGameCycleLogic.
+         */
         fun joinGame(
             address: String,
             port: Int,
