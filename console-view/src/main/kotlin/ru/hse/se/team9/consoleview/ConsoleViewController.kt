@@ -29,6 +29,8 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
     private var mapView: MapComponent? = null
     private var keyPressedHandler: (KeyPressedType) -> Unit = {}
     private val actionQueue: LinkedBlockingQueue<() -> Unit> = LinkedBlockingQueue()
+    private var interactivePanel: Panel? = null
+    private var redrawInteractivePanel = true
 
     init {
         val terminal = SwingTerminalFrame(
@@ -204,64 +206,77 @@ class ConsoleViewController(private val width: Int = 200, private val height: In
         stats.preferredSize = TerminalSize(INFINITY, 3)
         infoPanel.addComponent(stats.withBorder(Borders.singleLine("Stats")))
 
-        val equipment = map.hero.equipment
-        val equipmentList = ActionListBox()
-        equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
-        equipmentList.isEnabled = isInventoryActive
-        equipment.forEach { (type, item) ->
-            if (item.type != ItemType.NONE) {
-                equipmentList.addItem(itemString(item, true, 1)) {
-                    actionQueue.add { selectEquipmentAction(type) }
+        if (!isInventoryActive || redrawInteractivePanel) {
+            val currentInteractivePanel = Panel()
+            currentInteractivePanel.preferredSize = TerminalSize(INFINITY, INFINITY)
+
+            val equipment = map.hero.equipment
+            val equipmentList = ActionListBox()
+            equipmentList.preferredSize = TerminalSize(INFINITY, equipment.size)
+            equipmentList.isEnabled = isInventoryActive
+            equipment.forEach { (type, item) ->
+                if (item.type != ItemType.NONE) {
+                    equipmentList.addItem(itemString(item, true, 1)) {
+                        redrawInteractivePanel = true
+                        actionQueue.add { selectEquipmentAction(type) }
+                    }
                 }
             }
-        }
-        infoPanel.addComponent(equipmentList.withBorder(Borders.singleLine("Equipment")))
+            currentInteractivePanel.addComponent(equipmentList.withBorder(Borders.singleLine("Equipment")))
 
-        val inventory = map.hero.inventory.mapIndexed { index, itemView ->
-            Pair(index, itemView)
-        }
-        val typedInventory = mapOf(
-            "Boots" to inventory.filter { it.second.type == ItemType.BOOTS }.reversed(),
-            "Weapons" to inventory.filter { it.second.type == ItemType.WEAPON }.reversed(),
-            "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }.reversed()
-        )
-        val inventoryTypeBoxHeight = calcBoxPreferredHeight(
-            gui.screen.terminalSize.rows,
-            typedInventory.size,
-            5,
-            listOf(3, 3)
-        )
-        val inventoryPanel = Panel()
-        var inventoryPanelHeight = 0
-        for (type in typedInventory) {
-            val inventoryList = ActionListBox()
-            val height = min(inventoryTypeBoxHeight, type.value.size)
-            inventoryPanelHeight += height + 2
-            inventoryList.preferredSize = TerminalSize(INFINITY, height)
-            inventoryList.isEnabled = isInventoryActive
-            type.value.forEach {
-                val (index, item) = it
-                inventoryList.addItem(itemString(item, false, 2)) {
-                    actionQueue.add { selectInventoryAction(index) }
+            val inventory = map.hero.inventory.mapIndexed { index, itemView ->
+                Pair(index, itemView)
+            }
+            val typedInventory = mapOf(
+                "Boots" to inventory.filter { it.second.type == ItemType.BOOTS }.reversed(),
+                "Weapons" to inventory.filter { it.second.type == ItemType.WEAPON }.reversed(),
+                "Underwear" to inventory.filter { it.second.type == ItemType.UNDERWEAR }.reversed()
+            )
+            val inventoryTypeBoxHeight = calcBoxPreferredHeight(
+                gui.screen.terminalSize.rows,
+                typedInventory.size,
+                5,
+                listOf(3, 3)
+            )
+            val inventoryPanel = Panel()
+            var inventoryPanelHeight = 0
+            for (type in typedInventory) {
+                val inventoryList = ActionListBox()
+                val height = min(inventoryTypeBoxHeight, type.value.size)
+                inventoryPanelHeight += height + 2
+                inventoryList.preferredSize = TerminalSize(INFINITY, height)
+                inventoryList.isEnabled = isInventoryActive
+                type.value.forEach {
+                    val (index, item) = it
+                    inventoryList.addItem(itemString(item, false, 2)) {
+                        redrawInteractivePanel = true
+                        actionQueue.add { selectInventoryAction(index) }
+                    }
                 }
+                inventoryPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
             }
-            inventoryPanel.addComponent(inventoryList.withBorder(Borders.singleLine(type.key)))
-        }
-        inventoryPanel.preferredSize = TerminalSize(INFINITY, inventoryPanelHeight)
-        infoPanel.addComponent(inventoryPanel.withBorder(Borders.singleLine("Inventory")))
+            inventoryPanel.preferredSize = TerminalSize(INFINITY, inventoryPanelHeight)
+            currentInteractivePanel.addComponent(inventoryPanel.withBorder(Borders.singleLine("Inventory")))
 
-        if (isInventoryActive) {
-            val okButton = Button("OK") {
-                actionQueue.add(finishAction)
+            if (isInventoryActive) {
+                val okButton = Button("OK") {
+                    redrawInteractivePanel = true
+                    actionQueue.add(finishAction)
+                }
+                currentInteractivePanel.addComponent(okButton)
             }
-            infoPanel.addComponent(okButton)
+
+            interactivePanel = currentInteractivePanel
         }
+        infoPanel.addComponent(interactivePanel)
 
         val panel = Panel()
         panel.layoutManager = LinearLayout(Direction.HORIZONTAL)
         panel.addComponent(infoPanel.withBorder(Borders.singleLine()))
         panel.addComponent(mapView)
         mapWindow.component = panel
+
+        redrawInteractivePanel = !isInventoryActive
     }
 
     private fun itemString(item: ItemView, withType: Boolean, borderThickness: Int): String {
