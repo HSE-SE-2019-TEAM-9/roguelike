@@ -34,8 +34,13 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         RandomConsumable,
         DefaultHeroCreator
     )
-    private val mapCreator = RandomMapCreator.build(generator, distance = Manhattan, fogRadius = 10)
-        .getOrHandle { throw it } // Never happens
+    private val mapCreator = RandomMapCreator.build(
+        generator,
+        mapWidth = 100,
+        mapHeight = 100,
+        distance = Manhattan,
+        fogRadius = 10
+    ).getOrHandle { throw it } // Never happens
 
     override fun getGames(request: Empty, responseObserver: StreamObserver<Service.GetGamesResponse>) {
         responseObserver.onNext(getGameSessions())
@@ -182,8 +187,10 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     companion object {
         fun run(port: Int) {
             val serverImpl = RoguelikeServer()
+            serverImpl.addGameSession() // FIXME
             val server = ServerBuilder.forPort(port).addService(serverImpl).build()
             server.start()
+            server.awaitTermination()
         }
     }
 }
