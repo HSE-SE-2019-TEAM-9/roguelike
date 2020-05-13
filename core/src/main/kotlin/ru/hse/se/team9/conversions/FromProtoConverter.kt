@@ -124,7 +124,7 @@ object FromProtoConverter {
         }
     }
 
-    private fun Views.ItemView.ItemType.toView(): ItemType {
+    fun Views.ItemView.ItemType.toView(): ItemType {
         return when (this) {
             Views.ItemView.ItemType.NONE -> ItemType.NONE
             Views.ItemView.ItemType.BOOTS -> ItemType.BOOTS

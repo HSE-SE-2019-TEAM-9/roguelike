@@ -64,7 +64,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
     }
 
     private inner class GameSession(private val id: Int, private val name: String) : Runnable {
-        private val game = GameCycleLogicImpl(mapCreator.createMap().getOrHandle { throw it }, generator)
+        private val game = GameCycleProcessor(mapCreator.createMap().getOrHandle { throw it }, generator)
         private var playerCounter = 0
         private val players = ConcurrentHashMap<Int, PlayerActionHandler>()
         private val playerActions = LinkedBlockingQueue<PlayerActionId>()
