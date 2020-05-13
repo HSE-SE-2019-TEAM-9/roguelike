@@ -18,6 +18,7 @@ import ru.hse.se.team9.utils.GameMapSaver
 import ru.hse.se.team9.view.KeyPressedType
 import ru.hse.se.team9.view.MenuOption
 import ru.hse.se.team9.view.ViewController
+import java.lang.NumberFormatException
 
 /**
  * Represents all logic of the application.
@@ -89,19 +90,20 @@ class AppLogic(
 
     private fun applyOnlineMenuAction(action: OnlineMenuAction): AppStatus {
         require(appStatus == AppStatus.IN_MENU)
-        when (action) {
+        appStatus = when (action) {
             BackToLocalMenu -> {
                 drawMenu(wasGameOver = false)
                 disconnect()
-                appStatus = AppStatus.IN_MENU
+                AppStatus.IN_MENU
             }
             JoinExistingSession -> {
-//                drawSessionList()
-                appStatus = AppStatus.IN_GAME
+    //                drawSessionList()
+                AppStatus.IN_GAME
             }
             CreateSession -> {
                 var sessionName = viewController.drawCreateSessionDialog(this::isSessionValid)
-                appStatus = AppStatus.IN_GAME
+
+                AppStatus.IN_GAME
             }
         }
         return appStatus
@@ -144,16 +146,30 @@ class AppLogic(
         viewController.drawConnectionDialog(this::connect, this::isServerValid, this::isUserNameValid)
     }
 
-    private fun isUserNameValid(userName: String): Boolean {
-        return userName != ""
+    private fun isUserNameValid(userName: String?): Boolean {
+        return userName != null && userName != ""
     }
 
-    private fun isServerValid(serverAddress: String): Boolean {
-        return serverAddress != ""
+    private fun isServerValid(serverAddress: String?): Boolean {
+        if (serverAddress == null) {
+            return false
+        }
+
+        val split = serverAddress.split(":")
+        if (split.size != 2) {
+            return false
+        }
+
+        return try {
+            Integer.parseInt(split[1])
+            true
+        } catch(e: NumberFormatException) {
+            false
+        }
     }
 
-    private fun isSessionValid(sessionName: String): Boolean {
-        return sessionName != ""
+    private fun isSessionValid(sessionName: String?): Boolean {
+        return sessionName != null && sessionName != ""
     }
 
     private fun connect(userName: String, address: String) {
