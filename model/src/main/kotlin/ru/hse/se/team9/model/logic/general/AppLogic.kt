@@ -145,7 +145,9 @@ class AppLogic(
                         val split = server.split(":")
                         val serverIp = split[0]
                         val port = Integer.parseInt(split[1])
-                        gameCycleLogic = RemoteGameCycleLogic.createNewGame(serverIp, port, this::drawMap)
+                        val logic = RemoteGameCycleLogic(this::drawMap)
+                        gameCycleLogic = logic
+                        logic.createNewGame(serverIp, port)
                     }
                 }, this::isServerValid, this::isUserNameValid)
             }
@@ -162,8 +164,9 @@ class AppLogic(
 
                         val options = stub.getGames(Empty.getDefaultInstance()).gamesList.map { gameInfo ->
                             MenuOption(gameInfo.name) {
-                                gameCycleLogic =
-                                    RemoteGameCycleLogic.joinGame(serverIp, port, gameInfo.gameId, this::drawMap)
+                                val logic = RemoteGameCycleLogic(this::drawMap)
+                                gameCycleLogic = logic
+                                logic.joinGame(serverIp, port, gameInfo.gameId)
                             }
                         }
 

@@ -2,6 +2,7 @@ package ru.hse.se.team9.model.logic.gamecycle
 
 import io.grpc.ManagedChannelBuilder
 import io.grpc.stub.StreamObserver
+import ru.hse.se.team9.conversions.FromProtoConverter.toView
 import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.network.*
@@ -11,29 +12,26 @@ import ru.hse.se.team9.network.PlayerMessage.StartGame
 import ru.hse.se.team9.network.Service.ServerMessage
 import ru.hse.se.team9.network.views.Views
 import java.util.concurrent.CountDownLatch
-import ru.hse.se.team9.conversions.FromProtoConverter.toView
 
 /**
  * Connects to remote GameCycleProcessor (server) via GRPC.
  * Calls drawMapCallback when new map is available in getCurrentMap method
  */
-class RemoteGameCycleLogic private constructor(
-    address: String,
-    port: Int,
+class RemoteGameCycleLogic(
     private val drawMapCallback: () -> Unit
 ) : GameCycleLogic {
 
     @Volatile
     private lateinit var currentMap: MapView
-
+    private var started: Boolean = false
     private val mapReceivedLatch = CountDownLatch(1)
+    private lateinit var serverObserver: StreamObserver<Service.PlayerMessage>
 
-    private val asyncStub = RoguelikeApiGrpc.newStub(
-        ManagedChannelBuilder.forAddress(address, port).usePlaintext().build()
-    )
-
-    private val serverObserver: StreamObserver<Service.PlayerMessage> =
-        asyncStub.join(object : StreamObserver<ServerMessage> {
+    private fun start(address: String, port: Int) {
+        val asyncStub = RoguelikeApiGrpc.newStub(
+            ManagedChannelBuilder.forAddress(address, port).usePlaintext().build()
+        )
+        serverObserver = asyncStub.join(object : StreamObserver<ServerMessage> {
             override fun onNext(value: ServerMessage) {
                 if (value.hasMapUpdate()) {
                     currentMap = value.mapUpdate.map.toView()
@@ -50,6 +48,7 @@ class RemoteGameCycleLogic private constructor(
                 // (((((((
             }
         })
+    }
 
     override fun makeMove(move: Move): GameStatus {
         serverObserver.onNext(PlayerMessage {
@@ -94,43 +93,45 @@ class RemoteGameCycleLogic private constructor(
         })
     }
 
-    companion object RemoteGameCycleLogic {
-        /**
-         * Tries to create a new game at the remote server which has to be available at the specified address.
-         * Blocks until initial map is received and then returns initialized RemoteGameCycleLogic.
-         */
-        fun createNewGame(
-            address: String,
-            port: Int,
-            drawMapCallback: () -> Unit
-        ): ru.hse.se.team9.model.logic.gamecycle.RemoteGameCycleLogic {
-            val logic = RemoteGameCycleLogic(address, port, drawMapCallback)
-            logic.serverObserver.onNext(PlayerMessage {
-                startGame = StartGame {
-                }
-            })
-            logic.mapReceivedLatch.await()
-            return logic
-        }
+    /**
+     * Tries to create a new game at the remote server which has to be available at the specified address.
+     * Blocks until initial map is received and then returns initialized RemoteGameCycleLogic.
+     */
+    @Synchronized
+    fun createNewGame(
+        address: String,
+        port: Int
+    ) {
+        if (started) error("RemoteGameCycleView already started")
+        started = true
+        start(address, port)
 
-        /**
-         * Tries to join an existing game at the remote server which has to be available at the specified address.
-         * Blocks until initial map is received and then returns initialized RemoteGameCycleLogic.
-         */
-        fun joinGame(
-            address: String,
-            port: Int,
-            gameId: Int,
-            drawMapCallback: () -> Unit
-        ): ru.hse.se.team9.model.logic.gamecycle.RemoteGameCycleLogic {
-            val logic = RemoteGameCycleLogic(address, port, drawMapCallback)
-            logic.serverObserver.onNext(PlayerMessage {
-                joinGame = JoinGame {
-                    setGameId(gameId)
-                }
-            })
-            logic.mapReceivedLatch.await()
-            return logic
-        }
+        serverObserver.onNext(PlayerMessage {
+            startGame = StartGame {
+            }
+        })
+        mapReceivedLatch.await()
+    }
+
+    /**
+     * Tries to join an existing game at the remote server which has to be available at the specified address.
+     * Blocks until initial map is received and then returns initialized RemoteGameCycleLogic.
+     */
+    @Synchronized
+    fun joinGame(
+        address: String,
+        port: Int,
+        gameId: Int
+    ) {
+        if (started) error("RemoteGameCycleView already started")
+        started = true
+        start(address, port)
+
+        serverObserver.onNext(PlayerMessage {
+            joinGame = JoinGame {
+                setGameId(gameId)
+            }
+        })
+        mapReceivedLatch.await()
     }
 }
