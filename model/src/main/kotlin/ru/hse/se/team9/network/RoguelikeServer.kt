@@ -67,7 +67,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         private val game = GameCycleProcessor(mapCreator.createMap().getOrHandle { throw it }, generator)
         private var playerCounter = 0
         private val players = ConcurrentHashMap<Int, PlayerActionHandler>()
-        private val playerActions = LinkedBlockingQueue<PlayerActionId>()
+        private val playerActions = LinkedBlockingQueue<PlayerAction>()
 
         @Synchronized
         fun getInfo(): Service.GameInfo {
@@ -79,7 +79,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         }
 
         @Synchronized
-        fun addPlayerAction(playerAction: PlayerActionId) {
+        fun addPlayerAction(playerAction: PlayerAction) {
             playerActions.add(playerAction)
         }
 
@@ -135,7 +135,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         var gameSession: GameSession? = null
 
         override fun onNext(value: Service.PlayerMessage) {
-            gameSession?.addPlayerAction(PlayerActionId(value, heroId)) ?: let {
+            gameSession?.addPlayerAction(PlayerAction(value, heroId)) ?: let {
                 when (value.requestCase!!) {
                     Service.PlayerMessage.RequestCase.JOIN_GAME -> {
                         gameId = value.joinGame.gameId
@@ -159,7 +159,7 @@ class RoguelikeServer : RoguelikeApiGrpc.RoguelikeApiImplBase() {
         }
     }
 
-    private class PlayerActionId(val action: Service.PlayerMessage, val id: Int)
+    private class PlayerAction(val action: Service.PlayerMessage, val id: Int)
 
     private fun packMap(mapView: MapView) =
         Service.ServerMessage.newBuilder()
