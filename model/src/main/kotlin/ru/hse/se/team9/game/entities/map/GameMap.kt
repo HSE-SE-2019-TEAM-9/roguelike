@@ -53,8 +53,10 @@ class GameMap(
 ) {
     val fog: MutableMap<Int, FogOfWar> = mutableMapOf()
 
-    /** Adds hero to the
+    /** Adds new hero to some empty position on a map
      *
+     * @param heroId id of a new hero
+     * @param hero hero to add on a map with its parameters
      */
     fun addHeroToRandomPosition(heroId: Int, hero: Hero) {
         val position = generatePositionForHero() ?: throw IllegalStateException("no valid field found on map")
@@ -71,8 +73,8 @@ class GameMap(
         val hero = heroes[heroId] ?: throw IllegalArgumentException("no such hero exists")
         val position = hero.position + direction
         if (heroCanMoveTo(position)) {
-            heroes[heroId]!!.position = position
-            fog[heroId]!!.updateVision(position)
+            hero.position = position
+            fog[heroId]?.updateVision(position) ?: throw IllegalArgumentException("no such hero exists")
         }
     }
 

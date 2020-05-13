@@ -3,13 +3,13 @@ package ru.hse.se.team9.model.logic.general
 import arrow.core.Either
 import arrow.core.flatMap
 import ru.hse.se.team9.entities.ItemType
+import ru.hse.se.team9.entities.views.MapView
 import ru.hse.se.team9.files.FileChooser
 import ru.hse.se.team9.game.entities.map.GameMap
 import ru.hse.se.team9.game.entities.map.distance.Distance
 import ru.hse.se.team9.model.logic.gamecycle.*
 import ru.hse.se.team9.model.logic.menu.*
 import ru.hse.se.team9.model.mapgeneration.*
-import ru.hse.se.team9.model.generators.heroes.DefaultHeroCreator
 import ru.hse.se.team9.model.mapgeneration.creators.FromFileMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RandomMapCreator
 import ru.hse.se.team9.model.mapgeneration.creators.RestoreSavedMapCreator
@@ -37,7 +37,7 @@ class AppLogic(
 ) {
     private lateinit var gameCycleLogic: GameCycleLogic
     private lateinit var mapCreator: Either<MapCreationError, MapCreator>
-    private var appStatus: AppStatus = AppStatus.IN_MENU
+    @Volatile private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
 
     init {
@@ -60,7 +60,7 @@ class AppLogic(
                 }
                 is OpenInventory -> {
                     appStatus = AppStatus.IN_INVENTORY
-                    drawInventory()
+                    drawMap()
                 }
             }
         }
@@ -83,7 +83,6 @@ class AppLogic(
         require(appStatus == AppStatus.IN_MENU)
         when (action) {
             NewGame -> mapCreator =
-                //TODO: FIXME AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                 RandomMapCreator.build(generator, MAP_WIDTH, MAP_HEIGHT, fogRadius = FOG_RADIUS, distance = distance).map {
                     object : MapCreator {
                         override fun createMap(): Either<MapCreationError, GameMap> = it.createMap().map { map ->
@@ -112,13 +111,11 @@ class AppLogic(
     }
 
     private val putOffItem = { type: ItemType ->
-        gameCycleLogic.putOffItem(0, type)
-        drawInventory()
+        gameCycleLogic.putOffItem(type)
     }
 
     private val putOnItem = { index: Int ->
-        gameCycleLogic.putOnItem(0, index)
-        drawInventory()
+        gameCycleLogic.putOnItem(index)
     }
 
     private val closeInventory = {
@@ -129,7 +126,7 @@ class AppLogic(
     private fun startGame() {
         val result = mapCreator
             .flatMap { it.createMap() }
-            .map { GameCycleLogicImpl(it, generator) }
+            .map { map -> LocalGameCycleLogic(map, generator) { drawMap() } }
 
         when (result) {
             is Either.Left -> {
@@ -184,13 +181,10 @@ class AppLogic(
 
     private fun makeMove(move: Move) {
         require(appStatus == AppStatus.IN_GAME)
-        if (gameCycleLogic.makeMove(0, move) is Finished) {
-            drawMap()
+        if (gameCycleLogic.makeMove(move) is Finished) {
             appStatus = AppStatus.IN_MENU
             makeInGameOptionsInvisible()
             drawMenu(true)
-        } else {
-            drawMap()
         }
     }
 
@@ -200,28 +194,23 @@ class AppLogic(
         viewController.drawMenu(title, menuOptions)
     }
 
-    private fun drawInventory() {
-        require(appStatus == AppStatus.IN_INVENTORY)
-        viewController.drawInventory(gameCycleLogic.getCurrentMap(0), putOffItem, putOnItem, closeInventory)
-    }
-
     private fun drawError(error: String) {
         require(appStatus == AppStatus.IN_MENU)
         viewController.drawError(error) { drawMenu() }
     }
 
+    @Synchronized
     private fun drawMap() {
-        require(appStatus == AppStatus.IN_GAME)
-        viewController.drawMap(gameCycleLogic.getCurrentMap(0))
+        if (appStatus == AppStatus.IN_GAME) {
+            viewController.drawMap(gameCycleLogic.getCurrentMap())
+        } else if (appStatus == AppStatus.IN_INVENTORY) {
+            viewController.drawInventory(gameCycleLogic.getCurrentMap(), putOffItem, putOnItem, closeInventory)
+        }
     }
 
-    //TODO: FIXME ME PLS!!!!!!!!
-    //TODO: FIXME ME PLS!!!!!!!!
-    //TODO: FIXME ME PLS!!!!!!!!
-    //TODO: FIXME ME PLS!!!!!!!!
     private fun exit(saveGame: Boolean) {
         if (saveGame) {
-            saver.save((gameCycleLogic as GameCycleLogicImpl).map) //TODO: FIXME ME PLS!!!!!!!!
+            saver.save((gameCycleLogic as LocalGameCycleLogic).map)
         }
         viewController.stop()
     }

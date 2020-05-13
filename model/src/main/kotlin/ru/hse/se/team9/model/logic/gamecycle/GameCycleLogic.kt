@@ -4,7 +4,6 @@ import ru.hse.se.team9.entities.ItemType
 import ru.hse.se.team9.entities.views.MapView
 
 interface GameCycleLogic {
-    //TODO: fix doc
     /**
      * Makes one game move. One game move consists of 6 stages:
      *
@@ -22,14 +21,25 @@ interface GameCycleLogic {
      *
      * 6. Accumulated hero effects are applied (e.g. HP decreases)
      */
-    fun makeMove(heroId: Int, move: Move): GameStatus
+    fun makeMove(move: Move): GameStatus
 
-    //TODO: doc
-    fun getCurrentMap(heroId: Int): MapView
+    /**
+     * Returns map as it is seen from the point view of the current (client) hero
+     * Such map contains this hero's inventory, fog of war, etc.
+     */
+    fun getCurrentMap(): MapView
 
-    //TODO: doc
-    fun putOnItem(heroId: Int, index: Int)
+    /**
+     * Puts on an item in the inventory of a hero
+     *
+     * @param index index of an item in the inventory of a hero
+     */
+    fun putOnItem(index: Int)
 
-    //TODO: doc
-    fun putOffItem(heroId: Int, type: ItemType)
+    /**
+     * Puts off an item in the equipment of a hero
+     *
+     * @param type type of an item to put off (one of Boots, Underwear or Weapon)
+     */
+    fun putOffItem(type: ItemType)
 }

@@ -15,7 +15,7 @@ import ru.hse.se.team9.network.views.Position as ProtoPosition
 
 object ToProtoConverter {
 
-    // TODO: kotlindoc
+    /** Converts kotlin MapView to a proto one */
     fun MapView.toProto(): Views.MapView {
         val mapView = this
         return ProtoMapView {
@@ -118,7 +118,7 @@ object ToProtoConverter {
         }
     }
 
-    private fun ItemType.toProto(): Views.ItemView.ItemType {
+    fun ItemType.toProto(): Views.ItemView.ItemType {
         return when (this) {
             ItemType.BOOTS -> Views.ItemView.ItemType.BOOTS
             ItemType.WEAPON -> Views.ItemView.ItemType.WEAPON
