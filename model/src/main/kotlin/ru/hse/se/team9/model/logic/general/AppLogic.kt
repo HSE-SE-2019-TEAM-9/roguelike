@@ -47,9 +47,13 @@ class AppLogic(
     private var appStatus: AppStatus = AppStatus.IN_MENU
     private val menuOptions: List<MenuOption>
     private val onlineMenuOptions: List<MenuOption>
+    private val keyPressLimiter = KeyPressLimiter()
 
     init {
         viewController.setKeyPressedHandler {
+            if (!keyPressLimiter.canPressKey(it)) {
+                return@setKeyPressedHandler
+            }
             val action = when (it) {
                 KeyPressedType.UP -> Up
                 KeyPressedType.DOWN -> Down
@@ -305,5 +309,20 @@ class AppLogic(
         private const val SAVE_OPTION = "Save and exit"
         private const val CONTINUE_OPTION = "Continue"
         private const val MULTIPLAYER = "Multiplayer"
+
+        private class KeyPressLimiter {
+            private var lastKey: KeyPressedType = KeyPressedType.UP
+            private var lastTime: Long = 0
+            private val cooldown: Long = 100
+
+            internal fun canPressKey(key: KeyPressedType): Boolean {
+                if (lastKey == key && System.currentTimeMillis() - lastTime < cooldown) {
+                    return false
+                }
+                lastKey = key
+                lastTime = System.currentTimeMillis()
+                return true
+            }
+        }
     }
 }
